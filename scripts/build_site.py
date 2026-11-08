@@ -50,7 +50,7 @@ def bigchart(vals, dates, w=640, h=230):
     g += f'<line x1="{pad_l}" x2="{w-pad_r}" y1="{Y(last):.1f}" y2="{Y(last):.1f}" stroke="{col}" stroke-dasharray="3 3" stroke-width="1"/>'
     g += f'<rect x="{w-pad_r+2}" y="{Y(last)-9:.1f}" width="54" height="18" rx="3" fill="{col}"/><text x="{w-pad_r+29}" y="{Y(last)+4:.1f}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">{last:,.0f}</text>'
     return (f'<svg class="big" viewBox="0 0 {w} {h}">{g}<path d="{path(vals)} L{X(len(vals)-1):.1f},{h-pad_b} L{X(0):.1f},{h-pad_b} Z" fill="{col}" fill-opacity=".07"/>'
-            f'<path d="{path(m50)}" fill="none" stroke="#111111" stroke-width="1.2" opacity=".7"/><path d="{path(m20)}" fill="none" stroke="#2563eb" stroke-width="1.2"/>'
+            f'<path d="{path(m50)}" fill="none" style="stroke:var(--ma50)" stroke-width="1.2" opacity=".7"/><path d="{path(m20)}" fill="none" stroke="#2563eb" stroke-width="1.2"/>'
             f'<path d="{path(vals)}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
 
 def stock_chart(dates, vals, show=190, w=720, h=280):
@@ -72,7 +72,7 @@ def stock_chart(dates, vals, show=190, w=720, h=280):
     g += (f'<rect x="{w-pr+2}" y="{Y(v[-1])-9:.1f}" width="66" height="18" rx="3" fill="{col}"/>'
           f'<text x="{w-pr+35}" y="{Y(v[-1])+4:.1f}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">{v[-1]:,.0f}</text>')
     return (f'<svg class="big" viewBox="0 0 {w} {h}">{g}<path d="{path(v)} L{X(len(v)-1):.1f},{h-pb} L{X(0):.1f},{h-pb} Z" fill="{col}" fill-opacity=".07"/>'
-            f'<path d="{path(m200)}" fill="none" stroke="#d97706" stroke-width="1.3"/><path d="{path(m50)}" fill="none" stroke="#111111" stroke-width="1.2" opacity=".7"/>'
+            f'<path d="{path(m200)}" fill="none" stroke="#d97706" stroke-width="1.3"/><path d="{path(m50)}" fill="none" style="stroke:var(--ma50)" stroke-width="1.2" opacity=".7"/>'
             f'<path d="{path(m20)}" fill="none" stroke="#2563eb" stroke-width="1.2"/><path d="{path(v)}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
 
 def gauge(score):
@@ -84,7 +84,7 @@ def gauge(score):
         x1, y1 = cx + r * math.cos(t1), cy - r * math.sin(t1); x2, y2 = cx + r * math.cos(t2), cy - r * math.sin(t2)
         out += f'<path d="M{x1:.1f},{y1:.1f} A{r},{r} 0 0 1 {x2:.1f},{y2:.1f}" stroke="{c}" stroke-width="16" fill="none"/>'
     t = math.pi * (1 - score / 100); nx, ny = cx + (r - 22) * math.cos(t), cy - (r - 22) * math.sin(t)
-    out += f'<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" stroke="#111827" stroke-width="3" stroke-linecap="round"/><circle cx="{cx}" cy="{cy}" r="6" fill="#111827"/>'
+    out += f'<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/><circle cx="{cx}" cy="{cy}" r="6" style="fill:var(--ink)"/>'
     for v, lab in [(0, "0"), (25, "25"), (50, "50"), (75, "75"), (100, "100")]:
         tt = math.pi * (1 - v / 100); out += f'<text x="{cx+(r+16)*math.cos(tt):.1f}" y="{cy-(r+16)*math.sin(tt)+4:.1f}" text-anchor="middle" class="ax">{lab}</text>'
     return f'<svg viewBox="0 0 220 120" class="gauge">{out}</svg>'
@@ -171,7 +171,8 @@ EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE"}
 MONO = {"005930": "삼성", "000660": "SK"}
 ICON = {r[4]: f'<span class="mono">{MONO.get(r[4], r[4])}</span>' for r in REPORTS}
 CSS = """
-:root{--navy:#111111;--blue:#2563eb;--ink:#0d0d0d;--ink2:#374151;--muted:#6b7280;--line:#e5e7eb;--soft:#f7f7f8;--red:#2563eb;--up:#16a34a;--down:#dc2626}
+.top .thm{flex:none;margin-left:10px;width:34px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}.top .thm:hover{background:var(--hover)}.top .thm .sun{display:none}html[data-theme=dark] .top .thm .sun{display:inline}html[data-theme=dark] .top .thm .moon{display:none}
+:root{--ma50:#111111;--hover:#f3f4f6;--navy:#111111;--blue:#2563eb;--ink:#0d0d0d;--ink2:#374151;--muted:#6b7280;--line:#e5e7eb;--soft:#f7f7f8;--red:#2563eb;--up:#16a34a;--down:#dc2626}
 *{box-sizing:border-box}
 body{margin:0;font-family:"Pretendard Variable",Pretendard,"Noto Sans KR",system-ui,sans-serif;color:var(--ink);background:#fafafa;line-height:1.65;font-size:15px}
 a{color:inherit}
@@ -275,9 +276,48 @@ footer{max-width:1180px;margin:0 auto;padding:10px 20px 40px;font-size:12px;colo
 .read ul,.read ol{padding-left:22px}.read li{margin:4px 0}
 .endnav{display:flex;justify-content:space-between;gap:12px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px;font-size:14px}
 .endnav a{text-decoration:none;color:#333}
+/* ---------- dark mode ---------- */
+html[data-theme=dark]{color-scheme:dark;--ma50:#d1d5db;--hover:#24262b;--navy:#e5e7eb;--ink:#e8e9ec;--ink2:#c3c7ce;--muted:#9aa1ac;--line:#2c2f35;--soft:#1c1e22;--red:#60a5fa;--blue:#60a5fa;--up:#22c55e;--down:#f87171}
+html[data-theme=dark] body{background:#0f1012}
+html[data-theme=dark] .top{background:rgba(18,19,22,.9);color:var(--ink)}
+html[data-theme=dark] .top .brand{color:var(--ink)}html[data-theme=dark] .top .brand .mk{background:#e8e9ec;color:#111}
+html[data-theme=dark] .top a.nv{color:var(--muted)}html[data-theme=dark] .top a.nv.on,html[data-theme=dark] .top a.nv:hover{background:var(--hover);color:var(--ink)}
+html[data-theme=dark] .intro .ey,html[data-theme=dark] .prembox .k,html[data-theme=dark] .read .part span,html[data-theme=dark] .tvlink{color:#60a5fa}
+html[data-theme=dark] .sech h2{color:var(--ink)}
+html[data-theme=dark] .panel,html[data-theme=dark] .tile,html[data-theme=dark] .ins div,html[data-theme=dark] .pill{background:#17181b}
+html[data-theme=dark] .pill{color:var(--ink)}html[data-theme=dark] .pill.on{background:#e8e9ec;color:#111;border-color:#e8e9ec}
+html[data-theme=dark] .gl{stroke:#26292e}html[data-theme=dark] .ax{fill:#7d8490}
+html[data-theme=dark] .bar{background:#26292e}
+html[data-theme=dark] .cover{background:color-mix(in srgb,var(--cbg) 9%,#17181b)!important;color:var(--ink)}
+html[data-theme=dark] .cover .ico,html[data-theme=dark] .cover .emb{background:#24262b;box-shadow:0 4px 18px rgba(0,0,0,.4),0 0 0 6px rgba(255,255,255,.04)}
+html[data-theme=dark] .cover .bdg,html[data-theme=dark] .book .btn{background:#e8e9ec;color:#111}
+html[data-theme=dark] .cover .tk,html[data-theme=dark] .cover .cs{color:var(--muted)}
+html[data-theme=dark] .mono{color:var(--ink)}
+html[data-theme=dark] .cmp th{background:#1c1e22}
+html[data-theme=dark] .g{background:rgba(34,197,94,.15);color:#4ade80}html[data-theme=dark] .b{background:rgba(248,113,113,.15);color:#fca5a5}
+html[data-theme=dark] .y{background:rgba(250,204,21,.14);color:#facc15}html[data-theme=dark] .bl{background:rgba(96,165,250,.15);color:#93c5fd}
+html[data-theme=dark] .readwrap,html[data-theme=dark] .side{background:#121316}
+html[data-theme=dark] .side a{color:var(--ink2)}html[data-theme=dark] .side a.on,html[data-theme=dark] .side a:hover{background:var(--hover);color:var(--ink)}
+html[data-theme=dark] .side .prem{background:#1a1c20}html[data-theme=dark] .side .prem a{color:var(--ink2)}html[data-theme=dark] .side .prem a.on,html[data-theme=dark] .side .prem a:hover{background:#26292e;color:var(--ink)}
+html[data-theme=dark] .rhead a,html[data-theme=dark] .endnav a{color:var(--ink2)}
+html[data-theme=dark] .prembox{background:#17181b}html[data-theme=dark] .prembox .ic,html[data-theme=dark] .stock .lg{background:#24262b;color:var(--ink2)}
+html[data-theme=dark] .read .part{border-top-color:var(--ink)}
+html[data-theme=dark] .read .dark{background:#1f2937;color:#f3f4f6;border:1px solid #2f3a4a}
+html[data-theme=dark] .read .box{background:#1a1c20}
+html[data-theme=dark] .read th{border-bottom-color:#4b5058}
+html[data-theme=dark] .read tr.hl td{background:rgba(250,204,21,.09)}
+html[data-theme=dark] .read .sum3{border-left-color:var(--ink2)}
+html[data-theme=dark] .read img.ch,html[data-theme=dark] .hero img{filter:brightness(.88) contrast(1.05)}
+html[data-theme=dark] [style*="color:#b3263a"]{color:#fca5a5!important}html[data-theme=dark] [style*="color:#17785f"]{color:#4ade80!important}
+html[data-theme=dark] [style*="border-top:1px solid #e5e7eb"]{border-top-color:var(--line)!important}
 @media(max-width:1000px){.grid3,.curve,.ins{grid-template-columns:1fr}.fgwrap{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(3,1fr)}.books{grid-template-columns:repeat(3,1fr)}.readwrap{grid-template-columns:1fr}.side{display:none}}
 @media(max-width:560px){.tiles{grid-template-columns:repeat(2,1fr)}.books{grid-template-columns:repeat(2,1fr)}}
 """
+THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
+THEME_JS = """<script>(function(){var R=document.documentElement;
+function tv(){document.querySelectorAll('.tvw').forEach(function(c){var cfg=JSON.parse(c.dataset.cfg);cfg.theme=R.getAttribute('data-theme')==='dark'?'dark':'light';
+c.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';var s=document.createElement('script');s.type='text/javascript';s.src=c.dataset.src;s.async=true;s.innerHTML=JSON.stringify(cfg);c.appendChild(s);});}
+tv();var b=document.querySelector('.thm');if(b)b.addEventListener('click',function(){var t=R.getAttribute('data-theme')==='dark'?'light':'dark';R.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}tv();});})();</script>"""
 FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
 
 
@@ -288,16 +328,15 @@ def tv_symbol(tk):
 def tv_chart(tk, h=440, folder=""):
     if EXCH.get(tk) == "KRX":  # 한국 종목은 트레이딩뷰 위젯에서 라이선스상 표시되지 않음 → 매일 받은 일봉으로 직접 그림
         px = CTA.get(tk, {}).get("px")
-        chart = (f'<div class="panel">{stock_chart(px["d"], px["c"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:#111111"></i>50일선'
+        chart = (f'<div class="panel">{stock_chart(px["d"], px["c"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:var(--ma50)"></i>50일선'
                  f'<i style="background:#d97706"></i>200일선 · 최근 9개월 일봉 종가 · 매일 자동 갱신</div></div>') if px else f'<div class="hero"><img src="{folder}/tv_clean.jpg" alt="{tk} 일봉 차트"></div>'
         return chart + f'<a class="tvlink" href="https://www.tradingview.com/chart/?symbol={tv_symbol(tk)}" target="_blank" rel="noopener">트레이딩뷰에서 실시간 차트 보기 →</a>'
     cfg = {"autosize": True, "symbol": tv_symbol(tk), "interval": "D", "timezone": "Asia/Seoul", "theme": "light", "style": "1",
            "locale": "kr", "allow_symbol_change": False, "hide_side_toolbar": True, "calendar": False, "support_host": "https://www.tradingview.com",
            "studies": [{"id": "MASimple@tv-basicstudies", "inputs": {"length": 20}}, {"id": "MASimple@tv-basicstudies", "inputs": {"length": 50}},
                        {"id": "MASimple@tv-basicstudies", "inputs": {"length": 200}}]}
-    return (f'<div class="tvbox" style="height:{h}px"><div class="tradingview-widget-container" style="height:100%;width:100%">'
-            f'<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>'
-            f'<script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>{json.dumps(cfg)}</script></div></div>')
+    return (f'<div class="tvbox" style="height:{h}px"><div class="tradingview-widget-container tvw" style="height:100%;width:100%" '
+            f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" data-cfg=\'{json.dumps(cfg)}\'></div></div>')
 
 def tv_tape():
     syms = [{"proName": "FOREXCOM:NSXUSD", "title": "나스닥100"}, {"proName": "FOREXCOM:SPXUSD", "title": "S&P500"}, {"proName": "FOREXCOM:DJI", "title": "다우"},
@@ -348,13 +387,13 @@ def fg_label(v):
 def shell(title, inner, on="home"):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
                   [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("reports", "index.html#reports", "기업분석")])
-    return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}<style>{CSS}</style></head><body>
-<div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<span class="st">{STAMP}</span></div></div>
-{inner}</body></html>"""
+    return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
+<div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<span class="st">{STAMP}</span><button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
+{inner}{THEME_JS}</body></html>"""
 
 def cover(r):
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
-    return (f'<a class="book" data-tag="{tag}" href="{f}"><div class="cover" style="background:{bg}"><span class="bdg">{tag}</span>'
+    return (f'<a class="book" data-tag="{tag}" href="{f}"><div class="cover" style="--cbg:{bg};background:var(--cbg)"><span class="bdg">{tag}</span>'
             f'<div><div class="tk">{EXCH.get(tk,"NASDAQ")} · {tk}</div><div class="ct">{title.replace(" 기업분석","")}</div></div>'
             f'<div class="emb"><span>{ICON[tk]}</span></div>'
             f'<div class="cs">{sub}</div></div><div class="bt">{title}</div><div class="ba">실적·심층 통합 리포트 · 2026.11</div>'
@@ -364,8 +403,8 @@ def cover(r):
 def side(active):
     items = "".join(f'<a class="{"on" if r[0] == active else ""}" href="{r[0]}">{r[3]}</a>' for r in REPORTS)
     return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a>'
-            f'<div class="prem"><div class="t" style="color:#9ca3af">REPORTS</div>{items}</div>'
-            f'<div class="h">자료 기준</div><div style="font-size:12px;color:#6b7280;padding:0 8px">각 사 IR 실적 발표문·컨퍼런스콜·10-K, 트레이딩뷰(11/6 종가). 작도 없는 기본 차트만 사용.</div></aside>')
+            f'<div class="prem"><div class="t" style="color:var(--muted)">REPORTS</div>{items}</div>'
+            f'<div class="h">자료 기준</div><div style="font-size:12px;color:var(--muted);padding:0 8px">각 사 IR 실적 발표문·컨퍼런스콜·10-K, 트레이딩뷰(11/6 종가). 작도 없는 기본 차트만 사용.</div></aside>')
 
 for i, r in enumerate(REPORTS):
     f, d, src, title, tk, comp, tag, sub, cols, line, url = r
@@ -386,25 +425,25 @@ for i, r in enumerate(REPORTS):
 def fut(k, name, sym):
     p, pc, ab = SNAP[k]
     return (f'<div class="panel fut"><div class="nm">{name} · {sym}</div><div class="px">{p:,.2f}</div><div class="ch {cls(pc)}">{sign(ab)} ({sign(pc, 2, True)})</div>'
-            f'{bigchart(SER[k]["close"], SER[k]["dates"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:#111111"></i>50일선 · 최근 6개월 일봉 종가</div></div>')
+            f'{bigchart(SER[k]["close"], SER[k]["dates"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:var(--ma50)"></i>50일선 · 최근 6개월 일봉 종가</div></div>')
 def tile(k, name, unit="", d=2, absunit=""):
     p, pc, ab = SNAP[k]
     chg = f"{ab:+.3f}%p" if absunit == "%p" else f"{sign(ab, d)} ({sign(pc, 2, True)})"
     pre="$" if unit=="$" else ""; unit="" if unit=="$" else unit
     return f'<div class="tile"><div class="nm">{name}</div><div class="px">{pre}{p:,.{d}f}{unit}</div><div class="ch {cls(ab)}">{chg}</div>{spark(SER[k]["close"])}</div>'
 
-hist_rows = "".join(f'<tr><td>{a}</td><td style="text-align:right;font-weight:700">{v:.0f}</td><td style="color:#6b7280">{lab}</td></tr>' for a, v, lab in
+hist_rows = "".join(f'<tr><td>{a}</td><td style="text-align:right;font-weight:700">{v:.0f}</td><td style="color:var(--muted)">{lab}</td></tr>' for a, v, lab in
                     [(a, FG[k], fg_label(FG[k])) for a, k in [("현재", "score"), ("전일 종가", "prev"), ("1주 전", "w"), ("1개월 전", "m"), ("1년 전", "y")]])
 def bcol(v): return "#dc2626" if v < 25 else ("#f97316" if v < 45 else ("#a3a3a3" if v <= 55 else ("#84cc16" if v < 75 else "#16a34a")))
-comp_rows = "".join(f'<tr><td><b>{a}</b><br><span style="font-size:12px;color:#6b7280">{s}</span></td><td><span class="bar"><span style="width:{v}%;background:{bcol(v)}"></span></span> {v}</td><td style="font-size:12.5px;color:{bcol(v)};font-weight:700">{lab}</td></tr>' for a, s, v, lab in FG["comp"])
+comp_rows = "".join(f'<tr><td><b>{a}</b><br><span style="font-size:12px;color:var(--muted)">{s}</span></td><td><span class="bar"><span style="width:{v}%;background:{bcol(v)}"></span></span> {v}</td><td style="font-size:12.5px;color:{bcol(v)};font-weight:700">{lab}</td></tr>' for a, s, v, lab in FG["comp"])
 
 def curve_svg(pts, title):
     w, h = 520, 190; xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
     lo, hi = min(ys) - .2, max(ys) + .2
     X = lambda i: 30 + i * (w - 60) / (len(pts) - 1); Y = lambda v: 15 + (hi - v) / (hi - lo) * (h - 45)
     path = "M" + " L".join(f"{X(i):.1f},{Y(v):.1f}" for i, v in enumerate(ys))
-    dots = "".join(f'<circle cx="{X(i):.1f}" cy="{Y(v):.1f}" r="3.5" fill="#2f5aa8"/><text x="{X(i):.1f}" y="{Y(v)-8:.1f}" text-anchor="middle" font-size="11" font-weight="700" fill="#111111">{v:.3f}%</text><text x="{X(i):.1f}" y="{h-8}" text-anchor="middle" class="ax">{xs[i]}</text>' for i, v in enumerate(ys))
-    return f'<div class="panel"><div style="font-weight:700;color:#111111;font-size:14px">{title}</div><svg viewBox="0 0 {w} {h}" style="width:100%">{"".join(f"<line x1=30 x2={w-30} y1={Y(lo+(hi-lo)*t/4):.1f} y2={Y(lo+(hi-lo)*t/4):.1f} class=gl />" for t in range(5))}<path d="{path}" fill="none" stroke="#2f5aa8" stroke-width="2"/>{dots}</svg></div>'
+    dots = "".join(f'<circle cx="{X(i):.1f}" cy="{Y(v):.1f}" r="3.5" fill="#2f5aa8"/><text x="{X(i):.1f}" y="{Y(v)-8:.1f}" text-anchor="middle" font-size="11" font-weight="700" style="fill:var(--ink)">{v:.3f}%</text><text x="{X(i):.1f}" y="{h-8}" text-anchor="middle" class="ax">{xs[i]}</text>' for i, v in enumerate(ys))
+    return f'<div class="panel"><div style="font-weight:700;color:var(--ink);font-size:14px">{title}</div><svg viewBox="0 0 {w} {h}" style="width:100%">{"".join(f"<line x1=30 x2={w-30} y1={Y(lo+(hi-lo)*t/4):.1f} y2={Y(lo+(hi-lo)*t/4):.1f} class=gl />" for t in range(5))}<path d="{path}" fill="none" stroke="#2f5aa8" stroke-width="2"/>{dots}</svg></div>'
 
 _vix = SNAP.get("VIX", [0])[0]; _fg = FG["score"]
 ONE_LINE = (f'VIX {_vix:.1f}·공포탐욕 {_fg:.0f}로 <b class="{"down" if _fg < 45 else ("up" if _fg > 55 else "")}">{fg_label(_fg)}</b> 구간. '
@@ -416,7 +455,7 @@ RATE_SUB = " · ".join(n for _, n in _rates)
 CTA_DATE = max((e.get("date", "") for e in CTA.values()), default="")
 
 home = f"""<main class="home">
-<div class="intro"><div class="ey">CORPORATE ANALYSIS</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1><p>미국 지수 선물·공포탐욕 지수·금리·환율·원자재를 한 화면에 모으고, 엔비디아·TSMC·브로드컴·AMD·마이크론·마벨·삼성전자·SK하이닉스·인텔·퀄컴과 애플·알파벳·마이크로소프트·아마존·오라클·팔란티어 등 16개 기업을 8개 분기 실적과 경영진 코멘트로 분석했습니다.</p></div>
+<div class="intro"><div class="ey">CORPORATE ANALYSIS</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1></div>
 <section id="market">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
@@ -425,8 +464,8 @@ home = f"""<main class="home">
 <div class="panel fgwrap">
 <div>{gauge(FG["score"])}<div class="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
 <div style="margin-top:10px">{spark(FG["hist"], 260, 46, bcol(FG["score"]))}</div><div class="note" style="text-align:center;margin-top:2px">최근 약 3.5개월 추이</div></div>
-<table class="hist" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:#111111">시점별 비교</td></tr>{hist_rows}</table>
-<table class="comp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:#111111">7개 구성 지표</td></tr>{comp_rows}</table>
+<table class="hist" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">시점별 비교</td></tr>{hist_rows}</table>
+<table class="comp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
 </div>
 
 <div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2></div>
