@@ -33,7 +33,7 @@ RATES = {"US02Y": "2 Yr", "US10Y": "10 Yr", "US20Y": "20 Yr", "US30Y": "30 Yr"} 
 STOCKS = {  # 사이트 티커: 야후 심볼
     "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
-    "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR",
+    "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR", "META": "META", "CRWV": "CRWV",
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),

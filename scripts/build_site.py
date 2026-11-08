@@ -158,6 +158,8 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("qualcomm.html", "qcom", [CONTENT + "/qcom/body.html"], "Qualcomm 기업분석", "QCOM", "QUALCOMM Incorporated", "반도체", "자동차 +89% · 핸드셋 -26% · 데이터센터 $5B", "#f0f4ff", "반도체(팹리스) · 시총 $177B", "https://www.qualcomm.com"),
  ("oracle.html", "orcl", [CONTENT + "/orcl/body.html"], "Oracle 기업분석", "ORCL", "Oracle Corporation", "소프트웨어", "OCI +121% · RPO $664B · FCF 마이너스", "#fff5f5", "소프트웨어·클라우드 · 시총 $351B", "https://www.oracle.com"),
  ("palantir.html", "pltr", [CONTENT + "/pltr/body.html"], "Palantir 기업분석", "PLTR", "Palantir Technologies Inc.", "소프트웨어", "매출 +96% · 순이익률 49% · TCV 둔화", "#f4f4f5", "소프트웨어 · 시총 $386B", "https://www.palantir.com"),
+ ("meta.html", "meta", [CONTENT + "/meta/body.html"], "Meta 기업분석", "META", "Meta Platforms, Inc.", "빅테크", "매출 +26% · 이익률 20% · 설비투자 $140B", "#eef4ff", "인터넷 서비스 · 시총 $1.56T", "https://about.meta.com"),
+ ("coreweave.html", "crwv", [CONTENT + "/crwv/body.html"], "CoreWeave 기업분석", "CRWV", "CoreWeave, Inc.", "소프트웨어", "AI 클라우드 · 잔고 $104B · 부채 $35B", "#f5f3ff", "AI 클라우드 · 시총 $25.6B", "https://www.coreweave.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
 ]
 def _price(tk):
@@ -499,8 +501,8 @@ home = f"""<main class="home">
 </section>
 
 <section id="reports">
-<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 16개 기업</span></div>
-<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어</button></div>
+<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 18개 기업</span></div>
+<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button></div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
