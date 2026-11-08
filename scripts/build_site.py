@@ -210,6 +210,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:4px;margin-right:4px}
 .g{background:#dcf3ec;color:#17785f}.b{background:#fde3e6;color:#b3263a}.y{background:#fdf1d6;color:#9a6a09}.bl{background:#e1e9fa;color:#2f5aa8}
 .tape{max-width:1180px;margin:0 auto;padding:4px 20px 0}
+.tvlink{display:inline-block;margin-top:8px;font-size:13.5px;font-weight:700;color:#2563eb;text-decoration:none}
 .tvbox{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:4px 0 6px}
 .ctabox{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:18px 0}.ctabox .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.ctabox .hd span{font-size:12px;color:var(--muted)}
 .ctabox .sc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}.ctabox .sc .tag{font-size:15px;padding:4px 10px}.ctabox .mv{font-size:13.5px}.ctabox .tr{margin-left:auto;text-align:right}.ctabox .tr svg{width:200px;height:36px}.ctabox .tr small{display:block;font-size:11px;color:var(--muted)}
@@ -276,7 +277,10 @@ FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@4
 def tv_symbol(tk):
     return f'{EXCH.get(tk, "NASDAQ")}:{tk}'
 
-def tv_chart(tk, h=440):
+def tv_chart(tk, h=440, folder=""):
+    if EXCH.get(tk) == "KRX":  # 한국 종목은 트레이딩뷰 위젯에서 라이선스상 표시되지 않음 → 정적 차트 + 링크
+        return (f'<div class="hero"><img src="{folder}/tv_clean.jpg" alt="{tk} 일봉 차트"></div>'
+                f'<a class="tvlink" href="https://www.tradingview.com/chart/?symbol={tv_symbol(tk)}" target="_blank" rel="noopener">트레이딩뷰에서 실시간 차트 보기 →</a>')
     cfg = {"autosize": True, "symbol": tv_symbol(tk), "interval": "D", "timezone": "Asia/Seoul", "theme": "light", "style": "1",
            "locale": "kr", "allow_symbol_change": False, "hide_side_toolbar": True, "calendar": False, "support_host": "https://www.tradingview.com",
            "studies": [{"id": "MASimple@tv-basicstudies", "inputs": {"length": 20}}, {"id": "MASimple@tv-basicstudies", "inputs": {"length": 50}},
@@ -363,7 +367,7 @@ for i, r in enumerate(REPORTS):
     inner = f"""<div class="readwrap">{side(f)}<div class="read">
 <div class="rhead"><a href="index.html#reports">←</a><div><div class="t">{title}</div><div class="a">Corporate Analysis · 2026.11</div></div></div>
 <div class="prembox"><div class="ic">{ICON[tk]}</div><div><div class="k">REPORT · {tag}</div>{sub} — 8개 분기 공시·컨퍼런스콜과 트레이딩뷰 데이터를 바탕으로 정리했습니다.</div></div>
-{tv_chart(tk)}<div class="cap">{comp} 실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연</div>
+{tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (리포트 작성 시점) · 한국 종목은 트레이딩뷰 위젯 미지원" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
 {cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports"))
