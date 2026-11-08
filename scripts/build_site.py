@@ -169,7 +169,16 @@ PRICE = {r[4]: _price(r[4]) for r in REPORTS}
 EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
-ICON = {r[4]: f'<span class="mono">{MONO.get(r[4], r[4])}</span>' for r in REPORTS}
+LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
+        "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
+        "ORCL": "oracle", "PLTR": "palantir"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+def _icon(r):
+    tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
+    if tk not in LOGO: return mono
+    fb = mono.replace('"', "&quot;")
+    return (f'<img class="logo" src="https://s3-symbol-logo.tradingview.com/{LOGO[tk]}--big.svg" alt="{r[5]} 로고" loading="lazy" '
+            f'onerror="this.outerHTML=\'{fb}\'">')
+ICON = {r[4]: _icon(r) for r in REPORTS}
 CSS = """
 .top .thm{flex:none;margin-left:10px;width:34px;height:30px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center}.top .thm:hover{background:var(--hover)}.top .thm .sun{display:none}html[data-theme=dark] .top .thm .sun{display:inline}html[data-theme=dark] .top .thm .moon{display:none}
 :root{--ma50:#111111;--hover:#f3f4f6;--navy:#111111;--blue:#2563eb;--ink:#0d0d0d;--ink2:#374151;--muted:#6b7280;--line:#e5e7eb;--soft:#f7f7f8;--red:#2563eb;--up:#16a34a;--down:#dc2626}
@@ -209,6 +218,8 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .cover{aspect-ratio:3/4;border-radius:14px;padding:16px;color:#111;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:none;transition:transform .15s}.book:hover .cover{transform:translateY(-3px)}.cover .ico{position:absolute;right:16px;top:16px;width:46px;height:46px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}.cover .ico svg{width:28px;height:28px}
 .cover .bdg{position:absolute;top:16px;left:16px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px}
 .cover .tk{font-size:11.5px;letter-spacing:2px;color:#6b7280;margin-top:34px}.cover .emb{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.10),0 0 0 6px rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}.cover .emb .mono{font-size:21px}
+.logo{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.cover .emb,.prembox .ic,.stock .lg{overflow:hidden}.cover .emb .logo{border-radius:50%}
+.board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
 .mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
 .book .bt{font-size:14px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.book .ba{font-size:12px;color:var(--muted)}
@@ -375,7 +386,7 @@ def cta_board():
         d200 = f'{(e["close"]/e["s200"]-1)*100:+.1f}%' if e.get("s200") else "-"
         trend = spark(e["hist"], 90, 22, "#2563eb") if len(e.get("hist", [])) > 5 else ""
         px, ch, c = PRICE[tk]
-        rows.append((sc if sc is not None else -9, f'<tr><td><a href="{r[0]}"><b>{r[3].replace(" 기업분석","")}</b></a><br><span class="small">{tk}</span></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
+        rows.append((sc if sc is not None else -9, f'<tr><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk}</span></span></a></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
                     f'<td class="r">{d200}</td><td class="dots">{dots}</td><td>{trend}</td><td>{score_tag(sc)}</td></tr>'))
     rows.sort(key=lambda x: -x[0])
     return ('<div class="panel cmp board"><table><tr><th>기업</th><th class="r">종가</th><th class="r">200일선 대비</th><th>8개 신호 (추세3·채널·모멘텀4)</th><th>점수 추이</th><th>CTA</th></tr>'
