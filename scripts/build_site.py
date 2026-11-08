@@ -174,6 +174,7 @@ LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microso
         "ORCL": "oracle", "PLTR": "palantir"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
+    if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
     if tk not in LOGO: return mono
     fb = mono.replace('"', "&quot;")
     return (f'<img class="logo" src="https://s3-symbol-logo.tradingview.com/{LOGO[tk]}--big.svg" alt="{r[5]} 로고" loading="lazy" '
@@ -219,6 +220,8 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .cover .bdg{position:absolute;top:16px;left:16px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px}
 .cover .tk{font-size:11.5px;letter-spacing:2px;color:#6b7280;margin-top:34px}.cover .emb{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.10),0 0 0 6px rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}.cover .emb .mono{font-size:21px}
 .logo{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.cover .emb,.prembox .ic,.stock .lg{overflow:hidden}.cover .emb .logo{border-radius:50%}
+.bdtool{display:flex;justify-content:flex-end;margin:0 0 10px}#ctaboard.brief .xd{display:none}#ctaboard.brief td{padding-top:5px;padding-bottom:5px}#ctaboard.brief .small{display:none}#ctaboard.brief td br{display:none}#ctaboard.brief td.r span{margin-left:8px}
+.pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
 .mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
@@ -387,10 +390,11 @@ def cta_board():
         trend = spark(e["hist"], 90, 22, "#2563eb") if len(e.get("hist", [])) > 5 else ""
         px, ch, c = PRICE[tk]
         rows.append((sc if sc is not None else -9, f'<tr><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk}</span></span></a></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
-                    f'<td class="r">{d200}</td><td class="dots">{dots}</td><td>{trend}</td><td>{score_tag(sc)}</td></tr>'))
+                    f'<td class="r xd">{d200}</td><td class="dots xd">{dots}</td><td class="xd">{trend}</td><td>{score_tag(sc)}</td></tr>'))
     rows.sort(key=lambda x: -x[0])
-    return ('<div class="panel cmp board"><table><tr><th>기업</th><th class="r">종가</th><th class="r">200일선 대비</th><th>8개 신호 (추세3·채널·모멘텀4)</th><th>점수 추이</th><th>CTA</th></tr>'
-            + "".join(x[1] for x in rows) + '</table></div>')
+    return ('<div class="bdtool"><div class="pills" style="margin:0"><button class="pill on" data-v="full">전체 보기</button><button class="pill" data-v="brief">간략히 보기</button></div></div>'
+            '<div class="panel cmp board" id="ctaboard"><table><thead><tr><th>기업</th><th class="r">종가</th><th class="r xd">200일선 대비</th><th class="xd">8개 신호 (추세3·채널·모멘텀4)</th><th class="xd">점수 추이</th><th>CTA</th></tr></thead><tbody>'
+            + "".join(x[1] for x in rows) + '</tbody></table></div><div class="pager" id="ctapager"></div>')
 
 def fg_label(v):
     return "극단적 공포" if v < 25 else ("공포" if v < 45 else ("중립" if v <= 55 else ("탐욕" if v < 75 else "극단적 탐욕")))
@@ -502,6 +506,14 @@ home = f"""<main class="home">
 </section>
 </main>
 <footer>개인 학습용 분석이며 특정 종목의 매수·매도를 권유하지 않습니다. 모든 투자의 책임은 개인에게 있습니다.</footer>
-<script>document.querySelectorAll('.pill').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill').forEach(x=>x.classList.toggle('on',x===p));const f=p.dataset.f;document.querySelectorAll('.book').forEach(b=>b.style.display=(f==='all'||b.dataset.tag===f)?'':'none');}}));</script>"""
+<script>(function(){{const B=document.getElementById('ctaboard'),P=document.getElementById('ctapager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);let cur=0;
+function show(i){{cur=i;rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?'':'none');if(pages<2){{P.innerHTML='';return;}}
+let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
+h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
+P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disabled)show(+b.dataset.p);}});show(0);
+let v='full';try{{v=localStorage.getItem('ctaView')||'full'}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
+function setV(x){{B.classList.toggle('brief',x==='brief');vb.forEach(b=>b.classList.toggle('on',b.dataset.v===x));try{{localStorage.setItem('ctaView',x)}}catch(e){{}}}}
+vb.forEach(b=>b.addEventListener('click',()=>setV(b.dataset.v)));setV(v);}})();
+document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));const f=p.dataset.f;document.querySelectorAll('.book').forEach(b=>b.style.display=(f==='all'||b.dataset.tag===f)?'':'none');}}));</script>"""
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(shell("Corporate Analysis — 시장 지표 · 기업분석", home, "home"))
 print("ok", sorted(os.listdir(OUT)))
