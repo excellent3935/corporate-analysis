@@ -38,7 +38,7 @@ GitHub에 올려 두기만 하면 매일 자동으로 갱신되는 기업분석�
 content/            기업별 리포트 본문(HTML)과 차트 이미지 — 분기 실적 업데이트 때만 수정
 data/market.json    시장 지표·공포탐욕 지수 (자동 갱신)
 data/cta.json       16개 종목 CTA 데이터 (자동 갱신)
-scripts/update_data.py   데이터 수집 (Yahoo Finance, FRED, CNN)
+scripts/update_data.py   데이터 수집 (Yahoo Finance, 미국 재무부, CNN)
 scripts/build_site.py    사이트 생성 → _site/
 scripts/ctalib.py        CTA 8개 신호 계산 규칙
 .github/workflows/update.yml   자동 실행 스케줄

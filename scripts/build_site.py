@@ -422,7 +422,7 @@ home = f"""<main class="home">
 <div class="sech"><h2>국채 금리</h2><span class="sm">{RATE_SUB}</span></div>
 <div class="tiles">{RATE_TILES}</div>
 
-<div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), FRED(미국 국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 맨 위 시세 띠는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
+<div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 맨 위 시세 띠는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
 </section>
 
 <section id="cta">

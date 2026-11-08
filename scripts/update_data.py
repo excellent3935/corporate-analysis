@@ -1,7 +1,7 @@
 """매일 GitHub Actions에서 실행: 시장 지표·CNN 공포탐욕 지수·16개 종목 CTA 데이터를 받아 data/*.json에 저장.
 
 - 시세: Yahoo Finance (yfinance)
-- 미국 국채 금리: FRED (미국 연준 세인트루이스 은행, 공개 CSV)
+- 미국 국채 금리: 미국 재무부 일간 수익률 곡선 (공식 CSV)
 - 공포·탐욕 지수: CNN Business 차트 데이터 (비공식 경로 → 실패하면 이전 값 유지)
 어느 한 출처가 실패해도 나머지는 갱신하고, 실패한 부분은 이전 파일 값을 그대로 둔다.
 """
@@ -28,7 +28,7 @@ MARKET = {  # 사이트 키: 야후 심볼
     "NQ": "NQ=F", "ES": "ES=F", "YM": "YM=F", "VIX": "^VIX", "DXY": "DX-Y.NYB",
     "USDKRW": "KRW=X", "CL": "CL=F", "GC": "GC=F",
 }
-RATES = {"US03M": "DGS3MO", "US02Y": "DGS2", "US05Y": "DGS5", "US10Y": "DGS10", "US20Y": "DGS20", "US30Y": "DGS30"}
+RATES = {"US03M": "3 Mo", "US02Y": "2 Yr", "US05Y": "5 Yr", "US10Y": "10 Yr", "US20Y": "20 Yr", "US30Y": "30 Yr"}  # 미 재무부 일간 수익률 곡선 열 이름
 STOCKS = {  # 사이트 티커: 야후 심볼
     "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
@@ -79,18 +79,27 @@ def update_market(m):
             m["snap"][key] = snap(df["Close"])
         except Exception:
             traceback.print_exc()
-    for key, sid in RATES.items():
-        try:
-            r = requests.get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", headers=UA, timeout=30)
+    try:
+        frames = []
+        year = dt.datetime.now(KST).year
+        for y in (year - 1, year):
+            url = ("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/"
+                   f"{y}/all?type=daily_treasury_yield_curve&field_tdr_date_value={y}&page&_format=csv")
+            r = requests.get(url, headers=UA, timeout=60)
             r.raise_for_status()
-            df = pd.read_csv(io.StringIO(r.text))
-            df.columns = ["date", "v"]
-            df["v"] = pd.to_numeric(df["v"], errors="coerce")
-            df = df.dropna().iloc[-66:]
-            m["series"][key] = {"dates": [d[5:7] + d[8:10] for d in df["date"]], "close": [float(x) for x in df["v"]]}
-            m["snap"][key] = snap(df["v"])
-        except Exception:
-            traceback.print_exc()
+            frames.append(pd.read_csv(io.StringIO(r.text)))
+        df = pd.concat(frames)
+        df["Date"] = pd.to_datetime(df["Date"], format="%m/%d/%Y")
+        df = df.sort_values("Date").drop_duplicates("Date").iloc[-66:]
+        for key, col in RATES.items():
+            v = pd.to_numeric(df[col], errors="coerce")
+            ok = v.notna()
+            m["series"][key] = {"dates": [d.strftime("%m%d") for d in df["Date"][ok]], "close": [float(x) for x in v[ok]]}
+            m["snap"][key] = snap(v[ok])
+        print("미국 국채 금리 갱신:", df["Date"].iloc[-1].date())
+    except Exception:
+        traceback.print_exc()
+        print("미국 국채 금리 갱신 실패 — 이전 값 유지")
     # 일본 금리는 무료 일간 데이터가 없어 자동 갱신 대상에서 제외
     for k in ("JP02Y", "JP10Y"):
         m["series"].pop(k, None)
@@ -116,6 +125,7 @@ def update_fg(m):
             "m": round(f["previous_1_month"], 2), "y": round(f["previous_1_year"], 2),
             "hist": hist, "comp": comp, "asof": ts.strftime("%Y-%m-%d %H:%M UTC"),
         }
+        print("CNN 공포·탐욕 지수 갱신:", m["fg"]["score"], m["fg"]["asof"])
     except Exception:
         traceback.print_exc()
         print("CNN 공포·탐욕 지수 갱신 실패 — 이전 값 유지")
