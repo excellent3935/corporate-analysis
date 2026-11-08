@@ -1,0 +1,64 @@
+name: 매일 데이터 갱신 + 사이트 배포
+
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"   # 한국시간 화~토 06:30 (미국장 마감 후)
+    - cron: "0 7 * * 1-5"     # 한국시간 월~금 16:00 (한국장 마감 후)
+  workflow_dispatch:          # Actions 탭에서 수동 실행 버튼
+  push:
+    branches: [main]          # 리포트 파일을 올리면 바로 다시 배포
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 시세·CTA·공포탐욕 지수 갱신
+        if: github.event_name != 'push'
+        run: python scripts/update_data.py
+
+      - name: 사이트 생성
+        run: python scripts/build_site.py
+
+      - name: 갱신된 데이터 저장
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "data: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')" || echo "변경 없음"
+          git push
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,179 @@
+"""매일 GitHub Actions에서 실행: 시장 지표·CNN 공포탐욕 지수·16개 종목 CTA 데이터를 받아 data/*.json에 저장.
+
+- 시세: Yahoo Finance (yfinance)
+- 미국 국채 금리: FRED (미국 연준 세인트루이스 은행, 공개 CSV)
+- 공포·탐욕 지수: CNN Business 차트 데이터 (비공식 경로 → 실패하면 이전 값 유지)
+어느 한 출처가 실패해도 나머지는 갱신하고, 실패한 부분은 이전 파일 값을 그대로 둔다.
+"""
+import datetime as dt
+import io
+import json
+import os
+import sys
+import traceback
+
+import pandas as pd
+import requests
+import yfinance as yf
+
+sys.path.insert(0, os.path.dirname(__file__))
+from ctalib import signals  # noqa: E402
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(ROOT, "data")
+KST = dt.timezone(dt.timedelta(hours=9))
+UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"}
+
+MARKET = {  # 사이트 키: 야후 심볼
+    "NQ": "NQ=F", "ES": "ES=F", "YM": "YM=F", "VIX": "^VIX", "DXY": "DX-Y.NYB",
+    "USDKRW": "KRW=X", "CL": "CL=F", "GC": "GC=F",
+}
+RATES = {"US03M": "DGS3MO", "US02Y": "DGS2", "US05Y": "DGS5", "US10Y": "DGS10", "US20Y": "DGS20", "US30Y": "DGS30"}
+STOCKS = {  # 사이트 티커: 야후 심볼
+    "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
+    "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
+    "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR",
+}
+FG_COMP = [  # CNN 키, 이름, 설명
+    ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),
+    ("stock_price_strength", "주가 강도", "52주 신고가-신저가"),
+    ("stock_price_breadth", "주가 폭", "상승·하락 거래량"),
+    ("put_call_options", "풋·콜 옵션", "5일 평균 비율"),
+    ("market_volatility_vix", "시장 변동성", "VIX vs 50일선"),
+    ("junk_bond_demand", "정크본드 수요", "수익률 스프레드"),
+    ("safe_haven_demand", "안전자산 수요", "주식 vs 국채 수익률"),
+]
+RATING = {"extreme fear": "극단적 공포", "fear": "공포", "neutral": "중립", "greed": "탐욕", "extreme greed": "극단적 탐욕"}
+
+
+def load(name, default):
+    p = os.path.join(DATA, name)
+    return json.load(open(p, encoding="utf-8")) if os.path.exists(p) else default
+
+
+def save(name, obj):
+    json.dump(obj, open(os.path.join(DATA, name), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+
+
+def history(sym, period="2y"):
+    df = yf.Ticker(sym).history(period=period, interval="1d", auto_adjust=False)
+    df = df.dropna(subset=["Close"])
+    if df.empty:
+        raise RuntimeError(f"{sym}: 데이터 없음")
+    return df
+
+
+def snap(close):
+    c, p = float(close.iloc[-1]), float(close.iloc[-2])
+    return [round(c, 4), round((c / p - 1) * 100, 4), round(c - p, 4)]
+
+
+# ---------------- 시장 지표 ----------------
+def update_market(m):
+    for key, sym in MARKET.items():
+        try:
+            df = history(sym, "1y")
+            n = 130 if key in ("NQ", "ES", "YM") else 66
+            cl = df["Close"].iloc[-n:]
+            m["series"][key] = {"dates": [d.strftime("%m%d") for d in cl.index], "close": [round(float(x), 4) for x in cl]}
+            m["snap"][key] = snap(df["Close"])
+        except Exception:
+            traceback.print_exc()
+    for key, sid in RATES.items():
+        try:
+            r = requests.get(f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={sid}", headers=UA, timeout=30)
+            r.raise_for_status()
+            df = pd.read_csv(io.StringIO(r.text))
+            df.columns = ["date", "v"]
+            df["v"] = pd.to_numeric(df["v"], errors="coerce")
+            df = df.dropna().iloc[-66:]
+            m["series"][key] = {"dates": [d[5:7] + d[8:10] for d in df["date"]], "close": [float(x) for x in df["v"]]}
+            m["snap"][key] = snap(df["v"])
+        except Exception:
+            traceback.print_exc()
+    # 일본 금리는 무료 일간 데이터가 없어 자동 갱신 대상에서 제외
+    for k in ("JP02Y", "JP10Y"):
+        m["series"].pop(k, None)
+        m["snap"].pop(k, None)
+
+
+def update_fg(m):
+    try:
+        r = requests.get("https://production.dataviz.cnn.io/index/fearandgreed/graphdata",
+                         headers={**UA, "Referer": "https://edition.cnn.com/", "Origin": "https://edition.cnn.com"}, timeout=30)
+        r.raise_for_status()
+        j = r.json()
+        f = j["fear_and_greed"]
+        hist = [round(p["y"]) for p in j["fear_and_greed_historical"]["data"]][-70:]
+        comp = []
+        for key, name, desc in FG_COMP:
+            c = j.get(key, {})
+            comp.append([name, desc, round(c.get("score", 0)), RATING.get(str(c.get("rating", "")).lower(), "-")])
+        ts = dt.datetime.fromisoformat(str(f["timestamp"]).replace("Z", "+00:00"))
+        m["fg"] = {
+            "score": round(f["score"], 2), "rating": RATING.get(f["rating"].lower(), f["rating"]),
+            "prev": round(f["previous_close"], 2), "w": round(f["previous_1_week"], 2),
+            "m": round(f["previous_1_month"], 2), "y": round(f["previous_1_year"], 2),
+            "hist": hist, "comp": comp, "asof": ts.strftime("%Y-%m-%d %H:%M UTC"),
+        }
+    except Exception:
+        traceback.print_exc()
+        print("CNN 공포·탐욕 지수 갱신 실패 — 이전 값 유지")
+
+
+# ---------------- CTA ----------------
+def cta_fields(df):
+    c, h, lo = df["Close"], df["High"], df["Low"]
+    e = {"close": round(float(c.iloc[-1]), 4), "chg": round((c.iloc[-1] / c.iloc[-2] - 1) * 100, 2),
+         "date": c.index[-1].strftime("%Y-%m-%d")}
+    for k in (5, 20, 50, 100, 200):
+        e[f"s{k}"] = round(float(c.iloc[-k:].mean()), 4)
+    e["dh55"], e["dl55"] = round(float(h.iloc[-55:].max()), 4), round(float(lo.iloc[-55:].min()), 4)
+    for k, n in (("m1", 21), ("m3", 63), ("m6", 126), ("m12", 252)):
+        e[k] = round(float(c.iloc[-1 - n]), 4) if len(c) > n else None
+    tr = pd.concat([h - lo, (h - c.shift()).abs(), (lo - c.shift()).abs()], axis=1).max(axis=1)
+    e["atr"] = round(float(tr.iloc[-14:].mean()), 4)
+    e["h52"], e["l52"] = round(float(h.iloc[-252:].max()), 4), round(float(lo.iloc[-252:].min()), 4)
+    e["h52d"], e["l52d"] = h.iloc[-252:].idxmax().strftime("%Y-%m-%d"), lo.iloc[-252:].idxmin().strftime("%Y-%m-%d")
+    return e
+
+
+def score_history(df, days=60):
+    out = []
+    for i in range(len(df) - days, len(df)):
+        sub = df.iloc[: i + 1]
+        if len(sub) < 260:
+            continue
+        _, s = signals(cta_fields(sub))
+        out.append(round(s, 3))
+    return out
+
+
+def update_cta(cta):
+    for tk, sym in STOCKS.items():
+        try:
+            df = history(sym, "2y")
+            e = cta_fields(df)
+            e["cur"] = "원" if sym.endswith(".KS") else "$"
+            e["hist"] = score_history(df)
+            sig, sc = signals(e)
+            e["score"] = sc
+            cta["tickers"][tk] = e
+            print(f"{tk:7s} {e['close']:>12,.2f}  CTA {sc:+.2f}")
+        except Exception:
+            traceback.print_exc()
+
+
+if __name__ == "__main__":
+    now = dt.datetime.now(KST)
+    m = load("market.json", {"series": {}, "snap": {}, "fg": {}})
+    cta = load("cta.json", {"tickers": {}})
+    update_market(m)
+    update_fg(m)
+    update_cta(cta)
+    last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
+    m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
+    m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"
+    save("market.json", m)
+    save("cta.json", cta)
+    print("완료", now)
