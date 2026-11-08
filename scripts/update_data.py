@@ -2,6 +2,7 @@
 
 - 시세: Yahoo Finance (yfinance)
 - 미국 국채 금리: 미국 재무부 일간 수익률 곡선 (공식 CSV)
+- 일본 국채 금리: 일본 재무성 국채 금리 (공식 CSV)
 - 공포·탐욕 지수: CNN Business 차트 데이터 (비공식 경로 → 실패하면 이전 값 유지)
 어느 한 출처가 실패해도 나머지는 갱신하고, 실패한 부분은 이전 파일 값을 그대로 둔다.
 """
@@ -28,7 +29,7 @@ MARKET = {  # 사이트 키: 야후 심볼
     "NQ": "NQ=F", "ES": "ES=F", "YM": "YM=F", "VIX": "^VIX", "DXY": "DX-Y.NYB",
     "USDKRW": "KRW=X", "CL": "CL=F", "GC": "GC=F",
 }
-RATES = {"US03M": "3 Mo", "US02Y": "2 Yr", "US05Y": "5 Yr", "US10Y": "10 Yr", "US20Y": "20 Yr", "US30Y": "30 Yr"}  # 미 재무부 일간 수익률 곡선 열 이름
+RATES = {"US02Y": "2 Yr", "US10Y": "10 Yr", "US20Y": "20 Yr", "US30Y": "30 Yr"}  # 미 재무부 일간 수익률 곡선 열 이름
 STOCKS = {  # 사이트 티커: 야후 심볼
     "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
@@ -100,11 +101,29 @@ def update_market(m):
     except Exception:
         traceback.print_exc()
         print("미국 국채 금리 갱신 실패 — 이전 값 유지")
-    # 일본 금리는 무료 일간 데이터가 없어 자동 갱신 대상에서 제외
-    for k in ("JP02Y", "JP10Y"):
-        m["series"].pop(k, None)
-        m["snap"].pop(k, None)
-
+    for k in ("US03M", "US05Y"):
+        m["series"].pop(k, None); m["snap"].pop(k, None)
+    # 일본 국채 금리: 일본 재무성 공식 CSV (과거 전체 + 이번 달)
+    try:
+        base = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/"
+        rows = []
+        for url in (base + "historical/jgbcme_all.csv", base + "jgbcme.csv"):
+            r = requests.get(url, headers=UA, timeout=60)
+            r.raise_for_status()
+            lines = r.content.decode("utf-8", "ignore").splitlines()
+            hi = next(i for i, l in enumerate(lines) if l.split(",")[0].strip().strip('"') == "Date")
+            rows.append(pd.read_csv(io.StringIO("\n".join(lines[hi:]))))
+        df = pd.concat(rows)
+        df["Date"] = pd.to_datetime(df["Date"], format="%Y/%m/%d", errors="coerce")
+        df = df.dropna(subset=["Date"]).sort_values("Date").drop_duplicates("Date", keep="last").iloc[-66:]
+        for key, col in (("JP02Y", "2Y"), ("JP10Y", "10Y")):
+            v = pd.to_numeric(df[col], errors="coerce"); ok = v.notna()
+            m["series"][key] = {"dates": [d.strftime("%m%d") for d in df["Date"][ok]], "close": [float(x) for x in v[ok]]}
+            m["snap"][key] = snap(v[ok])
+        print("일본 국채 금리 갱신:", df["Date"].iloc[-1].date())
+    except Exception:
+        traceback.print_exc()
+        print("일본 국채 금리 갱신 실패 — 이전 값 유지")
 
 def update_fg(m):
     try:
@@ -166,6 +185,8 @@ def update_cta(cta):
             e = cta_fields(df)
             e["cur"] = "원" if sym.endswith(".KS") else "$"
             e["hist"] = score_history(df)
+            tail = df["Close"].iloc[-400:]
+            e["px"] = {"d": [d.strftime("%m%d") for d in tail.index], "c": [round(float(x), 2) for x in tail]}
             sig, sc = signals(e)
             e["score"] = sc
             cta["tickers"][tk] = e

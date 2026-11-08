@@ -53,6 +53,28 @@ def bigchart(vals, dates, w=640, h=230):
             f'<path d="{path(m50)}" fill="none" stroke="#111111" stroke-width="1.2" opacity=".7"/><path d="{path(m20)}" fill="none" stroke="#2563eb" stroke-width="1.2"/>'
             f'<path d="{path(vals)}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
 
+def stock_chart(dates, vals, show=190, w=720, h=280):
+    def ma(k): return [None if i < k - 1 else sum(vals[i - k + 1:i + 1]) / k for i in range(len(vals))]
+    m20, m50, m200 = ma(20)[-show:], ma(50)[-show:], ma(200)[-show:]
+    v, dd = vals[-show:], dates[-show:]
+    allv = v + [x for x in m20 + m50 + m200 if x]
+    lo, hi = min(allv), max(allv); rng = hi - lo; lo -= rng * .05; hi += rng * .05; rng = hi - lo
+    pl, pr, pt, pb = 8, 70, 12, 24
+    X = lambda i: pl + i * (w - pl - pr) / (len(v) - 1); Y = lambda x: pt + (hi - x) / rng * (h - pt - pb)
+    path = lambda a: "M" + " L".join(f"{X(i):.1f},{Y(x):.1f}" for i, x in enumerate(a) if x is not None)
+    col = "#16a34a" if v[-1] >= v[-21] else "#dc2626"
+    g = ""
+    for t in range(5):
+        y0 = lo + rng * (t + .5) / 5
+        g += f'<line x1="{pl}" x2="{w-pr}" y1="{Y(y0):.1f}" y2="{Y(y0):.1f}" class="gl"/><text x="{w-pr+6}" y="{Y(y0)+4:.1f}" class="ax">{y0:,.0f}</text>'
+    for i, d in enumerate(dd):
+        if i > 0 and d[:2] != dd[i - 1][:2]: g += f'<text x="{X(i):.1f}" y="{h-6}" class="ax" text-anchor="middle">{int(d[:2])}월</text>'
+    g += (f'<rect x="{w-pr+2}" y="{Y(v[-1])-9:.1f}" width="66" height="18" rx="3" fill="{col}"/>'
+          f'<text x="{w-pr+35}" y="{Y(v[-1])+4:.1f}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">{v[-1]:,.0f}</text>')
+    return (f'<svg class="big" viewBox="0 0 {w} {h}">{g}<path d="{path(v)} L{X(len(v)-1):.1f},{h-pb} L{X(0):.1f},{h-pb} Z" fill="{col}" fill-opacity=".07"/>'
+            f'<path d="{path(m200)}" fill="none" stroke="#d97706" stroke-width="1.3"/><path d="{path(m50)}" fill="none" stroke="#111111" stroke-width="1.2" opacity=".7"/>'
+            f'<path d="{path(m20)}" fill="none" stroke="#2563eb" stroke-width="1.2"/><path d="{path(v)}" fill="none" stroke="{col}" stroke-width="1.8"/></svg>')
+
 def gauge(score):
     cx, cy, r = 110, 104, 84
     segs = [(0, 25, "#dc2626"), (25, 45, "#f97316"), (45, 55, "#a3a3a3"), (55, 75, "#84cc16"), (75, 100, "#16a34a")]
@@ -146,23 +168,8 @@ def _price(tk):
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
 EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE"}
 
-ICON = {
- "MU": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"><rect x="8" y="8" width="16" height="16" rx="2.5"/><rect x="12.5" y="12.5" width="7" height="7" rx="1" fill="#2563eb" stroke="none"/><path d="M12 8V4M16 8V4M20 8V4M12 28v-4M16 28v-4M20 28v-4M8 12H4M8 16H4M8 20H4M28 12h-4M28 16h-4M28 20h-4"/></svg>',
- "GOOGL": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"><circle cx="13.5" cy="13.5" r="8"/><path d="M19.5 19.5L27 27"/><path d="M13.5 9.5l1.1 2.9 2.9 1.1-2.9 1.1-1.1 2.9-1.1-2.9-2.9-1.1 2.9-1.1z" fill="#2563eb" stroke="none"/></svg>',
- "MSFT": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 24h13.5a5.5 5.5 0 0 0 .6-10.97A7.5 7.5 0 0 0 9.2 11.6 6.2 6.2 0 0 0 9.5 24z"/><path d="M14 16.5l-2.5 2.5 2.5 2.5M18 16.5l2.5 2.5-2.5 2.5" stroke="#2563eb"/></svg>',
- "NVDA": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="22" height="13" rx="2"/><circle cx="12" cy="15.5" r="3.2" stroke="#2563eb"/><circle cx="20" cy="15.5" r="3.2" stroke="#2563eb"/><path d="M26 12h2v7h-2M8 22v3M12 22v3M16 22v3M20 22v3"/></svg>',
- "MRVL": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="16" r="3"/><circle cx="25" cy="8" r="3"/><circle cx="25" cy="24" r="3"/><path d="M10 15l12-6M10 17l12 6" stroke="#2563eb"/><path d="M25 11v10"/></svg>',
- "005930": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="26" height="11" rx="1.5"/><rect x="6" y="13" width="4" height="5" fill="#2563eb" stroke="none"/><rect x="12" y="13" width="4" height="5" fill="#2563eb" stroke="none"/><rect x="18" y="13" width="4" height="5" fill="#2563eb" stroke="none"/><path d="M5 21v3M9 21v3M13 21v3M17 21v3M21 21v3M25 21v3"/></svg>',
- "000660": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linejoin="round"><path d="M16 5l11 5-11 5-11-5z"/><path d="M5 15l11 5 11-5" stroke="#2563eb"/><path d="M5 20l11 5 11-5"/></svg>',
- "AAPL": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3.5" width="14" height="25" rx="3"/><path d="M14 6.5h4"/><circle cx="16" cy="24.5" r="1.2" fill="#2563eb" stroke="none"/><path d="M12 11h8M12 14.5h8M12 18h5" stroke="#2563eb"/></svg>',
- "AVGO": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="24" height="10" rx="2"/><path d="M8 15h2M12 15h2M16 15h2M20 15h2" stroke="#2563eb" stroke-width="2.4"/><path d="M8 11V6M16 11V4M24 11V6M8 21v5M16 21v7M24 21v5"/></svg>',
- "TSM": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"><circle cx="16" cy="16" r="12"/><path d="M8 12h16M6.5 16h19M8 20h16M12 7.5v17M16 4v24M20 7.5v17" stroke="#2563eb" stroke-width="1.1"/><path d="M13 27.5h6"/></svg>',
- "INTC": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="14" height="14" rx="1.5"/><rect x="13" y="13" width="6" height="6" fill="#0ea5e9" stroke="none"/><path d="M12 9V5M16 9V5M20 9V5M12 27v-4M16 27v-4M20 27v-4M9 12H5M9 16H5M9 20H5M27 12h-4M27 16h-4M27 20h-4"/></svg>',
- "QCOM": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="17" r="2.2" fill="#2563eb" stroke="none"/><path d="M11.5 12.5a6.4 6.4 0 0 0 0 9M20.5 12.5a6.4 6.4 0 0 1 0 9M8 9a11.3 11.3 0 0 0 0 16M24 9a11.3 11.3 0 0 1 0 16"/><path d="M16 19.5V28" /></svg>',
- "ORCL": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="16" cy="8" rx="9" ry="3.5"/><path d="M7 8v16c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5V8"/><path d="M7 16c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5" stroke="#dc2626"/></svg>',
- "PLTR": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7L7 21M16 7l9 14M7 21h18M16 7v8.5M7 21l9-5.5 9 5.5"/><circle cx="16" cy="7" r="2.6" fill="#fff"/><circle cx="7" cy="21" r="2.6" fill="#fff"/><circle cx="25" cy="21" r="2.6" fill="#fff"/><circle cx="16" cy="15.5" r="2.2" fill="#7c3aed" stroke="none"/></svg>',
- "AMD": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3.5" width="18" height="25" rx="2"/><path d="M7 10h18M7 16.5h18M7 23h18"/><circle cx="11" cy="6.8" r="1" fill="#2563eb" stroke="none"/><circle cx="11" cy="13.2" r="1" fill="#2563eb" stroke="none"/><circle cx="11" cy="19.8" r="1" fill="#2563eb" stroke="none"/><path d="M15 6.8h6M15 13.2h6M15 19.8h6" stroke="#2563eb"/></svg>',
- "AMZN": '<svg viewBox="0 0 32 32" fill="none" stroke="#111" stroke-width="1.9" stroke-linejoin="round" stroke-linecap="round"><path d="M16 4l11 5.5v13L16 28 5 22.5v-13z"/><path d="M5 9.5L16 15l11-5.5M16 15v13"/><path d="M10.5 6.8l11 5.5v4.5" stroke="#2563eb"/></svg>'}
+MONO = {"005930": "삼성", "000660": "SK"}
+ICON = {r[4]: f'<span class="mono">{MONO.get(r[4], r[4])}</span>' for r in REPORTS}
 CSS = """
 :root{--navy:#111111;--blue:#2563eb;--ink:#0d0d0d;--ink2:#374151;--muted:#6b7280;--line:#e5e7eb;--soft:#f7f7f8;--red:#2563eb;--up:#16a34a;--down:#dc2626}
 *{box-sizing:border-box}
@@ -200,7 +207,8 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .book{text-decoration:none;color:var(--ink)}
 .cover{aspect-ratio:3/4;border-radius:14px;padding:16px;color:#111;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:none;transition:transform .15s}.book:hover .cover{transform:translateY(-3px)}.cover .ico{position:absolute;right:16px;top:16px;width:46px;height:46px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}.cover .ico svg{width:28px;height:28px}
 .cover .bdg{position:absolute;top:16px;left:16px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px}
-.cover .tk{font-size:11.5px;letter-spacing:2px;color:#6b7280;margin-top:34px}.cover .emb{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.10),0 0 0 6px rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}.cover .emb svg{width:54px;height:54px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
+.cover .tk{font-size:11.5px;letter-spacing:2px;color:#6b7280;margin-top:34px}.cover .emb{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.10),0 0 0 6px rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}.cover .emb .mono{font-size:21px}
+.mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
 .book .bt{font-size:14px;font-weight:700;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.book .ba{font-size:12px;color:var(--muted)}
 .book .bp{font-size:13.5px;font-weight:700;margin-top:2px}
@@ -278,9 +286,11 @@ def tv_symbol(tk):
     return f'{EXCH.get(tk, "NASDAQ")}:{tk}'
 
 def tv_chart(tk, h=440, folder=""):
-    if EXCH.get(tk) == "KRX":  # 한국 종목은 트레이딩뷰 위젯에서 라이선스상 표시되지 않음 → 정적 차트 + 링크
-        return (f'<div class="hero"><img src="{folder}/tv_clean.jpg" alt="{tk} 일봉 차트"></div>'
-                f'<a class="tvlink" href="https://www.tradingview.com/chart/?symbol={tv_symbol(tk)}" target="_blank" rel="noopener">트레이딩뷰에서 실시간 차트 보기 →</a>')
+    if EXCH.get(tk) == "KRX":  # 한국 종목은 트레이딩뷰 위젯에서 라이선스상 표시되지 않음 → 매일 받은 일봉으로 직접 그림
+        px = CTA.get(tk, {}).get("px")
+        chart = (f'<div class="panel">{stock_chart(px["d"], px["c"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:#111111"></i>50일선'
+                 f'<i style="background:#d97706"></i>200일선 · 최근 9개월 일봉 종가 · 매일 자동 갱신</div></div>') if px else f'<div class="hero"><img src="{folder}/tv_clean.jpg" alt="{tk} 일봉 차트"></div>'
+        return chart + f'<a class="tvlink" href="https://www.tradingview.com/chart/?symbol={tv_symbol(tk)}" target="_blank" rel="noopener">트레이딩뷰에서 실시간 차트 보기 →</a>'
     cfg = {"autosize": True, "symbol": tv_symbol(tk), "interval": "D", "timezone": "Asia/Seoul", "theme": "light", "style": "1",
            "locale": "kr", "allow_symbol_change": False, "hide_side_toolbar": True, "calendar": False, "support_host": "https://www.tradingview.com",
            "studies": [{"id": "MASimple@tv-basicstudies", "inputs": {"length": 20}}, {"id": "MASimple@tv-basicstudies", "inputs": {"length": 50}},
@@ -367,7 +377,7 @@ for i, r in enumerate(REPORTS):
     inner = f"""<div class="readwrap">{side(f)}<div class="read">
 <div class="rhead"><a href="index.html#reports">←</a><div><div class="t">{title}</div><div class="a">Corporate Analysis · 2026.11</div></div></div>
 <div class="prembox"><div class="ic">{ICON[tk]}</div><div><div class="k">REPORT · {tag}</div>{sub} — 8개 분기 공시·컨퍼런스콜과 트레이딩뷰 데이터를 바탕으로 정리했습니다.</div></div>
-{tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (리포트 작성 시점) · 한국 종목은 트레이딩뷰 위젯 미지원" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
+{tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (이동평균선 20·50·200) · 한국 종목은 트레이딩뷰 위젯 미지원으로 직접 계산" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
 {cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports"))
@@ -399,7 +409,7 @@ def curve_svg(pts, title):
 _vix = SNAP.get("VIX", [0])[0]; _fg = FG["score"]
 ONE_LINE = (f'VIX {_vix:.1f}·공포탐욕 {_fg:.0f}로 <b class="{"down" if _fg < 45 else ("up" if _fg > 55 else "")}">{fg_label(_fg)}</b> 구간. '
             + ("변동성이 높아 단기 급등락에 유의." if _vix >= 20 else "변동성은 안정적인 편."))
-RATE_NAMES = [("US03M", "미국 3개월물"), ("US02Y", "미국 2년물"), ("US05Y", "미국 5년물"), ("US10Y", "미국 10년물"), ("US20Y", "미국 20년물"), ("US30Y", "미국 30년물"), ("JP02Y", "일본 2년물"), ("JP10Y", "일본 10년물")]
+RATE_NAMES = [("US02Y", "미국 2년물 · US02Y"), ("US10Y", "미국 10년물 · US10Y"), ("US20Y", "미국 20년물 · US20Y"), ("US30Y", "미국 30년물 · US30Y"), ("JP02Y", "일본 2년물 · JP02Y"), ("JP10Y", "일본 10년물 · JP10Y")]
 _rates = [(k, n) for k, n in RATE_NAMES if k in SNAP and k in SER][:6]
 RATE_TILES = "".join(tile(k, n, "%", 3, "%p") for k, n in _rates)
 RATE_SUB = " · ".join(n for _, n in _rates)
@@ -407,7 +417,6 @@ CTA_DATE = max((e.get("date", "") for e in CTA.values()), default="")
 
 home = f"""<main class="home">
 <div class="intro"><div class="ey">CORPORATE ANALYSIS</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1><p>미국 지수 선물·공포탐욕 지수·금리·환율·원자재를 한 화면에 모으고, 엔비디아·TSMC·브로드컴·AMD·마이크론·마벨·삼성전자·SK하이닉스·인텔·퀄컴과 애플·알파벳·마이크로소프트·아마존·오라클·팔란티어 등 16개 기업을 8개 분기 실적과 경영진 코멘트로 분석했습니다.</p></div>
-{tv_tape()}
 <section id="market">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
@@ -426,7 +435,7 @@ home = f"""<main class="home">
 <div class="sech"><h2>국채 금리</h2><span class="sm">{RATE_SUB}</span></div>
 <div class="tiles">{RATE_TILES}</div>
 
-<div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 맨 위 시세 띠는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
+<div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부·일본 재무성(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 기업별 페이지의 차트는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
 </section>
 
 <section id="cta">
