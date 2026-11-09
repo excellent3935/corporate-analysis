@@ -233,7 +233,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .tvmini{height:330px;margin:8px -6px 0}.fhd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.ivs{display:flex;gap:4px}.ivb{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:inherit}.ivb.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
 .hmap{height:620px;padding:6px;overflow:hidden}.hmap iframe{color-scheme:light}@media(max-width:560px){.hmap{height:480px}}
-.tile.live{padding:10px 8px 4px}.tile.live .nm{padding:0 4px}.tvtile{height:150px;margin:0 -2px}.tvtile iframe{color-scheme:light}.dly{font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:2px}.tiles>.tile:not(.live){display:flex;flex-direction:column}.tiles>.tile:not(.live) svg.spk{margin-top:auto}.oneline{font-size:13px;color:var(--ink2);margin-top:10px}
+.tile.live{padding:10px 8px 4px}.tile.live .nm{padding:0 4px}.tvtile{height:150px;margin:0 -2px}.tvtile iframe{color-scheme:light}.dly{font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:2px}.tiles>.tile:not(.live){display:flex;flex-direction:column}.tiles>.tile:not(.live) svg.spk{margin-top:auto}.dly.on{color:#16a34a;border-color:rgba(22,163,74,.4)}.oneline{font-size:13px;color:var(--ink2);margin-top:10px}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
 .mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
@@ -476,12 +476,14 @@ MACRO_LIVE = [("VIX 변동성 지수", None), ("달러 인덱스 (DXY)", "PEPPER
 # 트레이딩뷰가 위젯에 막아 둔 심볼(VIX 지수·미국 20년물·일본 국채)은 매일 받는 종가 타일로 표시
 RATE_LIVE = [("미국 2년물", "PYTH:US02Y"), ("미국 10년물", "PYTH:US10Y"), ("미국 20년물", None), ("미국 30년물", "PYTH:US30Y"),
              ("일본 2년물", None), ("일본 10년물", None)]
+CNBC_SYM = {"VIX 변동성 지수": ".VIX", "미국 20년물": "US20Y", "일본 2년물": "JP2Y", "일본 10년물": "JP10Y"}  # 1분마다 CNBC 시세로 덮어씀
 DAILY_KEY = {"VIX 변동성 지수": ("VIX", "", 2, ""), "미국 20년물": ("US20Y", "%", 3, "%p"), "일본 2년물": ("JP02Y", "%", 3, "%p"), "일본 10년물": ("JP10Y", "%", 3, "%p")}
 def tile_any(n, y):
     if y: return tile_live(n, y)
     k, u, d, au = DAILY_KEY[n]
     if k not in SNAP or k not in SER: return ""
-    return tile(k, f'{n} <span class="dly">일간</span>', u, d, au)
+    t = tile(k, f'{n} <span class="dly">일간</span>', u, d, au)
+    return t.replace('<div class="tile">', f'<div class="tile poll" data-q="{CNBC_SYM[n]}" data-y="{1 if u == "%" else 0}">', 1)
 def heatmap():  # 트레이딩뷰 공식 S&P500 히트맵 위젯 (방문자 브라우저에서 실시간 시세 로드)
     cfg = {"exchanges": [], "dataSource": "SPX500", "grouping": "sector", "blockSize": "market_cap_basic", "blockColor": "change",
            "locale": "kr", "symbolUrl": "", "colorTheme": "light", "hasTopBar": True, "isDataSetEnabled": True, "isZoomEnabled": True,
@@ -537,11 +539,11 @@ home = f"""<main class="home">
 <table class="comp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
 </div>
 
-<div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2><span class="sm">실시간 · 트레이딩뷰 (달러 인덱스·유가·금은 CFD/현물 시세) · VIX는 일간(위젯 미제공)</span></div>
+<div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2><span class="sm">실시간 · 트레이딩뷰 (달러 인덱스·유가·금은 CFD/현물 시세) · VIX는 CNBC 시세 1분 갱신</span></div>
 <div class="tiles">{"".join(tile_any(n, y) for n, y in MACRO_LIVE)}</div>
 <div class="note oneline"><b>한 줄 해석</b> · {ONE_LINE} <span style="opacity:.7">(전일 종가 기준)</span></div>
 
-<div class="sech"><h2>국채 금리</h2><span class="sm">미국 2·10·30년물 실시간 · 20년물·일본 국채는 일간(트레이딩뷰 위젯 미제공)</span></div>
+<div class="sech"><h2>국채 금리</h2><span class="sm">미국 2·10·30년물 트레이딩뷰 실시간 · 20년물·일본 국채는 CNBC 시세 1분 갱신</span></div>
 <div class="tiles">{"".join(tile_any(n, y) for n, y in RATE_LIVE)}</div>
 
 <div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부·일본 재무성(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 선물·히트맵·변동성·환율·원자재·국채 금리 칸과 기업별 차트는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
@@ -561,7 +563,17 @@ home = f"""<main class="home">
 </section>
 </main>
 <footer>개인 학습용 분석이며 특정 종목의 매수·매도를 권유하지 않습니다. 모든 투자의 책임은 개인에게 있습니다.</footer>
-<script>(function(){{const B=document.getElementById('ctaboard'),P=document.getElementById('ctapager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);let cur=0;
+<script>(function(){{const T=[...document.querySelectorAll('.tile.poll')];if(!T.length)return;
+const U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json&events=1&symbols='+T.map(t=>encodeURIComponent(t.dataset.q)).join('|');
+const n=v=>parseFloat(String(v).replace(/[%,+]/g,''));
+async function upd(){{try{{const j=await (await fetch(U,{{cache:'no-store'}})).json();const Q={{}};(j.FormattedQuoteResult.FormattedQuote||[]).forEach(q=>Q[q.symbol]=q);
+const now=new Date().toLocaleTimeString('ko-KR',{{hour:'2-digit',minute:'2-digit',hour12:false}});
+T.forEach(t=>{{const q=Q[t.dataset.q];if(!q||q.last==null)return;const L=n(q.last),C=n(q.change);if(isNaN(L))return;const y=t.dataset.y==='1';
+t.querySelector('.px').textContent=y?L.toFixed(3)+'%':L.toFixed(2);const c=t.querySelector('.ch');const pv=n(q.previous_day_closing);
+c.textContent=y?(C>=0?'+':'')+C.toFixed(3)+'%p':(C>=0?'+':'')+C.toFixed(2)+' ('+(C>=0?'+':'')+(pv?(C/pv*100):0).toFixed(2)+'%)';
+c.className='ch '+(C>0?'up':C<0?'down':'');const b=t.querySelector('.dly');if(b){{b.textContent='1분 · '+now;b.classList.add('on');}}}});}}catch(e){{}}}}
+upd();setInterval(()=>{{if(!document.hidden)upd();}},60000);document.addEventListener('visibilitychange',()=>{{if(!document.hidden)upd();}});}})();
+(function(){{const B=document.getElementById('ctaboard'),P=document.getElementById('ctapager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);let cur=0;
 function show(i){{cur=i;rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?'':'none');if(pages<2){{P.innerHTML='';return;}}
 let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
 h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
