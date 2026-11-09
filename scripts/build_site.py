@@ -224,7 +224,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .logo{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.cover .emb,.prembox .ic,.stock .lg{overflow:hidden}.cover .emb .logo{border-radius:50%}
 .bdtool{display:flex;justify-content:flex-end;margin:0 0 10px}#ctaboard.brief .xd{display:none}#ctaboard.brief td{padding-top:5px;padding-bottom:5px}#ctaboard.brief .small{display:none}#ctaboard.brief td br{display:none}#ctaboard.brief td.r span{margin-left:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
-.tvmini{height:330px;margin:4px -6px 0}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
+.tvmini{height:330px;margin:4px -6px 0}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
 .mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
@@ -443,12 +443,12 @@ for i, r in enumerate(REPORTS):
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
 def fut(k, name, sym):  # 실시간: 트레이딩뷰 위젯 (CME 선물은 위젯에서 막혀 있어 거의 24시간 거래되는 지수 CFD로 표시)
     p, pc, ab = SNAP[k]; tvs, short = LIVE[k]
-    cfg = {"symbols": [[short, f"{tvs}|1D"]], "chartOnly": False, "width": "100%", "height": "100%", "locale": "kr", "colorTheme": "light",
+    cfg = {"symbols": [[short, f"{tvs}|1M"]], "chartOnly": False, "width": "100%", "height": "100%", "locale": "kr", "colorTheme": "light",
            "autosize": True, "showVolume": False, "showMA": True, "maLength": 20, "maLineColor": "#2563eb", "maLineWidth": 1,
            "hideDateRanges": False, "hideMarketStatus": False, "hideSymbolLogo": True, "scalePosition": "right", "scaleMode": "Normal",
            "fontFamily": "Pretendard, Noto Sans KR, sans-serif", "fontSize": "10", "noTimeScale": False, "valuesTracking": "1",
            "changeMode": "price-and-percent", "chartType": "area", "lineWidth": 2, "lineType": 0, "isTransparent": True,
-           "dateRanges": ["1d|1", "5d|5", "1m|30", "3m|60", "6m|120", "12m|1D"]}
+           "dateRanges": ["1d|1", "1m|30", "3m|60", "12m|1D"]}
     return (f'<div class="panel fut live"><div class="nm">{name} · 실시간 <span class="lv">LIVE</span></div>'
             f'<div class="tvmini"><div class="tradingview-widget-container tvw" style="height:100%;width:100%" '
             f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" data-cfg=\'{json.dumps(cfg, ensure_ascii=False)}\'></div></div>'
