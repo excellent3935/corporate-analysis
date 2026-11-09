@@ -568,7 +568,7 @@ const U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbo
 const n=v=>parseFloat(String(v).replace(/[%,+]/g,''));
 async function upd(){{try{{const j=await (await fetch(U,{{cache:'no-store'}})).json();const Q={{}};(j.FormattedQuoteResult.FormattedQuote||[]).forEach(q=>Q[q.symbol]=q);
 const now=new Date().toLocaleTimeString('ko-KR',{{hour:'2-digit',minute:'2-digit',hour12:false}});
-T.forEach(t=>{{const q=Q[t.dataset.q];if(!q||q.last==null)return;const L=n(q.last),C=n(q.change);if(isNaN(L))return;const y=t.dataset.y==='1';
+T.forEach(t=>{{const q=Q[t.dataset.q];if(!q||q.last==null)return;const L=n(q.last);if(isNaN(L))return;let C=n(q.change);if(isNaN(C)){{const pv0=n(q.previous_day_closing);C=isNaN(pv0)?0:L-pv0;}}const y=t.dataset.y==='1';
 t.querySelector('.px').textContent=y?L.toFixed(3)+'%':L.toFixed(2);const c=t.querySelector('.ch');const pv=n(q.previous_day_closing);
 c.textContent=y?(C>=0?'+':'')+C.toFixed(3)+'%p':(C>=0?'+':'')+C.toFixed(2)+' ('+(C>=0?'+':'')+(pv?(C/pv*100):0).toFixed(2)+'%)';
 c.className='ch '+(C>0?'up':C<0?'down':'');const b=t.querySelector('.dly');if(b){{b.textContent='1분 · '+now;b.classList.add('on');}}}});}}catch(e){{}}}}
