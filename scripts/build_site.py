@@ -173,7 +173,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "영업이익률 33% · PEG 2.3 · 사상 최고가", "#fef2f2", "음료 · 시총 $412B", "https://www.coca-colacompany.com"),
  ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통 · 시총 $996B", "https://corporate.walmart.com"),
  ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통 · 시총 $467B", "https://www.costco.com"),
- ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "반도체", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅 · 시총 $14.0B", "https://ionq.com"),
+ ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "양자", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅 · 시총 $14.0B", "https://ionq.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -565,7 +565,7 @@ home = f"""<main class="home">
 
 <section id="reports">
 <div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 31개 기업</span></div>
-<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button><button class="pill" data-f="헬스케어">헬스케어</button><button class="pill" data-f="금융">금융</button><button class="pill" data-f="소비재">소비재</button></div>
+<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button><button class="pill" data-f="양자">양자컴퓨팅</button><button class="pill" data-f="헬스케어">헬스케어</button><button class="pill" data-f="금융">금융</button><button class="pill" data-f="소비재">소비재</button></div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
