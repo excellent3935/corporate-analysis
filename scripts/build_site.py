@@ -240,6 +240,13 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .bdtool{display:flex;justify-content:flex-end;margin:0 0 10px}#ctaboard.brief .xd{display:none}#ctaboard.brief td{padding-top:5px;padding-bottom:5px}#ctaboard.brief .small{display:none}#ctaboard.brief td br{display:none}#ctaboard.brief td.r span{margin-left:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .tvmini{height:330px;margin:8px -6px 0}.fhd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.ivs{display:flex;gap:4px}.ivb{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:inherit}.ivb.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
+.hm{position:relative;padding:0;overflow:hidden}.hmbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.hmst .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}@keyframes hmp{50%{opacity:.25}}.hmst .dn{color:var(--down)}
+.hmlg{display:flex;align-items:center;gap:4px;white-space:nowrap}.hmlg i{width:14px;height:10px;border-radius:2px;display:inline-block;margin-left:6px}
+.hmbox{position:relative;height:620px;background:#1c1e22;overflow:hidden}.hs{position:absolute;height:15px;line-height:15px;padding:0 4px;font-size:10px;font-weight:700;color:#d1d5db;background:#1c1e22;white-space:nowrap;overflow:hidden;z-index:1;letter-spacing:.02em}
+.hc{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;overflow:hidden;cursor:pointer;line-height:1.15;outline:1px solid #1c1e22;outline-offset:-.5px}.hc b{font-weight:700}.hc i{font-style:normal;opacity:.92}.hc:hover{outline:2px solid #fff;outline-offset:-2px;z-index:3}
+.hmtip{display:none;position:absolute;z-index:9;pointer-events:none;background:#111;color:#f3f4f6;border:1px solid #374151;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:240px}.hmtip span{color:#9ca3af}.hmtip u{text-decoration:none;font-weight:700;font-size:14px}.hmtip em{font-style:normal;font-weight:700}.hmtip .up{color:#22c55e}.hmtip .down{color:#f87171}
+@media(max-width:560px){.hmbox{height:480px}.hmbar{font-size:11px}}
 .hmap{height:620px;padding:6px;overflow:hidden}.hmap iframe{color-scheme:light}@media(max-width:560px){.hmap{height:480px}}
 .tile.live{padding:10px 8px 4px}.tile.live .nm{padding:0 4px}.tvtile{height:150px;margin:0 -2px}.tvtile iframe{color-scheme:light}.dly{font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:2px}.tiles>.tile:not(.live){display:flex;flex-direction:column}.tiles>.tile:not(.live) svg.spk{margin-top:auto}.dly.on{color:#16a34a;border-color:rgba(22,163,74,.4)}.oneline{font-size:13px;color:var(--ink2);margin-top:10px}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
@@ -585,12 +592,15 @@ def tile_any(n, y):
     if k not in SNAP or k not in SER: return ""
     t = tile(k, f'{n} <span class="dly">일간</span>', u, d, au)
     return t.replace('<div class="tile">', f'<div class="tile poll" data-q="{CNBC_SYM[n]}" data-y="{1 if u == "%" else 0}" data-d="{d}" data-pre="{"$" if u == "$" else ""}">', 1)
-def heatmap():  # 트레이딩뷰 공식 S&P500 히트맵 위젯 (방문자 브라우저에서 실시간 시세 로드)
-    cfg = {"exchanges": [], "dataSource": "SPX500", "grouping": "sector", "blockSize": "market_cap_basic", "blockColor": "change",
-           "locale": "kr", "symbolUrl": "", "colorTheme": "light", "hasTopBar": True, "isDataSetEnabled": True, "isZoomEnabled": True,
-           "hasSymbolTooltip": True, "isMonoSize": False, "width": "100%", "height": "100%"}
-    return ('<div class="panel hmap"><div class="tradingview-widget-container tvw" style="height:100%;width:100%" '
-            f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" data-cfg=\'{json.dumps(cfg, ensure_ascii=False)}\'></div></div>')
+def heatmap():  # 자체 제작 S&P500 히트맵: CNBC 실시간 시세를 방문자 브라우저에서 1분마다 받아 그림 (트레이딩뷰 위젯은 시세가 늦어 교체)
+    d = {}
+    for line in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "sp500.txt"), encoding="utf-8").read().splitlines():
+        if ":" in line:
+            k, v = line.split(":", 1); d[k] = v.split()
+    js = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "heatmap.js"), encoding="utf-8").read().replace("__DATA__", json.dumps(d))
+    return ('<div class="panel hm" id="hm"><div class="hmbar"><span id="hmst" class="hmst">불러오는 중…</span>'
+            '<span class="hmlg"><i style="background:rgb(242,54,69)"></i>-3%<i style="background:rgb(58,62,70)"></i>0<i style="background:rgb(8,153,129)"></i>+3%</span></div>'
+            '<div id="hmbox" class="hmbox"></div><div id="hmtip" class="hmtip"></div></div><script>' + js + '</script>')
 def fut_daily(k, name, sym):
     p, pc, ab = SNAP[k]
     return (f'<div class="panel fut"><div class="nm">{name} · {sym}</div><div class="px">{p:,.2f}</div><div class="ch {cls(pc)}">{sign(ab)} ({sign(pc, 2, True)})</div>'
@@ -629,7 +639,7 @@ home = f"""<main class="home">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
 
-<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터별 묶음 · 칸 크기 = 시가총액, 색 = 등락률 · 트레이딩뷰</span></div>
+<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터별 묶음 · 칸 크기 = 시가총액, 색 = 전일 종가 대비 등락률 · CNBC 시세 1분 갱신</span></div>
 {heatmap()}
 
 <div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
