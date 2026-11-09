@@ -173,7 +173,7 @@ EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE"}
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
-        "ORCL": "oracle", "PLTR": "palantir"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
