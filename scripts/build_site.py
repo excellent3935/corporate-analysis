@@ -221,7 +221,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .cover{aspect-ratio:3/4;border-radius:14px;padding:16px;color:#111;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;box-shadow:none;transition:transform .15s}.book:hover .cover{transform:translateY(-3px)}.cover .ico{position:absolute;right:16px;top:16px;width:46px;height:46px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.08)}.cover .ico svg{width:28px;height:28px}
 .cover .bdg{position:absolute;top:16px;left:16px;background:#111;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px}
 .cover .tk{font-size:11.5px;letter-spacing:2px;color:#6b7280;margin-top:34px}.cover .emb{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);width:96px;height:96px;border-radius:50%;background:#fff;box-shadow:0 4px 18px rgba(15,23,42,.10),0 0 0 6px rgba(255,255,255,.55);display:flex;align-items:center;justify-content:center}.cover .emb .mono{font-size:21px}
-.logo{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.cover .emb,.prembox .ic,.stock .lg{overflow:hidden}.cover .emb .logo{border-radius:50%}
+.logo{width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block}.cover .emb,.prembox .ic,.stock .lg{overflow:hidden}.cover .emb .logo{border-radius:50%}.cover .emb{top:50%;width:132px;height:132px}.cover .emb .mono{font-size:28px}
 .bdtool{display:flex;justify-content:flex-end;margin:0 0 10px}#ctaboard.brief .xd{display:none}#ctaboard.brief td{padding-top:5px;padding-bottom:5px}#ctaboard.brief .small{display:none}#ctaboard.brief td br{display:none}#ctaboard.brief td.r span{margin-left:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .tvmini{height:330px;margin:4px -6px 0}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
@@ -412,7 +412,7 @@ def shell(title, inner, on="home"):
 def cover(r):
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
     return (f'<a class="book" data-tag="{tag}" href="{f}"><div class="cover" style="--cbg:{bg};background:var(--cbg)"><span class="bdg">{tag}</span>'
-            f'<div><div class="tk">{EXCH.get(tk,"NASDAQ")} · {tk}</div><div class="ct">{title.replace(" 기업분석","")}</div></div>'
+            f'<div><div class="tk">{EXCH.get(tk,"NASDAQ")} · {tk}</div></div>'
             f'<div class="emb"><span>{ICON[tk]}</span></div>'
             f'<div class="cs">{sub}</div></div><div class="bt">{title}</div><div class="ba">실적·심층 통합 리포트 · 2026.11</div>'
             f'<div class="bp {PRICE[tk][2]}">{PRICE[tk][0]} &nbsp;{PRICE[tk][1]}</div><span class="btn">리포트 읽기</span></a>')
