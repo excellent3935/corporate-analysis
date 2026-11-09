@@ -232,6 +232,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .bdtool{display:flex;justify-content:flex-end;margin:0 0 10px}#ctaboard.brief .xd{display:none}#ctaboard.brief td{padding-top:5px;padding-bottom:5px}#ctaboard.brief .small{display:none}#ctaboard.brief td br{display:none}#ctaboard.brief td.r span{margin-left:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .tvmini{height:330px;margin:8px -6px 0}.fhd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.ivs{display:flex;gap:4px}.ivb{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:inherit}.ivb.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
+.hmap{height:620px;padding:6px;overflow:hidden}.hmap iframe{color-scheme:light}@media(max-width:560px){.hmap{height:480px}}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
 .mono{font-weight:800;letter-spacing:-.5px;color:#111;line-height:1;white-space:nowrap}.prembox .ic .mono{font-size:9.5px}.stock .lg .mono{font-size:13px}.cover .ct{font-size:21px;font-weight:800;line-height:1.25}
 .cover .cs{font-size:11.5px;color:#4b5563}.cover>svg{position:absolute;left:0;right:0;bottom:44px;width:100%;height:38%;opacity:.9}
@@ -415,7 +416,7 @@ def fg_label(v):
 
 def shell(title, inner, on="home"):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("reports", "index.html#reports", "기업분석")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<span class="st">{STAMP}</span><button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
 {inner}{THEME_JS}</body></html>"""
@@ -464,6 +465,12 @@ def fut(k, name, sym):  # 실시간: 트레이딩뷰 차트 위젯 (CME 선물�
             f'<div class="tvmini"><div class="tradingview-widget-container tvw futw" style="height:100%;width:100%" '
             f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" data-cfg=\'{json.dumps(cfg, ensure_ascii=False)}\'></div></div>'
             f'<div class="leg">{short} 지수 CFD({tvs.split(":")[1]}) · 이동평균 20 · {sym} 전일 종가 {p:,.2f} <span class="{cls(pc)}">({sign(pc, 2, True)})</span> · 선물과 약간 차이 날 수 있음</div></div>')
+def heatmap():  # 트레이딩뷰 공식 S&P500 히트맵 위젯 (방문자 브라우저에서 실시간 시세 로드)
+    cfg = {"exchanges": [], "dataSource": "SPX500", "grouping": "sector", "blockSize": "market_cap_basic", "blockColor": "change",
+           "locale": "kr", "symbolUrl": "", "colorTheme": "light", "hasTopBar": True, "isDataSetEnabled": True, "isZoomEnabled": True,
+           "hasSymbolTooltip": True, "isMonoSize": False, "width": "100%", "height": "100%"}
+    return ('<div class="panel hmap"><div class="tradingview-widget-container tvw" style="height:100%;width:100%" '
+            f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-stock-heatmap.js" data-cfg=\'{json.dumps(cfg, ensure_ascii=False)}\'></div></div>')
 def fut_daily(k, name, sym):
     p, pc, ab = SNAP[k]
     return (f'<div class="panel fut"><div class="nm">{name} · {sym}</div><div class="px">{p:,.2f}</div><div class="ch {cls(pc)}">{sign(ab)} ({sign(pc, 2, True)})</div>'
@@ -501,6 +508,9 @@ home = f"""<main class="home">
 <section id="market">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
+
+<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터별 묶음 · 칸 크기 = 시가총액, 색 = 등락률 · 트레이딩뷰</span></div>
+{heatmap()}
 
 <div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
 <div class="panel fgwrap">
