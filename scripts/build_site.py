@@ -84,7 +84,7 @@ def gauge(score):
         x1, y1 = cx + r * math.cos(t1), cy - r * math.sin(t1); x2, y2 = cx + r * math.cos(t2), cy - r * math.sin(t2)
         out += f'<path d="M{x1:.1f},{y1:.1f} A{r},{r} 0 0 1 {x2:.1f},{y2:.1f}" stroke="{c}" stroke-width="16" fill="none"/>'
     t = math.pi * (1 - score / 100); nx, ny = cx + (r - 22) * math.cos(t), cy - (r - 22) * math.sin(t)
-    out += f'<line x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/><circle cx="{cx}" cy="{cy}" r="6" style="fill:var(--ink)"/>'
+    out += f'<line id="fgneedle" x1="{cx}" y1="{cy}" x2="{nx:.1f}" y2="{ny:.1f}" style="stroke:var(--ink)" stroke-width="3" stroke-linecap="round"/><circle cx="{cx}" cy="{cy}" r="6" style="fill:var(--ink)"/>'
     for v, lab in [(0, "0"), (25, "25"), (50, "50"), (75, "75"), (100, "100")]:
         tt = math.pi * (1 - v / 100); out += f'<text x="{cx+(r+16)*math.cos(tt):.1f}" y="{cy-(r+16)*math.sin(tt)+4:.1f}" text-anchor="middle" class="ax">{lab}</text>'
     return f'<svg viewBox="0 0 220 120" class="gauge">{out}</svg>'
@@ -241,12 +241,19 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .pager{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:12px}.pager button{min-width:34px;height:32px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:8px;cursor:pointer;font-family:inherit;font-size:13px}.pager button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.pager button:disabled{opacity:.35;cursor:default}.pager .pi{font-size:12px;color:var(--muted);margin-left:8px}
 .tvmini{height:330px;margin:8px -6px 0}.fhd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.ivs{display:flex;gap:4px}.ivb{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:6px;padding:2px 8px;font-size:12px;cursor:pointer;font-family:inherit}.ivb.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.tvw iframe,.tvbox iframe{color-scheme:light}.fut .lv{font-size:10px;font-weight:800;letter-spacing:1px;color:#fff;background:#dc2626;border-radius:4px;padding:1px 5px;margin-left:4px;vertical-align:1px;animation:lvb 1.6s infinite}@keyframes lvb{50%{opacity:.45}}
 .hm{position:relative;padding:0;overflow:hidden}.hmbar{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);flex-wrap:wrap}
-.hmst .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}@keyframes hmp{50%{opacity:.25}}.hmst .dn{color:var(--down)}
-.hmlg{display:flex;align-items:center;gap:4px;white-space:nowrap}.hmlg i{width:14px;height:10px;border-radius:2px;display:inline-block;margin-left:6px}
-.hmbox{position:relative;height:620px;background:#1c1e22;overflow:hidden}.hs{position:absolute;height:15px;line-height:15px;padding:0 4px;font-size:10px;font-weight:700;color:#d1d5db;background:#1c1e22;white-space:nowrap;overflow:hidden;z-index:1;letter-spacing:.02em}
-.hc{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;overflow:hidden;cursor:pointer;line-height:1.15;outline:1px solid #1c1e22;outline-offset:-.5px}.hc b{font-weight:700}.hc i{font-style:normal;opacity:.92}.hc:hover{outline:2px solid #fff;outline-offset:-2px;z-index:3}
-.hmtip{display:none;position:absolute;z-index:9;pointer-events:none;background:#111;color:#f3f4f6;border:1px solid #374151;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:240px}.hmtip span{color:#9ca3af}.hmtip u{text-decoration:none;font-weight:700;font-size:14px}.hmtip em{font-style:normal;font-weight:700}.hmtip .up{color:#22c55e}.hmtip .down{color:#f87171}
-@media(max-width:560px){.hmbox{height:480px}.hmbar{font-size:11px}}
+.hmst .live,.livedot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}@keyframes hmp{50%{opacity:.25}}.hmst .dn{color:var(--down)}
+.hmlg{display:flex;align-items:center;gap:8px;white-space:nowrap;flex-wrap:wrap}.hmlg span{display:inline-flex;align-items:center;gap:3px;font-size:10.5px}.hmlg i{width:14px;height:10px;border-radius:2px;display:inline-block}
+.hmctl{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--line);flex-wrap:wrap;font-size:12px;color:var(--muted)}.hmctl label{display:flex;align-items:center;gap:6px}
+.hmctl select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px;padding:5px 8px;max-width:150px}.hmvw{margin-left:auto;display:flex;gap:6px}.hmvw .pill{padding:5px 12px;font-size:12px}
+.hmbox{position:relative;height:620px;background:#1c1e22;overflow:hidden}.hmbox[hidden],.hmlist[hidden]{display:none}
+.hs{position:absolute;height:15px;line-height:15px;padding:0 4px;font-size:10.5px;font-weight:700;color:#e5e7eb;background:#1c1e22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1;letter-spacing:.02em;cursor:pointer}.hs.d1{height:12px;line-height:12px;font-size:9px;font-weight:600;color:#9ca3af;background:#23262b;cursor:default}.hs.d0:hover{color:#fff;text-decoration:underline}
+.hc{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;color:#fff;overflow:hidden;cursor:pointer;line-height:1.1;outline:1px solid #1c1e22;outline-offset:-.5px}.hc b{font-weight:700}.hc i{font-style:normal;opacity:.92}.hc img{border-radius:50%;background:#fff;object-fit:contain;flex:none;margin-bottom:2px}.hc:hover{outline:2px solid #fff;outline-offset:-2px;z-index:3}
+.hmlist{max-height:620px;overflow:auto;padding:6px 8px 10px}.hmlist details{border-bottom:1px solid var(--line)}.hmlist summary{display:flex;align-items:center;gap:10px;padding:9px 6px;cursor:pointer;list-style:none;font-size:13.5px}.hmlist summary::-webkit-details-marker{display:none}
+.hmlist summary:before{content:"›";display:inline-block;width:12px;color:var(--muted);transition:transform .15s}.hmlist details[open]>summary:before{transform:rotate(90deg)}.hmlist .ln{font-weight:700;color:var(--ink);flex:1;min-width:0}.hmlist .li .ln{font-weight:600;font-size:13px}.hmlist .lcn{color:var(--muted);font-size:12px}.hmlist summary em{font-style:normal;font-weight:700;min-width:64px;text-align:right}
+.hmlist .li{margin-left:14px;border-bottom:0}.hmlist .li summary{padding:6px}
+.lr{display:grid;grid-template-columns:22px 54px minmax(0,1fr) 82px 66px 62px;align-items:center;gap:8px;padding:5px 6px 5px 22px;font-size:12.5px;border-top:1px dashed var(--line)}.lr b{color:var(--ink)}.lr .nm{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lr .px,.lr .cp{text-align:right;color:var(--ink2)}.lr em{font-style:normal;font-weight:700;text-align:right}.lr img{border-radius:50%;background:#fff;object-fit:contain}.lgx{width:20px;height:20px}.hmempty{padding:30px;text-align:center;color:var(--muted)}
+.hmtip{display:none;position:absolute;z-index:9;pointer-events:none;background:#111;color:#f3f4f6;border:1px solid #374151;border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;box-shadow:0 6px 20px rgba(0,0,0,.4);max-width:260px}.hmtip span{color:#9ca3af}.hmtip u{text-decoration:none;font-weight:700;font-size:14px}.hmtip em{font-style:normal;font-weight:700}.hmtip .up{color:#22c55e}.hmtip .down{color:#f87171}
+@media(max-width:560px){.hmbox{height:480px}.hmlist{max-height:480px}.hmbar{font-size:11px}.hmctl{gap:8px}.hmctl select{max-width:118px}.lr{grid-template-columns:20px 46px minmax(0,1fr) 62px 56px;padding-left:12px}.lr .cp{display:none}.hmlg span{font-size:9.5px}.hmlg{gap:5px}}
 .hmap{height:620px;padding:6px;overflow:hidden}.hmap iframe{color-scheme:light}@media(max-width:560px){.hmap{height:480px}}
 .tile.live{padding:10px 8px 4px}.tile.live .nm{padding:0 4px}.tvtile{height:150px;margin:0 -2px}.tvtile iframe{color-scheme:light}.dly{font-size:10px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:2px}.tiles>.tile:not(.live){display:flex;flex-direction:column}.tiles>.tile:not(.live) svg.spk{margin-top:auto}.dly.on{color:#16a34a;border-color:rgba(22,163,74,.4)}.oneline{font-size:13px;color:var(--ink2);margin-top:10px}
 .board a.bn{display:flex;align-items:center;gap:10px}.board .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.board .bl0 .mono{font-size:9px}
@@ -534,7 +541,8 @@ def shell(title, inner, on="home"):
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
     px, ch, c = PRICE[tk]
-    return (f'<a class="book tcard" data-tag="{tag}" href="{f}" title="{sub}"><div class="tl-top"><span class="tl-tag">{tag}</span><span class="tl-tk">{tk}</span></div>'
+    dq = f' data-q="{tk}"' if tk not in ("005930", "000660") else ""
+    return (f'<a class="book tcard" data-tag="{tag}"{dq} href="{f}" title="{sub}"><div class="tl-top"><span class="tl-tag">{tag}</span><span class="tl-tk">{tk}</span></div>'
             f'<div class="tl-logo">{ICON[tk]}</div><div class="tl-nm">{title.replace(" 기업분석","")}</div>'
             f'<div class="tl-px">{px} <span class="{c}">{ch}</span></div></a>')
 
@@ -598,9 +606,11 @@ def heatmap():  # 자체 제작 S&P500 히트맵: CNBC 실시간 시세를 방�
         if ":" in line:
             k, v = line.split(":", 1); d[k] = v.split()
     js = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "heatmap.js"), encoding="utf-8").read().replace("__DATA__", json.dumps(d))
-    return ('<div class="panel hm" id="hm"><div class="hmbar"><span id="hmst" class="hmst">불러오는 중…</span>'
-            '<span class="hmlg"><i style="background:rgb(242,54,69)"></i>-3%<i style="background:rgb(58,62,70)"></i>0<i style="background:rgb(8,153,129)"></i>+3%</span></div>'
-            '<div id="hmbox" class="hmbox"></div><div id="hmtip" class="hmtip"></div></div><script>' + js + '</script>')
+    return ('<div class="panel hm" id="hm"><div class="hmbar"><span id="hmst" class="hmst">불러오는 중…</span><span class="hmlg" id="hmlg"></span></div>'
+            '<div class="hmctl"><label>그룹 <select id="hmg"><option value="si">섹터 › 산업</option><option value="s">섹터</option><option value="n">그룹 없음</option></select></label>'
+            '<label>섹터 <select id="hms"><option value="">전체</option></select></label>'
+            '<span class="hmvw"><button class="pill on" data-v="map" type="button">히트맵</button><button class="pill" data-v="list" type="button">목록</button></span></div>'
+            '<div id="hmbox" class="hmbox"></div><div id="hmlist" class="hmlist" hidden></div><div id="hmtip" class="hmtip"></div></div><script>' + js + '</script>')
 def fut_daily(k, name, sym):
     p, pc, ab = SNAP[k]
     return (f'<div class="panel fut"><div class="nm">{name} · {sym}</div><div class="px">{p:,.2f}</div><div class="ch {cls(pc)}">{sign(ab)} ({sign(pc, 2, True)})</div>'
@@ -633,21 +643,24 @@ RATE_TILES = "".join(tile(k, n, "%", 3, "%p") for k, n in _rates)
 RATE_SUB = " · ".join(n for _, n in _rates)
 CTA_DATE = max((e.get("date", "") for e in CTA.values()), default="")
 
+_D = os.path.dirname(os.path.abspath(__file__))
+FG_JS = open(os.path.join(_D, "fg.js"), encoding="utf-8").read()
+CARDS_JS = open(os.path.join(_D, "cards.js"), encoding="utf-8").read()
 home = f"""<main class="home">
 <div class="intro"><div class="ey">EQUITY RESEARCH · {ASOF:%Y.%m.%d}</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1></div>
 <section id="market">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
 
-<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터별 묶음 · 칸 크기 = 시가총액, 색 = 전일 종가 대비 등락률 · CNBC 시세 1분 갱신</span></div>
+<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터 › 산업 묶음 · 칸 크기 = 시가총액, 색 = 전일 종가 대비 등락률 · CNBC 시세 1분 갱신 · 로고·분류 트레이딩뷰</span></div>
 {heatmap()}
 
-<div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
+<div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm" id="fgasof">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
 <div class="panel fgwrap">
-<div>{gauge(FG["score"])}<div class="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
-<div style="margin-top:10px">{spark(FG["hist"], 260, 46, bcol(FG["score"]))}</div><div class="note" style="text-align:center;margin-top:2px">최근 약 3.5개월 추이</div></div>
-<table class="hist" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">시점별 비교</td></tr>{hist_rows}</table>
-<table class="comp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
+<div>{gauge(FG["score"])}<div class="fgnum" id="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
+<div style="margin-top:10px" id="fgspk">{spark(FG["hist"], 260, 46, bcol(FG["score"]))}</div><div class="note" style="text-align:center;margin-top:2px">최근 약 3.5개월 추이</div></div>
+<table class="hist" id="fghist" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">시점별 비교</td></tr>{hist_rows}</table>
+<table class="comp" id="fgcomp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
 </div>
 
 <div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2><span class="sm">실시간 · 트레이딩뷰 (달러 인덱스·유가는 CFD 시세) · VIX·금 선물은 CNBC 시세 1분 갱신</span></div>
@@ -667,13 +680,14 @@ home = f"""<main class="home">
 </section>
 
 <section id="reports">
-<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 31개 기업</span></div>
+<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 31개 기업 · 미국 종목 등락률 1분 갱신</span></div>
 <div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button><button class="pill" data-f="양자">양자컴퓨팅</button><button class="pill" data-f="헬스케어">헬스케어</button><button class="pill" data-f="금융">금융</button><button class="pill" data-f="소비재">소비재</button></div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
 </main>
 <footer>개인 학습용 분석이며 특정 종목의 매수·매도를 권유하지 않습니다. 모든 투자의 책임은 개인에게 있습니다.</footer>
+<script>{FG_JS}{CARDS_JS}</script>
 <script>(function(){{const T=[...document.querySelectorAll('.tile.poll')];if(!T.length)return;
 const U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json&events=1&symbols='+T.map(t=>encodeURIComponent(t.dataset.q)).join('|');
 const n=v=>parseFloat(String(v).replace(/[%,+]/g,''));
