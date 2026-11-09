@@ -374,6 +374,9 @@ footer{padding:10px 14px 30px}
 }
 
 /* ================= research-report theme ================= */
+body{word-break:keep-all;overflow-wrap:break-word}.tag{white-space:nowrap}.read td .tag,.ctabox td .tag{margin-right:0}
+@media(max-width:640px){.ctabox th:nth-child(2),.ctabox td:nth-child(2){display:none}.ctabox table{font-size:12.5px}.ctabox th,.ctabox td{padding:6px 5px}.ctabox td:last-child,.ctabox th:last-child{text-align:right;width:1%}
+.read td,.read th{min-width:56px}.read th{white-space:nowrap}}
 :root{--navy:#0f2342;--gold:#a8823f;--paper:#f6f3ec;--card:#fffdf9;--ink:#141a26;--ink2:#3b4354;--muted:#6f7685;--line:#e2dccf;--soft:#efeadf;--hover:#ece6d8;--ma50:#0f2342;--blue:#1f4e8c;--red:#1f4e8c;--up:#15803d;--down:#b91c1c;--serif:"Noto Serif KR","Nanum Myeongjo",Georgia,serif}
 body{background:var(--paper);color:var(--ink)}
 .top{background:rgba(246,243,236,.94);border-bottom:1px solid var(--line);box-shadow:inset 0 -2px 0 var(--gold)}
