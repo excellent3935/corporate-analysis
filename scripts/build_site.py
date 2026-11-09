@@ -537,7 +537,17 @@ def cta_board():
         d200 = f'{((e["close"]/e["s200"]-1)*100 if e.get("s200") else 0):+.1f}%' if e.get("s200") else "-"
         trend = spark(e["hist"], 90, 22, "#2563eb") if len(e.get("hist", [])) > 5 else ""
         px, ch, c = PRICE[tk]
-        rows.append((sc if sc is not None else -9, f'<tr><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk}</span></span></a></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
+        live = ""
+        if sig and tk not in ("005930", "000660"):
+            _mk = {"1개월 모멘텀": "m1", "3개월 모멘텀": "m3", "6개월 모멘텀": "m6", "12개월 모멘텀": "m12"}
+            _s = []
+            for x in sig:
+                if x[0] == "장기 추세 필터": _s.append([x[0], e["s200"], 0])
+                elif x[0] == "돈키언 채널": _s.append([x[0], (e["dh55"] + e["dl55"]) / 2, 0])
+                elif x[0] in _mk: _s.append([x[0], e[_mk[x[0]]], 0])
+                else: _s.append([x[0], None, x[3]])
+            live = f" data-q='{tk}' data-c='{json.dumps({'s200': e.get('s200'), 's': _s}, ensure_ascii=False)}'"
+        rows.append((sc if sc is not None else -9, f'<tr{live}><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk}</span></span></a></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
                     f'<td class="r xd">{d200}</td><td class="dots xd">{dots}</td><td class="xd">{trend}</td><td>{score_tag(sc)}</td></tr>'))
     rows.sort(key=lambda x: -x[0])
     return ('<div class="bdtool"><div class="pills" style="margin:0"><button class="pill on" data-v="full">전체 보기</button><button class="pill" data-v="brief">간략히 보기</button></div></div>'
@@ -666,6 +676,7 @@ RATE_TILES = "".join(tile(k, n, "%", 3, "%p") for k, n in _rates)
 RATE_SUB = " · ".join(n for _, n in _rates)
 CTA_DATE = max((e.get("date", "") for e in CTA.values()), default="")
 
+CTA_JS = open(os.path.join(_D, "cta.js"), encoding="utf-8").read()
 FG_JS = open(os.path.join(_D, "fg.js"), encoding="utf-8").read()
 CARDS_JS = open(os.path.join(_D, "cards.js"), encoding="utf-8").read()
 home = f"""<main class="home">
@@ -696,7 +707,7 @@ home = f"""<main class="home">
 </section>
 
 <section id="cta">
-<div class="sech"><h2>CTA 스코어보드</h2><span class="sm">8개 추세추종 신호 평균 · {CTA_DATE} 종가 · 매일 자동 계산</span></div>
+<div class="sech"><h2>CTA 스코어보드</h2><span class="sm">8개 추세추종 신호 평균 · 이동평균 {CTA_DATE} 종가 기준 · 현재가 1분 갱신(미국 종목)</span></div>
 {cta_board()}
 <div class="note">점수 +1은 8개 신호가 모두 매수, -1은 모두 매도입니다. 추세추종(CTA) 자금의 움직임을 흉내 낸 자체 계산 모델이며, 실제 증권사 CTA 포지션 데이터가 아닙니다.</div>
 </section>
@@ -709,7 +720,7 @@ home = f"""<main class="home">
 </section>
 </main>
 <footer>개인 학습용 분석이며 특정 종목의 매수·매도를 권유하지 않습니다. 모든 투자의 책임은 개인에게 있습니다.</footer>
-<script>{FG_JS}{CARDS_JS}</script>
+<script>{FG_JS}{CARDS_JS}{CTA_JS}</script>
 <script>(function(){{const T=[...document.querySelectorAll('.tile.poll')];if(!T.length)return;
 const U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json&events=1&symbols='+T.map(t=>encodeURIComponent(t.dataset.q)).join('|');
 const n=v=>parseFloat(String(v).replace(/[%,+]/g,''));
