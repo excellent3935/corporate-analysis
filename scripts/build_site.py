@@ -575,10 +575,10 @@ def tile_live(name, sym, rng="1M"):  # 트레이딩뷰 미니 시세 위젯 (실
 MACRO_LIVE = [("VIX 변동성 지수", None), ("달러 인덱스 (DXY)", "PEPPERSTONE:USDX"), ("원/달러 환율", "FX_IDC:USDKRW"), ("달러/엔 환율", "FX:USDJPY"),
               ("WTI 유가", "TVC:USOIL"), ("금", "TVC:GOLD")]
 # 트레이딩뷰가 위젯에 막아 둔 심볼(VIX 지수·미국 20년물·일본 국채)은 매일 받는 종가 타일로 표시
-RATE_LIVE = [("미국 2년물", "PYTH:US02Y"), ("미국 10년물", "PYTH:US10Y"), ("미국 20년물", None), ("미국 30년물", "PYTH:US30Y"),
+RATE_LIVE = [("미국 2년물", None), ("미국 10년물", None), ("미국 20년물", None), ("미국 30년물", None),
              ("일본 2년물", None), ("일본 10년물", None)]
-CNBC_SYM = {"VIX 변동성 지수": ".VIX", "미국 20년물": "US20Y", "일본 2년물": "JP2Y", "일본 10년물": "JP10Y"}  # 1분마다 CNBC 시세로 덮어씀
-DAILY_KEY = {"VIX 변동성 지수": ("VIX", "", 2, ""), "미국 20년물": ("US20Y", "%", 3, "%p"), "일본 2년물": ("JP02Y", "%", 3, "%p"), "일본 10년물": ("JP10Y", "%", 3, "%p")}
+CNBC_SYM = {"VIX 변동성 지수": ".VIX", "미국 2년물": "US2Y", "미국 10년물": "US10Y", "미국 30년물": "US30Y", "미국 20년물": "US20Y", "일본 2년물": "JP2Y", "일본 10년물": "JP10Y"}  # 1분마다 CNBC 시세로 덮어씀
+DAILY_KEY = {"VIX 변동성 지수": ("VIX", "", 2, ""), "미국 2년물": ("US02Y", "%", 2, "%p"), "미국 10년물": ("US10Y", "%", 2, "%p"), "미국 20년물": ("US20Y", "%", 2, "%p"), "미국 30년물": ("US30Y", "%", 2, "%p"), "일본 2년물": ("JP02Y", "%", 2, "%p"), "일본 10년물": ("JP10Y", "%", 2, "%p")}
 def tile_any(n, y):
     if y: return tile_live(n, y)
     k, u, d, au = DAILY_KEY[n]
@@ -597,7 +597,7 @@ def fut_daily(k, name, sym):
             f'{bigchart(SER[k]["close"], SER[k]["dates"])}<div class="leg"><i style="background:#2563eb"></i>20일선<i style="background:var(--ma50)"></i>50일선 · 최근 6개월 일봉 종가</div></div>')
 def tile(k, name, unit="", d=2, absunit=""):
     p, pc, ab = SNAP[k]
-    chg = f"{ab:+.3f}%p" if absunit == "%p" else f"{sign(ab, d)} ({sign(pc, 2, True)})"
+    chg = f"{ab:+.2f}%p" if absunit == "%p" else f"{sign(ab, d)} ({sign(pc, 2, True)})"
     pre="$" if unit=="$" else ""; unit="" if unit=="$" else unit
     return f'<div class="tile"><div class="nm">{name}</div><div class="px">{pre}{p:,.{d}f}{unit}</div><div class="ch {cls(ab)}">{chg}</div>{spark(SER[k]["close"])}</div>'
 
@@ -644,7 +644,7 @@ home = f"""<main class="home">
 <div class="tiles">{"".join(tile_any(n, y) for n, y in MACRO_LIVE)}</div>
 <div class="note oneline"><b>한 줄 해석</b> · {ONE_LINE} <span style="opacity:.7">(전일 종가 기준)</span></div>
 
-<div class="sech"><h2>국채 금리</h2><span class="sm">미국 2·10·30년물 트레이딩뷰 실시간 · 20년물·일본 국채는 CNBC 시세 1분 갱신</span></div>
+<div class="sech"><h2>국채 금리</h2><span class="sm">CNBC 시세 1분 갱신 · 소수점 둘째 자리</span></div>
 <div class="tiles">{"".join(tile_any(n, y) for n, y in RATE_LIVE)}</div>
 
 <div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부·일본 재무성(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 선물·히트맵·변동성·환율·원자재·국채 금리 칸과 기업별 차트는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
@@ -670,8 +670,8 @@ const n=v=>parseFloat(String(v).replace(/[%,+]/g,''));
 async function upd(){{try{{const j=await (await fetch(U,{{cache:'no-store'}})).json();const Q={{}};(j.FormattedQuoteResult.FormattedQuote||[]).forEach(q=>Q[q.symbol]=q);
 const now=new Date().toLocaleTimeString('ko-KR',{{hour:'2-digit',minute:'2-digit',hour12:false}});
 T.forEach(t=>{{const q=Q[t.dataset.q];if(!q||q.last==null)return;const L=n(q.last);if(isNaN(L))return;let C=n(q.change);if(isNaN(C)){{const pv0=n(q.previous_day_closing);C=isNaN(pv0)?0:L-pv0;}}const y=t.dataset.y==='1';
-t.querySelector('.px').textContent=y?L.toFixed(3)+'%':L.toFixed(2);const c=t.querySelector('.ch');const pv=n(q.previous_day_closing);
-c.textContent=y?(C>=0?'+':'')+C.toFixed(3)+'%p':(C>=0?'+':'')+C.toFixed(2)+' ('+(C>=0?'+':'')+(pv?(C/pv*100):0).toFixed(2)+'%)';
+t.querySelector('.px').textContent=y?L.toFixed(2)+'%':L.toFixed(2);const c=t.querySelector('.ch');const pv=n(q.previous_day_closing);
+c.textContent=y?(C>=0?'+':'')+C.toFixed(2)+'%p':(C>=0?'+':'')+C.toFixed(2)+' ('+(C>=0?'+':'')+(pv?(C/pv*100):0).toFixed(2)+'%)';
 c.className='ch '+(C>0?'up':C<0?'down':'');const b=t.querySelector('.dly');if(b){{b.textContent='1분 · '+now;b.classList.add('on');}}}});}}catch(e){{}}}}
 upd();setInterval(()=>{{if(!document.hidden)upd();}},60000);document.addEventListener('visibilitychange',()=>{{if(!document.hidden)upd();}});}})();
 (function(){{const B=document.getElementById('ctaboard'),P=document.getElementById('ctapager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);let cur=0;
