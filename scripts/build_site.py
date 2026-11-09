@@ -372,6 +372,71 @@ main.home{padding:12px 14px 40px}.intro{padding:14px 0 0}.intro h1{font-size:25p
 .endnav{flex-direction:column}
 footer{padding:10px 14px 30px}
 }
+
+/* ================= research-report theme ================= */
+:root{--navy:#0f2342;--gold:#a8823f;--paper:#f6f3ec;--card:#fffdf9;--ink:#141a26;--ink2:#3b4354;--muted:#6f7685;--line:#e2dccf;--soft:#efeadf;--hover:#ece6d8;--ma50:#0f2342;--blue:#1f4e8c;--red:#1f4e8c;--up:#15803d;--down:#b91c1c;--serif:"Noto Serif KR","Nanum Myeongjo",Georgia,serif}
+body{background:var(--paper);color:var(--ink)}
+.top{background:rgba(246,243,236,.94);border-bottom:1px solid var(--line);box-shadow:inset 0 -2px 0 var(--gold)}
+.top .brand{color:var(--navy)}.top .brand .mk{background:var(--navy);color:#e9d6ab;border-radius:2px;font-family:var(--serif);font-weight:700;font-size:13px}
+.top .brand .w{font-family:var(--serif);font-weight:700;letter-spacing:3px;color:var(--navy)}
+.top a.nv{color:var(--ink2);border-radius:2px}.top a.nv.on,.top a.nv:hover{background:transparent;color:var(--navy);box-shadow:inset 0 -2px 0 var(--gold)}
+.top .thm{border-radius:2px}
+.intro{padding:40px 0 18px;border-bottom:1px solid var(--line)}.intro .ey{color:var(--gold);letter-spacing:3px;font-size:11.5px}
+.intro h1{font-family:var(--serif);font-weight:700;color:var(--navy);font-size:36px;letter-spacing:-.5px}
+.sech{margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--navy);position:relative}.sech:after{content:"";position:absolute;left:0;bottom:-1px;width:56px;height:3px;background:var(--gold)}
+.sech h2{font-family:var(--serif);font-weight:700;color:var(--navy);font-size:22px}
+.panel,.tile,.ins div,.ctabox,.stock,.prembox,.read .card,.read .strat div,.tvbox,.hero{background:var(--card);border-color:var(--line);border-radius:4px}
+.panel{box-shadow:0 1px 0 rgba(15,35,66,.04)}
+.pill{border-radius:2px;background:var(--card);border-color:var(--line);color:var(--ink2)}.pill.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.ivb{border-radius:2px}.ivb.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.pager button{border-radius:2px}.pager button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.cmp th{background:transparent;color:var(--navy);border-top:2px solid var(--navy);border-bottom:1px solid var(--navy);font-size:12px;letter-spacing:.5px}
+.tag{border-radius:2px}.g{background:#e3efe6;color:#15803d}.b{background:#f6e3e1;color:#a61b1b}.y{background:#f3ecd9;color:#8a6a1f}.bl{background:#e2e9f3;color:#1f4e8c}
+.fut .lv{border-radius:2px;background:var(--down)}.dly{border-radius:2px}
+.gl{stroke:#e8e2d5}.bar{background:#ebe5d8;border-radius:1px}
+/* tiles */
+.books{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.tcard{min-width:0;aspect-ratio:1/1;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:4px;padding:12px;text-decoration:none;color:var(--ink);transition:border-color .15s,transform .15s;position:relative}
+.tcard:hover{border-color:var(--gold);transform:translateY(-2px)}.tcard:before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:var(--navy);border-radius:4px 4px 0 0;opacity:0;transition:opacity .15s}.tcard:hover:before{opacity:1}
+.tl-top{display:flex;justify-content:space-between;align-items:center;gap:6px}.tl-tag{font-size:10.5px;color:var(--gold);font-weight:700;letter-spacing:.5px}.tl-tk{font-size:10.5px;color:var(--muted);letter-spacing:1px}
+.tl-logo{flex:1;display:flex;align-items:center;justify-content:center}.tl-logo .logo{width:52px;height:52px;border-radius:50%;box-shadow:0 0 0 1px var(--line)}.tl-logo .mono{font-size:15px;color:var(--navy)}
+.tl-nm{font-family:var(--serif);font-weight:700;font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--navy)}
+.tl-px{font-size:12.5px;font-weight:700;margin-top:2px;white-space:nowrap}.tl-px span{font-weight:600;margin-left:4px}
+/* report pages */
+.readwrap,.side{background:var(--paper)}.side{border-right-color:var(--line)}.side a{border-radius:2px}.side a.on,.side a:hover{background:var(--hover);color:var(--navy)}
+.side .prem{background:transparent;border-top:1px solid var(--line);border-radius:0;padding:10px 0}.side .prem a.on{box-shadow:inset 3px 0 0 var(--gold);background:var(--card)}
+.read{background:transparent}.rhead{border-bottom:2px solid var(--navy)}.rhead .t{font-family:var(--serif);font-weight:700;color:var(--navy);font-size:16px}
+.prembox .k,.read .part span{color:var(--gold)}
+.read h2{font-family:var(--serif);font-weight:700;color:var(--navy);font-size:21px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.read h3{font-family:var(--serif);font-weight:600;color:var(--navy)}
+.read .part{font-family:var(--serif);border-top:3px double var(--navy);color:var(--navy)}
+.read .dark{background:var(--navy);border-radius:4px;border-left:4px solid var(--gold)}
+.read .box{background:var(--soft);border-radius:4px}.read .meta{background:var(--soft);border-radius:4px}
+.read th{border-bottom:2px solid var(--navy);color:var(--navy)}.read tr.hl td{background:#f6efdc}
+.read .sum3{border-left:3px solid var(--gold);background:var(--soft);border-radius:0 4px 4px 0}
+.read .kw{color:#1f4e8c}.tvlink{color:var(--blue)}
+.endnav{border-top:2px solid var(--navy)}
+footer{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+/* dark */
+html[data-theme=dark]{--navy:#d8c8a2;--gold:#c9a45c;--paper:#0b1220;--card:#111a2c;--ink:#e7e4dc;--ink2:#c2c0b8;--muted:#8d93a1;--line:#24304a;--soft:#152038;--hover:#18243d;--ma50:#d8c8a2;--blue:#8fb3e8;--red:#8fb3e8;--up:#34d399;--down:#f87171}
+html[data-theme=dark] body{background:var(--paper)}
+html[data-theme=dark] .top{background:rgba(11,18,32,.92);border-bottom-color:var(--line)}
+html[data-theme=dark] .top .brand .mk{background:#c9a45c;color:#0b1220}html[data-theme=dark] .top a.nv{color:var(--ink2)}html[data-theme=dark] .top a.nv.on,html[data-theme=dark] .top a.nv:hover{background:transparent;color:var(--navy)}
+html[data-theme=dark] .panel,html[data-theme=dark] .tile,html[data-theme=dark] .pill,html[data-theme=dark] .prembox{background:var(--card)}
+html[data-theme=dark] .pill{color:var(--ink2)}html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dark] .pager button.on{background:var(--gold);border-color:var(--gold);color:#0b1220}
+html[data-theme=dark] .cmp th{background:transparent;border-top-color:var(--gold);border-bottom-color:var(--line)}
+html[data-theme=dark] .gl{stroke:#1d2840}html[data-theme=dark] .bar{background:#1d2840}
+html[data-theme=dark] .readwrap,html[data-theme=dark] .side{background:var(--paper)}html[data-theme=dark] .side .prem{background:transparent}
+html[data-theme=dark] .side a.on,html[data-theme=dark] .side a:hover,html[data-theme=dark] .side .prem a.on,html[data-theme=dark] .side .prem a:hover{background:var(--hover);color:var(--navy)}
+html[data-theme=dark] .read .dark{background:#16223a;border:1px solid var(--line);border-left:4px solid var(--gold);color:var(--ink)}
+html[data-theme=dark] .read .box,html[data-theme=dark] .read .sum3{background:var(--soft)}html[data-theme=dark] .read tr.hl td{background:rgba(201,164,92,.10)}
+html[data-theme=dark] .read th{border-bottom-color:var(--gold)}html[data-theme=dark] .read .kw{color:#8fb3e8}
+html[data-theme=dark] .tl-logo .logo{box-shadow:0 0 0 1px var(--line)}html[data-theme=dark] .tcard:before{background:var(--gold)}
+html[data-theme=dark] .intro .ey,html[data-theme=dark] .prembox .k,html[data-theme=dark] .read .part span{color:var(--gold)}
+html[data-theme=dark] .read .part{border-top-color:var(--gold)}html[data-theme=dark] .sech{border-bottom-color:var(--line)}
+@media(max-width:1000px){.books{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:640px){.books{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tcard{aspect-ratio:auto;min-height:150px}.tcard{padding:9px}.tl-logo .logo{width:40px;height:40px}.tl-nm{font-size:12px}.tl-px{font-size:11px}.tl-px span{display:block;margin:0}.tl-tag,.tl-tk{font-size:9.5px}.intro h1{font-size:26px}.sech h2{font-size:19px}}
+@media(max-width:380px){.books{grid-template-columns:repeat(2,minmax(0,1fr))}}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
@@ -382,7 +447,7 @@ function setIv(v,re){IV=v;document.querySelectorAll('.futw').forEach(function(c)
 document.querySelectorAll('.ivb').forEach(function(x){x.classList.toggle('on',x.dataset.iv===v)});try{localStorage.setItem('futIv',v)}catch(e){}if(re)tv('.futw');}
 document.querySelectorAll('.ivb').forEach(function(x){x.addEventListener('click',function(){setIv(x.dataset.iv,true)})});if(document.querySelector('.futw'))setIv(IV,false);
 tv();var b=document.querySelector('.thm');if(b)b.addEventListener('click',function(){var t=R.getAttribute('data-theme')==='dark'?'light':'dark';R.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}tv();});})();</script>"""
-FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
+FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">'
 
 
 # --------------- live widgets (TradingView 공식 위젯: 방문자 브라우저가 직접 시세를 받음) ---------------
@@ -456,13 +521,12 @@ def shell(title, inner, on="home"):
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<span class="st">{STAMP}</span><button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
 {inner}{THEME_JS}</body></html>"""
 
-def cover(r):
+def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
-    return (f'<a class="book" data-tag="{tag}" href="{f}"><div class="cover" style="--cbg:{bg};background:var(--cbg)"><span class="bdg">{tag}</span>'
-            f'<div><div class="tk">{EXCH.get(tk,"NASDAQ")} · {tk}</div></div>'
-            f'<div class="emb"><span>{ICON[tk]}</span></div>'
-            f'<div class="cs">{sub}</div></div><div class="bt">{title}</div><div class="ba">실적·심층 통합 리포트 · 2026.11</div>'
-            f'<div class="bp {PRICE[tk][2]}">{PRICE[tk][0]} &nbsp;{PRICE[tk][1]}</div><span class="btn">리포트 읽기</span></a>')
+    px, ch, c = PRICE[tk]
+    return (f'<a class="book tcard" data-tag="{tag}" href="{f}" title="{sub}"><div class="tl-top"><span class="tl-tag">{tag}</span><span class="tl-tk">{tk}</span></div>'
+            f'<div class="tl-logo">{ICON[tk]}</div><div class="tl-nm">{title.replace(" 기업분석","")}</div>'
+            f'<div class="tl-px">{px} <span class="{c}">{ch}</span></div></a>')
 
 # --------------- read pages ---------------
 def side(active):
@@ -557,7 +621,7 @@ RATE_SUB = " · ".join(n for _, n in _rates)
 CTA_DATE = max((e.get("date", "") for e in CTA.values()), default="")
 
 home = f"""<main class="home">
-<div class="intro"><div class="ey">CORPORATE ANALYSIS</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1></div>
+<div class="intro"><div class="ey">EQUITY RESEARCH · {ASOF:%Y.%m.%d}</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1></div>
 <section id="market">
 <div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
