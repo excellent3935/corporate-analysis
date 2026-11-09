@@ -346,6 +346,32 @@ html[data-theme=dark] [style*="color:#b3263a"]{color:#fca5a5!important}html[data
 html[data-theme=dark] [style*="border-top:1px solid #e5e7eb"]{border-top-color:var(--line)!important}
 @media(max-width:1000px){.grid3,.curve,.ins{grid-template-columns:1fr}.fgwrap{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(3,1fr)}.books{grid-template-columns:repeat(3,1fr)}.readwrap{grid-template-columns:1fr}.side{display:none}}
 @media(max-width:560px){.tiles{grid-template-columns:repeat(2,1fr)}.books{grid-template-columns:repeat(2,1fr)}}
+/* ---------- mobile ---------- */
+.readwrap>*{min-width:0}.board{overflow-x:auto}.board .dots{white-space:nowrap}
+@media(max-width:640px){
+body{font-size:14px}
+.top .in{padding:8px 12px;gap:2px;overflow:visible}.top .brand{margin-right:6px;gap:7px}.top .brand .w{display:none}
+.top a.nv{padding:5px 8px;font-size:13px}.top .st{display:none}.top .thm{margin-left:auto;width:32px;height:28px;font-size:14px}
+main.home{padding:12px 14px 40px}.intro{padding:14px 0 0}.intro h1{font-size:25px}
+.sech{flex-wrap:wrap;gap:2px 8px;margin:24px 0 10px}.sech h2{font-size:18px;white-space:nowrap}.sech .sm{flex-basis:100%;font-size:11.5px}
+.panel{padding:12px 12px;border-radius:12px}.fhd .ivs{width:100%}.ivb{flex:1;padding:4px 0}.tvmini{height:300px}
+.fgwrap{gap:10px}.gauge{max-width:240px;margin:0 auto;display:block}
+.tiles{gap:8px}.tvtile{height:136px}
+.pills{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:4px -14px 12px;padding:0 14px}.pills::-webkit-scrollbar{display:none}.pill{flex:none;padding:6px 12px;font-size:12.5px}
+.bdtool .pills{margin:0;padding:0}
+.board td,.board th{padding:6px 6px;font-size:12.5px}.board .tag{white-space:nowrap;font-size:11px;padding:1px 5px;margin:0}.board td.r{white-space:nowrap}.board .bl0{width:24px;height:24px}.board a.bn{gap:7px}
+#ctaboard:not(.brief) .dots i{width:9px;height:9px;margin-right:2px}
+.pager button{min-width:30px;height:30px}.pager .pi{display:none}
+.books{gap:12px}.cover{padding:12px;border-radius:12px}.cover .bdg{top:12px;left:12px;font-size:10px}.cover .tk{font-size:10px;letter-spacing:1px;margin-top:28px}
+.cover .emb{width:84px!important;height:84px!important}.cover .cs{font-size:10.5px;line-height:1.4}
+.book .bt{font-size:13px}.book .ba{font-size:11px}.book .bp{font-size:12.5px}.book .btn{padding:7px;font-size:12px}
+.read{padding:14px 14px 60px;font-size:15px}.rhead{margin-bottom:14px}.prembox{padding:10px 12px;font-size:12.5px}
+.stock{padding:12px;gap:10px;flex-wrap:wrap}.stock .lg{width:42px;height:42px}.stock .n{font-size:16px}.stock .u{word-break:break-all}.stock .p{font-size:16px}
+.read table{font-size:12.5px}.read th,.read td{padding:6px 6px}.read .two>div{min-width:100%}
+.ctabox{padding:12px}.ctabox .tr{margin-left:0;text-align:left}.ctabox .tr svg{width:160px}
+.endnav{flex-direction:column}
+footer{padding:10px 14px 30px}
+}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
@@ -586,7 +612,7 @@ function show(i){{cur=i;rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?
 let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
 h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
 P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disabled)show(+b.dataset.p);}});show(0);
-let v='full';try{{v=localStorage.getItem('ctaView')||'full'}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
+let v=matchMedia('(max-width:640px)').matches?'brief':'full';try{{v=localStorage.getItem('ctaView')||v}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
 function setV(x){{B.classList.toggle('brief',x==='brief');vb.forEach(b=>b.classList.toggle('on',b.dataset.v===x));try{{localStorage.setItem('ctaView',x)}}catch(e){{}}}}
 vb.forEach(b=>b.addEventListener('click',()=>setV(b.dataset.v)));setV(v);}})();
 document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));const f=p.dataset.f;document.querySelectorAll('.book').forEach(b=>b.style.display=(f==='all'||b.dataset.tag===f)?'':'none');}}));</script>"""
