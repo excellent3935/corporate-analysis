@@ -1,0 +1,111 @@
+Basic Materials|Agricultural Inputs:CF MOS VYLR
+Basic Materials|Building Materials:CRH MLM VMC
+Basic Materials|Chemicals:DOW
+Basic Materials|Copper:FCX
+Basic Materials|Gold:NEM
+Basic Materials|Specialty Chemicals:ALB APD DD ECL IFF LIN LYB PPG SHW
+Basic Materials|Steel:NUE STLD
+Communication Services|Advertising Agencies:APP OMC
+Communication Services|Electronic Gaming & Multimedia:TTWO
+Communication Services|Entertainment:DIS FOX FOXA LYV NFLX NWS NWSA SKYD TKO
+Communication Services|Internet Content & Information:GOOG GOOGL META RDDT
+Communication Services|Telecom Services:CHTR CMCSA ECHO T TMUS VZ
+Consumer Cyclical|Apparel Manufacturing:RL
+Consumer Cyclical|Apparel Retail:LULU ROST TJX
+Consumer Cyclical|Auto & Truck Dealerships:CVNA
+Consumer Cyclical|Auto Manufacturers:F GM TSLA
+Consumer Cyclical|Auto Parts:APTV AZO GPC ORLY
+Consumer Cyclical|Footwear & Accessories:DECK NKE
+Consumer Cyclical|Home Improvement Retail:HD LOW
+Consumer Cyclical|Internet Retail:AMZN DASH EBAY
+Consumer Cyclical|Leisure:HAS
+Consumer Cyclical|Lodging:HLT MAR
+Consumer Cyclical|Luxury Goods:TPR
+Consumer Cyclical|Packaging & Containers:AMCR AVY BALL IP PKG SW
+Consumer Cyclical|Personal Services:ROL
+Consumer Cyclical|Residential Construction:DHI LEN NVR PHM
+Consumer Cyclical|Resorts & Casinos:LVS MGM WYNN
+Consumer Cyclical|Restaurants:CMG DPZ DRI MCD SBUX YUM
+Consumer Cyclical|Specialty Retail:BBY CASY TSCO ULTA WSM
+Consumer Cyclical|Travel Services:ABNB BKNG CCL EXPE NCLH RCL
+Consumer Defensive|Beverages - Brewers:STZ
+Consumer Defensive|Beverages - Non-Alcoholic:KDP KO MNST PEP
+Consumer Defensive|Beverages - Wineries & Distilleries:BF.B
+Consumer Defensive|Confectioners:HSY MDLZ
+Consumer Defensive|Discount Stores:COST DG DLTR TGT WMT
+Consumer Defensive|Farm Products:ADM BG TSN
+Consumer Defensive|Food Distribution:SYY
+Consumer Defensive|Grocery Stores:KR
+Consumer Defensive|Household & Personal Products:CHD CL CLX EL KMB PG
+Consumer Defensive|Packaged Foods:GIS HRL KHC MKC SJM
+Consumer Defensive|Tobacco:MO PM
+Energy|Oil & Gas E&P:APA COP DVN EOG EQT EXE FANG OXY TPL
+Energy|Oil & Gas Equipment & Services:BKR HAL SLB
+Energy|Oil & Gas Integrated:CVX XOM
+Energy|Oil & Gas Midstream:KMI OKE TRGP WMB
+Energy|Oil & Gas Refining & Marketing:MPC PSX VLO
+Financial|Asset Management:AMP APO ARES BEN BLK BX IVZ KKR NTRS PFG RJF STT TROW
+Financial|Banks - Diversified:BAC BNY C JPM WFC
+Financial|Banks - Regional:CFG FITB HBAN KEY MTB PNC RF TFC USB
+Financial|Capital Markets:GS HOOD IBKR MS SCHW
+Financial|Credit Services:AXP COF MA PYPL SYF V
+Financial|Financial Data & Stock Exchanges:CBOE CME COIN FDS ICE MCO MSCI NDAQ SPGI
+Financial|Insurance - Diversified:ACGL AIG BRK.B HIG
+Financial|Insurance - Life:AFL GL MET PRU
+Financial|Insurance - Property & Casualty:AIZ ALL CB CINF L PGR TRV WRB
+Financial|Insurance - Reinsurance:EG
+Financial|Insurance Brokers:AJG AON BRO ERIE MRSH WTW
+Healthcare|Biotechnology:INCY MRNA REGN TECH VRTX
+Healthcare|Diagnostics & Research:A CRL DGX DHR IDXX ILMN IQV LH MTD RVTY TMO WAT
+Healthcare|Drug Manufacturers - General:ABBV AMGN BIIB BMY GILD JNJ LLY MRK PFE
+Healthcare|Drug Manufacturers - Specialty & Generic:VTRS ZTS
+Healthcare|Health Information Services:VEEV
+Healthcare|Healthcare Plans:CI CNC CVS ELV HUM UNH
+Healthcare|Medical Care Facilities:DVA HCA UHS
+Healthcare|Medical Devices:ABT BSX DXCM EW GEHC MDT PODD STE SYK ZBH
+Healthcare|Medical Distribution:CAH COR HSIC MCK
+Healthcare|Medical Instruments & Supplies:ALGN BAX BDX COO ISRG RMD SOLV WST
+Industrials|Aerospace & Defense:AXON BA GD GE HII HONA HWM LHX LMT NOC RTX TDG TXT
+Industrials|Airlines:DAL LUV UAL
+Industrials|Building Products & Equipment:CARR JCI LII MAS TT
+Industrials|Conglomerates:HON MMM
+Industrials|Consulting Services:EFX VRSK
+Industrials|Electrical Equipment & Parts:BE HUBB VRT
+Industrials|Engineering & Construction:EME FIX J PWR
+Industrials|Farm & Heavy Construction Machinery:CAT DE PCAR
+Industrials|Industrial Distribution:FAST FERG GWW
+Industrials|Integrated Freight & Logistics:CHRW EXPD FDX FDXF JBHT UPS
+Industrials|Pollution & Treatment Controls:VLTO
+Industrials|Railroads:CSX NSC UNP WAB
+Industrials|Rental & Leasing Services:URI
+Industrials|Security & Protection Services:ALLE
+Industrials|Specialty Business Services:CPRT CTAS
+Industrials|Specialty Industrial Machinery:AME AOS CMI DOV EMR ETN GEV GNRC IEX IR ITW NDSN OTIS PH PNR ROK XYL
+Industrials|Tools & Accessories:SNA SWK
+Industrials|Trucking:ODFL
+Industrials|Waste Management:RSG WM
+Real Estate|REIT - Diversified:VICI
+Real Estate|REIT - Healthcare Facilities:DOC VTR WELL
+Real Estate|REIT - Hotel & Motel:HST
+Real Estate|REIT - Industrial:EXR PLD PSA
+Real Estate|REIT - Office:ARE BXP
+Real Estate|REIT - Residential:CPT ESS INVH MAA UDR VMRK
+Real Estate|REIT - Retail:FRT KIM O REG SPG
+Real Estate|REIT - Specialty:AMT CCI DLR EQIX IRM SBAC WY
+Real Estate|Real Estate Services:CBRE CSGP
+Technology|Communication Equipment:CIEN CSCO HPE LITE MSI ZBRA
+Technology|Computer Hardware:ANET DELL HPQ P SMCI SNDK STX WDC
+Technology|Consumer Electronics:AAPL
+Technology|Electronic Components:APH FLEX GLW JBL TEL
+Technology|Information Technology Services:ACN BR CDW CTSH FIS FISV IBM IT JKHY LDOS
+Technology|Scientific & Technical Instruments:COHR FTV GRMN KEYS TDY TRMB
+Technology|Semiconductor Equipment & Materials:AMAT KLAC LRCX Q TER
+Technology|Semiconductors:ADI AMD AVGO INTC MCHP MPWR MRVL MU NVDA NXPI ON QCOM SWKS TXN
+Technology|Software - Application:ADBE ADP ADSK CDNS CRM DDOG FICO INTU NOW PAYX PTC ROP TYL UBER WDAY
+Technology|Software - Infrastructure:AKAM CPAY CRWD FFIV FTNT GDDY GEN GPN MSFT NTAP OKTA ORCL PANW PLTR SNPS TWLO VRSN XYZ
+Technology|Solar:FSLR
+Utilities|Utilities - Diversified:AES SRE
+Utilities|Utilities - Independent Power Producers:CEG NRG VST
+Utilities|Utilities - Regulated Electric:AEE AEP CMS CNP D DTE DUK ED EIX ES ETR EVRG EXC FE LNT NEE PCG PEG PNW PPL SO WEC XEL
+Utilities|Utilities - Regulated Gas:ATO NI
+Utilities|Utilities - Regulated Water:AWK
