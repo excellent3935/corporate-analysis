@@ -35,6 +35,7 @@ STOCKS = {  # 사이트 티커: 야후 심볼
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
     "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR", "META": "META", "CRWV": "CRWV",
     "TSLA": "TSLA", "SPCX": "SPCX", "DELL": "DELL", "SNDK": "SNDK", "CRWD": "CRWD", "NBIS": "NBIS",
+    "LLY": "LLY", "JPM": "JPM", "UNH": "UNH", "KO": "KO", "WMT": "WMT", "COST": "COST", "IONQ": "IONQ",
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),

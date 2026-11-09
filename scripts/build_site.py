@@ -167,6 +167,13 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "소프트웨어", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
  ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "소프트웨어", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
+ ("eli-lilly.html", "lly", [CONTENT + "/lly/body.html"], "Eli Lilly 기업분석", "LLY", "Eli Lilly and Company", "헬스케어", "비만약 매출 66% · PEG 0.92 · CTA +1.0", "#fdf2f8", "제약 · 시총 $1.27T", "https://www.lilly.com"),
+ ("jpmorgan.html", "jpm", [CONTENT + "/jpm/body.html"], "JPMorgan Chase 기업분석", "JPM", "JPMorgan Chase & Co.", "금융", "ROTCE 20% · PEG 0.79 · P/TBV 3배", "#eff6ff", "은행 · 시총 $889B", "https://www.jpmorganchase.com"),
+ ("unitedhealth.html", "unh", [CONTENT + "/unh/body.html"], "UnitedHealth 기업분석", "UNH", "UnitedHealth Group Incorporated", "헬스케어", "이익 V자 회복 · MCR 88.4%", "#f0f9ff", "건강보험·의료 · 시총 $353B", "https://www.unitedhealthgroup.com"),
+ ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "영업이익률 33% · PEG 2.3 · 사상 최고가", "#fef2f2", "음료 · 시총 $412B", "https://www.coca-colacompany.com"),
+ ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통 · 시총 $996B", "https://corporate.walmart.com"),
+ ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통 · 시총 $467B", "https://www.costco.com"),
+ ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "반도체", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅 · 시총 $14.0B", "https://ionq.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -174,13 +181,14 @@ def _price(tk):
     ch = e.get("chg", 0)
     return (fmt(e["close"], e.get("cur", "$")), f"{ch:+.2f}%", "up" if ch > 0 else ("down" if ch < 0 else ""))
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE"}
+EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
         "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave",
-        "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
+        "LLY": "eli-lilly", "JPM": "jpmorgan-chase", "UNH": "unitedhealth", "KO": "coca-cola", "WMT": "walmart", "COST": "costco-wholesale", "IONQ": "ionq"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -556,8 +564,8 @@ home = f"""<main class="home">
 </section>
 
 <section id="reports">
-<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 24개 기업</span></div>
-<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button></div>
+<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 31개 기업</span></div>
+<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button><button class="pill" data-f="헬스케어">헬스케어</button><button class="pill" data-f="금융">금융</button><button class="pill" data-f="소비재">소비재</button></div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
