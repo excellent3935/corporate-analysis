@@ -61,13 +61,17 @@ if(isNaN(C)&&pv)C=(L-pv)/pv*100;if(isNaN(L)||isNaN(C))return;Q[q.symbol]={v:cap(
 if(n>50){lastOk=Date.now();const top=Object.keys(ses).sort((a,b)=>ses[b]-ses[a])[0];session=top==='REG_MKT'?'정규장':top==='PRE_MKT'?'프리마켓':top==='POST_MKT'?'애프터마켓':'장 마감';draw();stamp();}}catch(e){stamp(true);}}
 function stamp(err){const t=lastOk?new Date(lastOk).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}):'--';st.innerHTML=(err?'<span class="dn">연결 지연 · 재시도 중</span> · ':'')+'<span class="live"></span>'+session+' · 1분마다 갱신 · 마지막 '+t;}
 // ---- 상호작용 ----
+const SPK={},spkT={};let cur=null;
+function spk(a,c,w,h){if(!a)return '<span class="sp0"></span>';const lo=Math.min(...a),hi=Math.max(...a),r=hi-lo||1,st=Math.max(1,Math.floor(a.length/60)),b=a.filter((_,i)=>i%st===0);
+return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'"><polyline points="'+b.map((v,i)=>(i*w/(b.length-1)).toFixed(1)+','+(h-2-(v-lo)/r*(h-4)).toFixed(1)).join(' ')+'" fill="none" stroke="'+(c>=0?'#34d36b':'#ff6b6e')+'" stroke-width="1.4"/></svg>';}
+function fetchSpk(list){list.forEach(t=>{if(spkT[t]&&Date.now()-spkT[t]<3e5)return;spkT[t]=Date.now();fetch('https://ts-api.cnbc.com/harmony/app/charts/1D.json?symbol='+encodeURIComponent(t)).then(r=>r.json()).then(j=>{const b=(j.barData.priceBars||[]).map(x=>num(x.close)).filter(x=>!isNaN(x));if(b.length>2){SPK[t]=b;if(cur&&tip.style.display==='block')showTip(cur.t,cur.ev,cur.gi,1);}}).catch(()=>{});});}
 function px(l){return '$'+l.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function showTip(t,ev,gi){const q=Q[t];if(!q)return;const g=gi!=null&&GR[gi]?GR[gi]:null,mx=matchMedia('(max-width:560px)').matches?6:11;
-let h=(g?'<div class="th">'+(g.par?g.par+' – ':'')+g.name+'</div>':'')+'<div class="tm"><b>'+t+'</b> <span>'+q.nm+'</span><div class="tp"><u>'+px(q.l)+'</u> <em class="'+(q.c>=0?'up':'down')+'">'+fc(q.c)+'</em></div><div class="ts">시총 '+(q.cap||'-')+'</div></div>';
+function showTip(t,ev,gi,again){const q=Q[t];if(!q)return;cur={t,ev,gi};const g=gi!=null&&GR[gi]?GR[gi]:null,mx=matchMedia('(max-width:560px)').matches?6:Math.max(6,Math.floor((root.clientHeight-140)/26));
+let h=(g?'<div class="th">'+(g.par?g.par+' – ':'')+g.name+'</div>':'')+'<div class="tm"><span class="sk">'+spk(SPK[t],q.c,70,26)+'</span><b>'+t+'</b> <span>'+q.nm+'</span><div class="tp"><u>'+px(q.l)+'</u> <em class="'+(q.c>=0?'up':'down')+'">'+fc(q.c)+'</em></div><div class="ts">시총 '+(q.cap||'-')+'</div></div>';
 if(g){const L=g.kids.slice(0,mx);if(g.kids.length>mx&&L.every(k=>k.t!==t)){L.pop();L.push(g.kids.find(k=>k.t===t));}
-h+='<div class="tl">'+L.map(k=>{const z=Q[k.t];return '<div class="tr'+(k.t===t?' on':'')+'"><b>'+k.t+'</b><span>'+px(z.l)+'</span><em class="'+(z.c>=0?'up':'down')+'">'+fc(z.c)+'</em></div>';}).join('')+(g.kids.length>mx?'<div class="tmore">외 '+(g.kids.length-L.length)+'개 종목</div>':'')+'</div>';
+h+='<div class="tl">'+L.map(k=>{const z=Q[k.t];return '<div class="tr'+(k.t===t?' on':'')+'"><b>'+k.t+'</b>'+spk(SPK[k.t],z.c,54,16)+'<span>'+px(z.l)+'</span><em class="'+(z.c>=0?'up':'down')+'">'+fc(z.c)+'</em></div>';}).join('')+(g.kids.length>mx?'<div class="tmore">외 '+(g.kids.length-L.length)+'개 종목</div>':'')+'</div>';
 const hl=$('hmhl');if(hl){hl.style.cssText='display:block;left:'+g.x+'px;top:'+g.y+'px;width:'+g.w+'px;height:'+g.h+'px';}}
-tip.innerHTML=h;tip.style.display='block';
+tip.innerHTML=h;tip.style.display='block';if(!again&&g)fetchSpk(g.kids.slice(0,mx).map(k=>k.t).concat(t));
 const r=root.getBoundingClientRect(),tw=tip.offsetWidth,th=tip.offsetHeight;let x=ev.clientX-r.left+16,y=ev.clientY-r.top+12;if(x+tw>r.width)x=ev.clientX-r.left-tw-16;if(y+th>r.height)y=r.height-th-4;tip.style.left=Math.max(0,x)+'px';tip.style.top=Math.max(0,y)+'px';}
 function hideTip(){tip.style.display='none';const hl=$('hmhl');if(hl)hl.style.display='none';}
 box.addEventListener('mousemove',e=>{const c=e.target.closest('.hc');if(c)showTip(c.dataset.t,e,c.dataset.g==null?null:+c.dataset.g);else hideTip();});

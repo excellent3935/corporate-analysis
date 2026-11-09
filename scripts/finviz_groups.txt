@@ -8,7 +8,7 @@ Basic Materials|Steel:NUE STLD
 Communication Services|Advertising Agencies:APP OMC
 Communication Services|Electronic Gaming & Multimedia:TTWO
 Communication Services|Entertainment:DIS FOX FOXA LYV NFLX NWS NWSA SKYD TKO
-Communication Services|Internet Content & Information:GOOG GOOGL META RDDT
+Communication Services|Internet Content & Information:GOOGL META RDDT
 Communication Services|Telecom Services:CHTR CMCSA ECHO T TMUS VZ
 Consumer Cyclical|Apparel Manufacturing:RL
 Consumer Cyclical|Apparel Retail:LULU ROST TJX
