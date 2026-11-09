@@ -144,7 +144,7 @@ for d in sorted(os.listdir(CONTENT)):
 
 REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, stock line, url
  ("micron.html", "mu", [CONTENT + "/mu/report.html", CONTENT + "/mu/body2.html"], "Micron Technology 기업분석", "MU", "Micron Technology, Inc.", "반도체", "8개 분기 실적 · DRAM 수요 · 이평선·CTA", "#eef2ff", "반도체 · 시총 $780.7B · 직원 약 6.1만 명", "https://www.micron.com"),
- ("alphabet.html", "googl", [CONTENT + "/googl/body1.html", CONTENT + "/googl/body2.html"], "Alphabet 기업분석", "GOOGL", "Alphabet Inc. Class A", "빅테크", "검색·클라우드 +103% · 풀스택 AI · TPU", "#ecfdf5", "인터넷 서비스 · 시총 $3.47T · 직원 204,757명", "https://abc.xyz"),
+ ("alphabet.html", "googl", [CONTENT + "/googl/body.html"], "Alphabet 기업분석", "GOOGL", "Alphabet Inc. Class A", "빅테크", "클라우드 +103% · FCF 마이너스 · CTA -0.75", "#ecfdf5", "인터넷 서비스 · 시총 $3.47T · 직원 204,757명", "https://abc.xyz"),
  ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · FCF 플러스 · 천장 테스트", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
  ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS 재가속 · 설비투자 $77B · 박스권", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
  ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "매출 $96B · 가이던스 $108B · 약정 $279B", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
