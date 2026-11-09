@@ -34,6 +34,7 @@ STOCKS = {  # 사이트 티커: 야후 심볼
     "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
     "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR", "META": "META", "CRWV": "CRWV",
+    "TSLA": "TSLA", "SPCX": "SPCX", "DELL": "DELL", "SNDK": "SNDK", "CRWD": "CRWD", "NBIS": "NBIS",
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),
@@ -156,7 +157,7 @@ def cta_fields(df):
     e = {"close": round(float(c.iloc[-1]), 4), "chg": round((c.iloc[-1] / c.iloc[-2] - 1) * 100, 2),
          "date": c.index[-1].strftime("%Y-%m-%d")}
     for k in (5, 20, 50, 100, 200):
-        e[f"s{k}"] = round(float(c.iloc[-k:].mean()), 4)
+        e[f"s{k}"] = round(float(c.iloc[-k:].mean()), 4) if len(c) >= k else None
     e["dh55"], e["dl55"] = round(float(h.iloc[-55:].max()), 4), round(float(lo.iloc[-55:].min()), 4)
     for k, n in (("m1", 21), ("m3", 63), ("m6", 126), ("m12", 252)):
         e[k] = round(float(c.iloc[-1 - n]), 4) if len(c) > n else None
@@ -169,10 +170,8 @@ def cta_fields(df):
 
 def score_history(df, days=60):
     out = []
-    for i in range(len(df) - days, len(df)):
+    for i in range(max(len(df) - days, 60), len(df)):
         sub = df.iloc[: i + 1]
-        if len(sub) < 260:
-            continue
         _, s = signals(cta_fields(sub))
         out.append(round(s, 3))
     return out

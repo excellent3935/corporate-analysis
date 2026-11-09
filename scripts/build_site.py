@@ -160,6 +160,12 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("palantir.html", "pltr", [CONTENT + "/pltr/body.html"], "Palantir 기업분석", "PLTR", "Palantir Technologies Inc.", "소프트웨어", "매출 +96% · 순이익률 49% · TCV 둔화", "#f4f4f5", "소프트웨어 · 시총 $386B", "https://www.palantir.com"),
  ("meta.html", "meta", [CONTENT + "/meta/body.html"], "Meta 기업분석", "META", "Meta Platforms, Inc.", "빅테크", "매출 +26% · 이익률 20% · 설비투자 $140B", "#eef4ff", "인터넷 서비스 · 시총 $1.56T", "https://about.meta.com"),
  ("coreweave.html", "crwv", [CONTENT + "/crwv/body.html"], "CoreWeave 기업분석", "CRWV", "CoreWeave, Inc.", "소프트웨어", "AI 클라우드 · 잔고 $104B · 부채 $35B", "#f5f3ff", "AI 클라우드 · 시총 $25.6B", "https://www.coreweave.com"),
+ ("tesla.html", "tsla", [CONTENT + "/tsla/body.html"], "Tesla 기업분석", "TSLA", "Tesla, Inc.", "빅테크", "로보택시·FSD 174만 · 영업이익률 2.6%", "#fff1f2", "자동차·에너지·AI · 시총 $1.42T", "https://www.tesla.com"),
+ ("spacex.html", "spcx", [CONTENT + "/spcx/body.html"], "SpaceX 기업분석", "SPCX", "Space Exploration Technologies Corp.", "빅테크", "매출 +161% · AI(SI) $76억 · 첫 흑자", "#f1f5f9", "우주·통신·AI · 시총 $1.82T", "https://www.spacex.com"),
+ ("dell.html", "dell", [CONTENT + "/dell/body.html"], "Dell 기업분석", "DELL", "Dell Technologies Inc.", "반도체", "AI 서버 잔고 $950억 · 매출 +58%", "#eff6ff", "IT 하드웨어 · 시총 $2,089억", "https://www.dell.com"),
+ ("sandisk.html", "sndk", [CONTENT + "/sndk/body.html"], "Sandisk 기업분석", "SNDK", "Sandisk Corporation", "반도체", "매출총이익률 85% · 8:1 분할", "#fef2f2", "메모리 반도체 · 시총 $1,188억", "https://www.sandisk.com"),
+ ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "소프트웨어", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
+ ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "소프트웨어", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
 ]
 def _price(tk):
@@ -168,12 +174,13 @@ def _price(tk):
     ch = e.get("chg", 0)
     return (fmt(e["close"], e.get("cur", "$")), f"{ch:+.2f}%", "up" if ch > 0 else ("down" if ch < 0 else ""))
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE"}
+EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
-        "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave",
+        "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -378,7 +385,7 @@ def cta_box(tk):
     trend = spark(e["hist"], 200, 36, "#2563eb") if len(e.get("hist", [])) > 5 else ""
     atrp = f' · ATR {e["atr"] / e["close"] * 100:.1f}%' if e.get("atr") else ""
     return (f'<div class="ctabox"><div class="hd"><b>자동 CTA 신호</b><span>{e.get("date","")} 종가 기준 · 매일 자동 계산</span></div>'
-            f'<div class="sc">{score_tag(sc)}<div class="mv">종가 {F(e["close"])} · 200일선 대비 {(e["close"]/e["s200"]-1)*100:+.1f}%'
+            f'<div class="sc">{score_tag(sc)}<div class="mv">종가 {F(e["close"])} · {f'200일선 대비 {(e["close"]/e["s200"]-1)*100:+.1f}%' if e.get("s200") else '상장 기간이 짧아 200일선 없음'}'
             f'{atrp}</div>{f"<div class=tr>{trend}<small>최근 60거래일 점수 추이</small></div>" if trend else ""}</div>'
             f'<div class="tw"><table><tr><th>규칙</th><th>기준</th><th>현재 값</th><th>신호</th></tr>{rows}</table></div>'
             f'<div class="mas">이동평균선: {mas}</div>'
@@ -389,7 +396,7 @@ def cta_board():
     for r in REPORTS:
         tk = r[4]; e = CTA.get(tk, {}); sig, sc = signals(e)
         dots = "".join(f'<i class="{"pg" if x[3] > 0 else "pr"}" title="{x[0]}"></i>' for x in sig) if sig else '<span class="small">대기</span>'
-        d200 = f'{(e["close"]/e["s200"]-1)*100:+.1f}%' if e.get("s200") else "-"
+        d200 = f'{((e["close"]/e["s200"]-1)*100 if e.get("s200") else 0):+.1f}%' if e.get("s200") else "-"
         trend = spark(e["hist"], 90, 22, "#2563eb") if len(e.get("hist", [])) > 5 else ""
         px, ch, c = PRICE[tk]
         rows.append((sc if sc is not None else -9, f'<tr><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk}</span></span></a></td><td class="r">{px}<br><span class="{c}">{ch}</span></td>'
@@ -515,7 +522,7 @@ home = f"""<main class="home">
 </section>
 
 <section id="reports">
-<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 18개 기업</span></div>
+<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · 24개 기업</span></div>
 <div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button></div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
