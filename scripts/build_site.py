@@ -170,6 +170,18 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
  ("eli-lilly.html", "lly", [CONTENT + "/lly/body.html"], "Eli Lilly 기업분석", "LLY", "Eli Lilly and Company", "헬스케어", "비만약 매출 66% · PEG 0.92 · CTA +1.0", "#fdf2f8", "제약 · 시총 $1.27T", "https://www.lilly.com"),
  ("jpmorgan.html", "jpm", [CONTENT + "/jpm/body.html"], "JPMorgan Chase 기업분석", "JPM", "JPMorgan Chase & Co.", "금융", "ROTCE 20% · PEG 0.79 · P/TBV 3배", "#eff6ff", "은행 · 시총 $889B", "https://www.jpmorganchase.com"),
+ ("texas-instruments.html", "txn", [CONTENT + "/txn/body.html"], "Texas Instruments 기업분석", "TXN", "Texas Instruments Incorporated", "반도체", "TTM PER 38배 · CTA 강한 매수", "#eff6ff", "아날로그 반도체 · 시총 $2,702억", "https://www.ti.com"),
+ ("ast-spacemobile.html", "asts", [CONTENT + "/asts/body.html"], "AST SpaceMobile 기업분석", "ASTS", "AST SpaceMobile, Inc.", "소프트웨어", "위성 직접 통신 · 현금 소진 점검", "#f5f3ff", "통신 위성 · 시총 $144억", "https://www.ast-science.com"),
+ ("rocket-lab.html", "rklb", [CONTENT + "/rklb/body.html"], "Rocket Lab 기업분석", "RKLB", "Rocket Lab Corporation", "소프트웨어", "발사·우주시스템 · 흑자 전환 점검", "#f5f3ff", "우주 · 시총 $352억", "https://www.rocketlabusa.com"),
+ ("servicenow.html", "now", [CONTENT + "/now/body.html"], "ServiceNow 기업분석", "NOW", "ServiceNow, Inc.", "소프트웨어", "엔터프라이즈 AI 워크플로 · 분할 후 PER 74배", "#f5f3ff", "SaaS · 시총 $1,067억", "https://www.servicenow.com"),
+ ("salesforce.html", "crm", [CONTENT + "/crm/body.html"], "Salesforce 기업분석", "CRM", "Salesforce, Inc.", "소프트웨어", "PEG 0.33 · GAAP 왜곡 점검", "#f5f3ff", "SaaS · 시총 $1,769억", "https://www.salesforce.com"),
+ ("reddit.html", "rddt", [CONTENT + "/rddt/body.html"], "Reddit 기업분석", "RDDT", "Reddit, Inc.", "빅테크", "PEG 0.11 · 광고 성장", "#fff7ed", "소셜 플랫폼 · 시총 $195억", "https://www.redditinc.com"),
+ ("supermicro.html", "smci", [CONTENT + "/smci/body.html"], "Super Micro Computer 기업분석", "SMCI", "Super Micro Computer, Inc.", "반도체", "PER 6.0배 · PEG 0.02", "#eff6ff", "AI 서버 · 시총 $188억", "https://www.supermicro.com"),
+ ("iren.html", "iren", [CONTENT + "/iren/body.html"], "IREN 기업분석", "IREN", "IREN Limited", "소프트웨어", "AI 클라우드 전환 · 적자", "#f5f3ff", "AI 인프라 · 시총 $87억", "https://www.iren.com"),
+ ("western-digital.html", "wdc", [CONTENT + "/wdc/body.html"], "Western Digital 기업분석", "WDC", "Western Digital Corporation", "반도체", "HDD AI 수요 · PER 11배", "#eff6ff", "저장장치 · 시총 $1,085억", "https://www.westerndigital.com"),
+ ("vertiv.html", "vrt", [CONTENT + "/vrt/body.html"], "Vertiv 기업분석", "VRT", "Vertiv Holdings Co", "반도체", "유기적 주문 +100% · 주가 -47%", "#eff6ff", "데이터센터 전력·냉각 · 시총 $772억", "https://www.vertiv.com"),
+ ("coherent.html", "cohr", [CONTENT + "/cohr/body.html"], "Coherent 기업분석", "COHR", "Coherent Corp.", "반도체", "광통신 · FCF -$18억", "#eff6ff", "광 트랜시버 · 시총 $444억", "https://www.coherent.com"),
+ ("strategy.html", "mstr", [CONTENT + "/mstr/body.html"], "Strategy 기업분석", "MSTR", "Strategy Inc.", "소프트웨어", "BTC 848,517개 · mNAV 0.77", "#f5f3ff", "비트코인 보유 · 시총 $530억", "https://www.strategy.com"),
  ("unitedhealth.html", "unh", [CONTENT + "/unh/body.html"], "UnitedHealth 기업분석", "UNH", "UnitedHealth Group Incorporated", "헬스케어", "이익 V자 회복 · MCR 88.4%", "#f0f9ff", "건강보험·의료 · 시총 $353B", "https://www.unitedhealthgroup.com"),
  ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "영업이익률 33% · PEG 2.3 · 사상 최고가", "#fef2f2", "음료 · 시총 $412B", "https://www.coca-colacompany.com"),
  ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통 · 시총 $996B", "https://corporate.walmart.com"),
@@ -182,7 +194,7 @@ def _price(tk):
     ch = e.get("chg", 0)
     return (fmt(e["close"], e.get("cur", "$")), f"{ch:+.2f}%", "up" if ch > 0 else ("down" if ch < 0 else ""))
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE"}
+EXCH = {"TXN": "NYSE", "NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
