@@ -146,7 +146,7 @@ for d in sorted(os.listdir(CONTENT)):
 REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, stock line, url
  ("micron.html", "mu", [CONTENT + "/mu/body.html"], "Micron Technology 기업분석", "MU", "Micron Technology, Inc.", "반도체", "FQ4 매출 +379% · 영업이익률 81% · CTA -0.50", "#eef2ff", "반도체 · 시총 $780.7B · 직원 약 6.1만 명", "https://www.micron.com"),
  ("alphabet.html", "googl", [CONTENT + "/googl/body.html"], "Alphabet 기업분석", "GOOGL", "Alphabet Inc. Class A", "빅테크", "클라우드 +103% · FCF 마이너스 · CTA -0.75", "#ecfdf5", "인터넷 서비스 · 시총 $3.47T · 직원 204,757명", "https://abc.xyz"),
- ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · FCF 플러스 · 천장 테스트", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
+ ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · PER 27.7배 · CTA +1.00", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
  ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS +39% · FCF -$424억 · CTA +0.50", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
  ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "FY27Q2 매출 +106% · PER 23.6배 · CTA -0.75", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
  ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "반도체", "맞춤형 칩·광 연결 · 루멘텀 인수", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
