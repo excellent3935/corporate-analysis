@@ -484,6 +484,9 @@ html[data-theme=dark] .top{box-shadow:inset 0 -2px 0 #E6D8BF;color:#E6D8BF}html[
 @media(max-width:560px){.hm .hmtip{width:250px}.hmtip .tr{grid-template-columns:44px 1fr 56px 52px}}
 .lv{background:#141210!important;color:#E6D8BF!important}html[data-theme=dark] .lv{background:#E6D8BF!important;color:#141210!important}
 html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dark] .pager button.on{background:#E6D8BF;color:#141210;border-color:#E6D8BF}html[data-theme=dark] .sech:after{background:#E6D8BF}
+.bsw{display:flex;align-items:center;gap:10px;margin:2px 0 8px}.bsw input{flex:1;max-width:340px;font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line);border-radius:3px;background:var(--card);color:var(--ink)}.bsw input:focus{outline:none;border-color:var(--gold)}#bsn{font-size:12px;color:var(--muted)}
+.pills{flex-wrap:wrap;gap:5px;margin:4px 0 12px}.pill{padding:3px 10px;font-size:11.5px;white-space:nowrap}
+@media(max-width:560px){.pills{flex-wrap:nowrap}.bsw input{max-width:none}}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
@@ -582,11 +585,17 @@ def shell(title, inner, on="home"):
 _LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
 PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
 
+KO_ALIAS = {"MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
+    "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
+    "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
+    "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
+    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐"}
+
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
     px, ch, c = PRICE[tk]
     dq = f' data-q="{tk}"' if tk not in ("005930", "000660") else ""
-    return (f'<a class="book tcard" data-tag="{tag}"{dq} href="{f}" title="{sub}"><div class="tl-top"><span class="tl-tag">{tag}</span><span class="tl-tk">{tk}</span></div>'
+    return (f'<a class="book tcard" data-tag="{tag}" data-s="{(tk+" "+title.replace(" 기업분석","")+" "+comp+" "+tag+" "+KO_ALIAS.get(tk,"")).lower()}"{dq} href="{f}" title="{sub}"><div class="tl-top"><span class="tl-tag">{tag}</span><span class="tl-tk">{tk}</span></div>'
             f'<div class="tl-logo">{ICON[tk]}</div><div class="tl-nm">{title.replace(" 기업분석","")}</div>'
             f'<div class="tl-px">{px} <span class="{c}">{ch}</span></div></a>')
 
@@ -733,7 +742,7 @@ home = f"""<main class="home">
 
 <section id="reports">
 <div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · {len(REPORTS)}개 기업 · 미국 종목 등락률 1분 갱신</span></div>
-<div class="pills">{PILLS}</div>
+<div class="bsw"><input id="bsq" type="search" placeholder="기업명·티커 검색 (예: 엔비디아, NVDA)" autocomplete="off"><span id="bsn"></span></div><div class="pills">{PILLS}</div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
@@ -758,6 +767,8 @@ P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disa
 let v=matchMedia('(max-width:640px)').matches?'brief':'full';try{{v=localStorage.getItem('ctaView')||v}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
 function setV(x){{B.classList.toggle('brief',x==='brief');vb.forEach(b=>b.classList.toggle('on',b.dataset.v===x));try{{localStorage.setItem('ctaView',x)}}catch(e){{}}}}
 vb.forEach(b=>b.addEventListener('click',()=>setV(b.dataset.v)));setV(v);}})();
-document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));const f=p.dataset.f;document.querySelectorAll('.book').forEach(b=>b.style.display=(f==='all'||b.dataset.tag===f)?'':'none');}}));</script>"""
+var BF='all';function bfil(){{var q=(document.getElementById('bsq').value||'').trim().toLowerCase(),n=0;document.querySelectorAll('.book').forEach(function(b){{var ok=(BF==='all'||b.dataset.tag===BF)&&(!q||(b.dataset.s||'').indexOf(q)>=0);b.style.display=ok?'':'none';if(ok)n++;}});var e=document.getElementById('bsn');if(e)e.textContent=(q||BF!=='all')?n+'개':'';}}
+document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));BF=p.dataset.f;bfil();}}));
+document.getElementById('bsq').addEventListener('input',bfil);</script>"""
 open(f"{OUT}/index.html", "w", encoding="utf-8").write(shell("Corporate Analysis — 시장 지표 · 기업분석", home, "home"))
 print("ok", sorted(os.listdir(OUT)))
