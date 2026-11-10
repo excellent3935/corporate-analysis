@@ -589,17 +589,32 @@ def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩
                 return c[3].split(" (")[0].replace("약 ", ""), (c[6].split(" ")[0] if re.match(r"[+-]", c[6]) else "-"), float(m.group(1)) if m else None, ("의미 제한" in c[4])
     return None
 
+# 일회성 비용·비교 기저 왜곡으로 트레이딩뷰 PEG가 없거나 낮게 나온 종목의 조정 EPS 기준 값. 모두 해당 기업 보고서 PEG 심층 표의 수치.
+#  main: 조정 EPS 기준 PEG를 PEG 칸에 넣는다 / side: PEG 칸은 그대로 두고 비고에 일회성 비용 제외 PEG를 적는다 / none: 조정해도 산출 불가
+ADJ_PEG = {
+    "MRVL": {"mode": "main", "peg": 0.64, "per": "약 32배", "gr": "+50%(가정)", "note": "조정 EPS 기준: 비GAAP 선행 EPS(FY27Q3 가이던스×4) 추정, 성장률 +50% 가정. 트레이딩뷰 PEG는 $1.9B 매각 이익 때문에 산출 불가"},
+    "SNDK": {"mode": "main", "peg": 0.02, "per": "3.7배", "gr": "+199%(추정)", "note": "조정 EPS 기준: 비GAAP 2Q 가이던스 연환산 추정. 트레이딩뷰 PEG는 1년 전 적자 기저로 산출 불가"},
+    "META": {"mode": "side", "note": "조정 EPS: 소송 비용(일회성) 제외 영업이익 기준 PEG 약 1.7 (소송 비용 포함 시 이익 -3%로 산출 불가)"},
+    "QCOM": {"mode": "none", "note": "조정 EPS(비GAAP) 기준으로도 순이익 -15%·선행 -36%라 PEG 산출 불가. 트레이딩뷰 0.08은 착시"},
+    "INTC": {"mode": "none", "note": "조정 EPS(비GAAP)도 4Q 가이던스가 전 분기 대비 -52%라 PEG 산출 불가"},
+    "CRWD": {"mode": "none", "note": "조정 EPS(비GAAP, FY27 가이던스 $1.255) 기준 PER 약 173배이나 전년 비교치를 확인하지 못해 산출 불가"},
+}
+
 def peg_board():
     rows = []
     for r in REPORTS:
         tk = r[4]; d = _peg_data(r); px, ch, c = PRICE[tk]
         per, gr, peg, lim = d if d else ("-", "-", None, False)
+        ad = ADJ_PEG.get(tk, {}); adj_note = ad.get("note", "")
+        if ad.get("mode") == "main": per, gr, peg, lim = ad["per"], ad["gr"], ad["peg"], False
+        elif ad.get("mode") == "none": peg, lim = None, False
         if peg is None: v, tg = "산출 불가", '<span class="small">산출 불가</span>'
         elif peg <= 0.5: v, tg = f"{peg:.2f}", '<span class="tag g">적극 매수권</span>'
         elif peg <= 1.0: v, tg = f"{peg:.2f}", '<span class="tag y">투자 적격</span>'
         else: v, tg = f"{peg:.2f}", '<span class="tag b">기준 초과</span>'
         rem = "" if peg is None else ("성장률이 불황 바닥 기준이라 부풀려진 값, 의미 제한적" if lim or peg < 0.05 else "")
         if peg is None: rem = "적자 등으로 산출 불가" if d else "보고서에 PEG 정보 없음"
+        if adj_note: rem = (adj_note + ". " + rem).rstrip(". ") if rem and peg is not None else (adj_note if peg is not None or ad.get("mode") != "none" else adj_note)
         star = ""
         live = f" data-q='{tk}'" if tk not in ("005930", "000660") else ""
         rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a></td>'
