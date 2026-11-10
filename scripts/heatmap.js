@@ -66,7 +66,7 @@ async function loadBase(){if(per==='1d'||!all.length)return;const today=new Date
 try{const c=JSON.parse(localStorage.getItem('hmBase')||'null');if(c&&c.d===key&&Object.keys(c.b).length>=all.length*0.9){BASE=c.b;baseMsg='';return;}}catch(e){}
 const mk=(m,d)=>{const x=new Date(today);if(m)x.setMonth(x.getMonth()-m);if(d)x.setDate(x.getDate()-d);return ymd(x);};
 const T={'1w':mk(0,7),'1m':mk(1),'3m':mk(3),'6m':mk(6),'ytd':today.getFullYear()+'0101','1y':mk(12)};const start=mk(12,10);let done=0,idx=0;BASE={};
-async function one(t){try{const j=await fetch('https://ts-api.cnbc.com/harmony/app/bars/'+encodeURIComponent(t)+'/1D/'+start+'/'+key+'/adjusted/EST5EDT.json').then(r=>r.json());const bars=(j.barData&&j.barData.priceBars||[]).map(b=>[b.tradeTime.slice(0,8),+b.close]).filter(b=>b[1]>0);const o={};
+async function one(t){try{const j=await fetch('https://ts-api.cnbc.com/harmony/app/bars/'+encodeURIComponent(t)+'/1D/'+start+'000000/'+key+'235959/adjusted/EST5EDT.json').then(r=>r.json());const bars=(j.barData&&j.barData.priceBars||[]).map(b=>[b.tradeTime.slice(0,8),+b.close]).filter(b=>b[1]>0);const o={};
 Object.keys(T).forEach(k=>{let v=null;for(const b of bars){if(b[0]<=T[k]&&!(k==='ytd'&&b[0]>=T[k]))v=b[1];else if(b[0]>T[k])break;}if(v==null&&bars.length&&(k!=='1y'))v=null;o[k]=v;});if(bars.length)BASE[t]=o;}catch(e){}
 done++;if(done%25===0||done===all.length){baseMsg='기준가 불러오는 중 '+Math.round(done/all.length*100)+'%';stamp();if(done%100===0)draw();}}
 await Promise.all(Array.from({length:16},async()=>{while(idx<all.length)await one(all[idx++]);}));
