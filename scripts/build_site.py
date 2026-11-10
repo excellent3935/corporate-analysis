@@ -176,7 +176,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("servicenow.html", "now", [CONTENT + "/now/body.html"], "ServiceNow 기업분석", "NOW", "ServiceNow, Inc.", "소프트웨어", "엔터프라이즈 AI 워크플로 · 분할 후 PER 74배", "#f5f3ff", "SaaS · 시총 $1,067억", "https://www.servicenow.com"),
  ("salesforce.html", "crm", [CONTENT + "/crm/body.html"], "Salesforce 기업분석", "CRM", "Salesforce, Inc.", "소프트웨어", "PEG 0.33 · GAAP 왜곡 점검", "#f5f3ff", "SaaS · 시총 $1,769억", "https://www.salesforce.com"),
  ("reddit.html", "rddt", [CONTENT + "/rddt/body.html"], "Reddit 기업분석", "RDDT", "Reddit, Inc.", "커뮤니티", "PEG 0.11 · 광고 성장", "#fff7ed", "소셜 플랫폼 · 시총 $195억", "https://www.redditinc.com"),
- ("supermicro.html", "smci", [CONTENT + "/smci/body.html"], "Super Micro Computer 기업분석", "SMCI", "Super Micro Computer, Inc.", "반도체", "PER 6.0배 · PEG 0.02", "#eff6ff", "AI 서버 · 시총 $188억", "https://www.supermicro.com"),
+ ("supermicro.html", "smci", [CONTENT + "/smci/body.html"], "Super Micro Computer 기업분석", "SMCI", "Super Micro Computer, Inc.", "데이터센터", "PER 6.0배 · PEG 0.02", "#eff6ff", "AI 서버 · 시총 $188억", "https://www.supermicro.com"),
  ("iren.html", "iren", [CONTENT + "/iren/body.html"], "IREN 기업분석", "IREN", "IREN Limited", "데이터센터", "AI 클라우드 전환 · 적자", "#f5f3ff", "AI 인프라 · 시총 $87억", "https://www.iren.com"),
  ("western-digital.html", "wdc", [CONTENT + "/wdc/body.html"], "Western Digital 기업분석", "WDC", "Western Digital Corporation", "컴퓨터 하드웨어", "HDD AI 수요 · PER 11배", "#eff6ff", "저장장치 · 시총 $1,085억", "https://www.westerndigital.com"),
  ("vertiv.html", "vrt", [CONTENT + "/vrt/body.html"], "Vertiv 기업분석", "VRT", "Vertiv Holdings Co", "데이터센터", "유기적 주문 +100% · 주가 -47%", "#eff6ff", "데이터센터 전력·냉각 · 시총 $772억", "https://www.vertiv.com"),
