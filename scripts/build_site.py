@@ -744,7 +744,7 @@ CARDS_JS = open(os.path.join(_D, "cards.js"), encoding="utf-8").read()
 home = f"""<main class="home">
 <div class="intro"><div class="ey">EQUITY RESEARCH · {ASOF:%Y.%m.%d}</div><h1>실적과 공시로 읽는 기업,<br>숫자로 확인하는 시장</h1></div>
 <section id="market">
-<div class="sech"><h2>미국 지수 선물</h2><span class="sm">{STAMP}</span></div>
+<div class="sech"><h2>미국 지수 선물</h2></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
 
 <div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터 › 산업 묶음 · 칸 크기 = 시가총액, 색 = 전일 종가 대비 등락률 · CNBC 시세 1분 갱신 · 섹터·산업 분류 Finviz 기준</span></div>
