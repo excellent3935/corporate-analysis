@@ -475,10 +475,11 @@ THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(
 THEME_JS = """<script>(function(){var R=document.documentElement;
 function tv(sel){document.querySelectorAll(sel||'.tvw').forEach(function(c){var cfg=JSON.parse(c.dataset.cfg);var dk=R.getAttribute('data-theme')==='dark'?'dark':'light';if('colorTheme' in cfg)cfg.colorTheme=dk;else cfg.theme=dk;
 c.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';var s=document.createElement('script');s.type='text/javascript';s.src=c.dataset.src;s.async=true;s.innerHTML=JSON.stringify(cfg);c.appendChild(s);});}
-var IV='60';try{IV=localStorage.getItem('futIv')||'60'}catch(e){}
-function setIv(v,re){IV=v;document.querySelectorAll('.futw').forEach(function(c){var g=JSON.parse(c.dataset.cfg);g.interval=v;c.dataset.cfg=JSON.stringify(g);});
-document.querySelectorAll('.ivb').forEach(function(x){x.classList.toggle('on',x.dataset.iv===v)});try{localStorage.setItem('futIv',v)}catch(e){}if(re)tv('.futw');}
-document.querySelectorAll('.ivb').forEach(function(x){x.addEventListener('click',function(){setIv(x.dataset.iv,true)})});if(document.querySelector('.futw'))setIv(IV,false);
+function setIv(card,v,re){var c=card.querySelector('.futw');if(!c)return;var g=JSON.parse(c.dataset.cfg);g.interval=v;c.dataset.cfg=JSON.stringify(g);
+card.querySelectorAll('.ivb').forEach(function(x){x.classList.toggle('on',x.dataset.iv===v)});try{localStorage.setItem('futIv_'+card.dataset.k,v)}catch(e){}if(re)tv_one(c);}
+function tv_one(c){c.id=c.id||('f'+Math.random().toString(36).slice(2));var m=c.id;c.dataset.one='1';tv('#'+m);c.removeAttribute('data-one');}
+document.querySelectorAll('.fut').forEach(function(card){var iv='60';try{iv=localStorage.getItem('futIv_'+card.dataset.k)||'60'}catch(e){}
+card.querySelectorAll('.ivb').forEach(function(x){x.addEventListener('click',function(){setIv(card,x.dataset.iv,true)})});setIv(card,iv,false);});
 tv();var b=document.querySelector('.thm');if(b)b.addEventListener('click',function(){var t=R.getAttribute('data-theme')==='dark'?'light':'dark';R.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}tv();});})();</script>"""
 FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">'
 
@@ -604,7 +605,7 @@ def fut(k, name, sym):  # 실시간: 트레이딩뷰 차트 위젯 (CME 선물�
            "save_image": False, "calendar": False, "support_host": "https://www.tradingview.com",
            "studies": [{"id": "MASimple@tv-basicstudies", "inputs": {"length": 20}}]}
     pills = "".join(f'<button class="ivb{" on" if v == "60" else ""}" data-iv="{v}">{t}</button>' for v, t in FUT_IV)
-    return (f'<div class="panel fut live"><div class="fhd"><div class="nm">{name} · 실시간 <span class="lv">LIVE</span></div><div class="ivs">{pills}</div></div>'
+    return (f'<div class="panel fut live" data-k="{k}"><div class="fhd"><div class="nm">{name} · 실시간 <span class="lv">LIVE</span></div><div class="ivs">{pills}</div></div>'
             f'<div class="tvmini"><div class="tradingview-widget-container tvw futw" style="height:100%;width:100%" '
             f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" data-cfg=\'{json.dumps(cfg, ensure_ascii=False)}\'></div></div>'
             f'<div class="leg">{short} 지수 CFD({tvs.split(":")[1]}) · 이동평균 20 · {sym} 전일 종가 {p:,.2f} <span class="{cls(pc)}">({sign(pc, 2, True)})</span> · 선물과 약간 차이 날 수 있음</div></div>')
@@ -638,11 +639,12 @@ def heatmap():  # 자체 제작 S&P500 히트맵 (Finviz 방식): CNBC 실시간
     return ('<div class="panel hm" id="hm"><div class="hmbar"><span id="hmst" class="hmst">불러오는 중…</span></div>'
             '<div class="hmctl"><label>그룹 <select id="hmg"><option value="si">섹터 › 산업</option><option value="s">섹터</option><option value="n">그룹 없음</option></select></label>'
             '<label>섹터 <select id="hms"><option value="">전체</option></select></label>'
+            '<label>기간 <select id="hmp"><option value="1d">1일</option><option value="1w">1주</option><option value="1m">1개월</option><option value="3m">3개월</option><option value="6m">6개월</option><option value="ytd">연초 대비</option><option value="1y">1년</option></select></label>'
             '<label>크기 <select id="hmz"><option value="cap">시가총액</option><option value="eq">동일</option></select></label>'
             '<label class="hmck"><input type="checkbox" id="hmlogo"> 로고</label>'
             '<span class="hmvw"><button class="pill on" data-v="map" type="button">히트맵</button><button class="pill" data-v="list" type="button">목록</button></span></div>'
             '<div id="hmbox" class="hmbox"></div><div id="hmlist" class="hmlist" hidden></div>'
-            '<div class="hmfoot"><span>색은 오늘의 등락률(%)입니다. 빨강 하락 · 검정 보합 · 초록 상승</span><span class="hmlg" id="hmlg"></span></div>'
+            '<div class="hmfoot"><span id="hmnote">색은 오늘의 등락률(%)입니다.</span><span class="hmlg" id="hmlg"></span></div>'
             '<div id="hmtip" class="hmtip"></div></div><script>' + js + '</script>')
 def fut_daily(k, name, sym):
     p, pc, ab = SNAP[k]
