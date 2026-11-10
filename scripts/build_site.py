@@ -149,7 +149,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · PER 27.7배 · CTA +1.00", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
  ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS +39% · FCF -$424억 · CTA +0.50", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
  ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "FY27Q2 매출 +106% · PER 23.6배 · CTA -0.75", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
- ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "반도체", "FY28 가이던스 $18B · 루멘텀 인수 · CTA -0.50", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
+ ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "광통신", "FY28 가이던스 $18B · 루멘텀 인수 · CTA -0.50", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
  ("samsung.html", "sec", [CONTENT + "/sec/body.html"], "삼성전자 기업분석", "005930", "삼성전자", "반도체", "영업이익 107조 · EV/영업이익 2.8배 · CTA -0.50", "#eff6ff", "반도체·전자 · 시총 약 1,390조 원", "https://www.samsung.com/sec"),
  ("skhynix.html", "skh", [CONTENT + "/skh/body.html"], "SK하이닉스 기업분석", "000660", "SK하이닉스", "반도체", "영업이익률 80% · EV/EBITDA 2.6배 · CTA -0.50", "#fef2f2", "메모리 반도체 · 시총 약 1,018조 원", "https://www.skhynix.com"),
  ("tsmc.html", "tsm", [CONTENT + "/tsm/body.html"], "TSMC 기업분석", "TSM", "Taiwan Semiconductor Manufacturing Co.", "반도체", "3Q26 매출 +41% · PER 24.2배 · CTA -0.50", "#f0fdfa", "반도체 위탁생산 · 시총 $1.78T", "https://www.tsmc.com"),
@@ -160,28 +160,28 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("oracle.html", "orcl", [CONTENT + "/orcl/body.html"], "Oracle 기업분석", "ORCL", "Oracle Corporation", "소프트웨어", "OCI +121% · RPO $664B · FCF 마이너스", "#fff5f5", "소프트웨어·클라우드 · 시총 $351B", "https://www.oracle.com"),
  ("palantir.html", "pltr", [CONTENT + "/pltr/body.html"], "Palantir 기업분석", "PLTR", "Palantir Technologies Inc.", "소프트웨어", "매출 +96% · 순이익률 49% · TCV 둔화", "#f4f4f5", "소프트웨어 · 시총 $386B", "https://www.palantir.com"),
  ("meta.html", "meta", [CONTENT + "/meta/body.html"], "Meta 기업분석", "META", "Meta Platforms, Inc.", "빅테크", "매출 +26% · 이익률 20% · 설비투자 $140B", "#eef4ff", "인터넷 서비스 · 시총 $1.56T", "https://about.meta.com"),
- ("coreweave.html", "crwv", [CONTENT + "/crwv/body.html"], "CoreWeave 기업분석", "CRWV", "CoreWeave, Inc.", "소프트웨어", "AI 클라우드 · 잔고 $104B · 부채 $35B", "#f5f3ff", "AI 클라우드 · 시총 $25.6B", "https://www.coreweave.com"),
+ ("coreweave.html", "crwv", [CONTENT + "/crwv/body.html"], "CoreWeave 기업분석", "CRWV", "CoreWeave, Inc.", "데이터센터", "AI 클라우드 · 잔고 $104B · 부채 $35B", "#f5f3ff", "AI 클라우드 · 시총 $25.6B", "https://www.coreweave.com"),
  ("tesla.html", "tsla", [CONTENT + "/tsla/body.html"], "Tesla 기업분석", "TSLA", "Tesla, Inc.", "빅테크", "FSD 174만 · 영업이익률 2.6% · PER 394배", "#fff1f2", "자동차·에너지·AI · 시총 $1.42T", "https://www.tesla.com"),
- ("spacex.html", "spcx", [CONTENT + "/spcx/body.html"], "SpaceX 기업분석", "SPCX", "Space Exploration Technologies Corp.", "빅테크", "매출 +161% · AI(SI) $76억 · 첫 흑자", "#f1f5f9", "우주·통신·AI · 시총 $1.82T", "https://www.spacex.com"),
+ ("spacex.html", "spcx", [CONTENT + "/spcx/body.html"], "SpaceX 기업분석", "SPCX", "Space Exploration Technologies Corp.", "우주항공", "매출 +161% · AI(SI) $76억 · 첫 흑자", "#f1f5f9", "우주·통신·AI · 시총 $1.82T", "https://www.spacex.com"),
  ("dell.html", "dell", [CONTENT + "/dell/body.html"], "Dell 기업분석", "DELL", "Dell Technologies Inc.", "반도체", "AI 서버 잔고 $950억 · 매출 +58%", "#eff6ff", "IT 하드웨어 · 시총 $2,089억", "https://www.dell.com"),
  ("sandisk.html", "sndk", [CONTENT + "/sndk/body.html"], "Sandisk 기업분석", "SNDK", "Sandisk Corporation", "반도체", "매출총이익률 85% · PER 6.7배 · CTA -0.50", "#fef2f2", "메모리 반도체 · 시총 $1,188억", "https://www.sandisk.com"),
- ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "소프트웨어", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
- ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "소프트웨어", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
+ ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "사이버 보안", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
+ ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "데이터센터", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
  ("eli-lilly.html", "lly", [CONTENT + "/lly/body.html"], "Eli Lilly 기업분석", "LLY", "Eli Lilly and Company", "헬스케어", "비만약 매출 66% · PEG 0.92 · CTA +1.0", "#fdf2f8", "제약 · 시총 $1.27T", "https://www.lilly.com"),
  ("jpmorgan.html", "jpm", [CONTENT + "/jpm/body.html"], "JPMorgan Chase 기업분석", "JPM", "JPMorgan Chase & Co.", "금융", "ROTCE 20% · PEG 0.79 · P/TBV 3배", "#eff6ff", "은행 · 시총 $889B", "https://www.jpmorganchase.com"),
  ("texas-instruments.html", "txn", [CONTENT + "/txn/body.html"], "Texas Instruments 기업분석", "TXN", "Texas Instruments Incorporated", "반도체", "TTM PER 38배 · CTA 강한 매수", "#eff6ff", "아날로그 반도체 · 시총 $2,702억", "https://www.ti.com"),
- ("ast-spacemobile.html", "asts", [CONTENT + "/asts/body.html"], "AST SpaceMobile 기업분석", "ASTS", "AST SpaceMobile, Inc.", "소프트웨어", "위성 직접 통신 · 현금 소진 점검", "#f5f3ff", "통신 위성 · 시총 $144억", "https://www.ast-science.com"),
- ("rocket-lab.html", "rklb", [CONTENT + "/rklb/body.html"], "Rocket Lab 기업분석", "RKLB", "Rocket Lab Corporation", "소프트웨어", "발사·우주시스템 · 흑자 전환 점검", "#f5f3ff", "우주 · 시총 $352억", "https://www.rocketlabusa.com"),
+ ("ast-spacemobile.html", "asts", [CONTENT + "/asts/body.html"], "AST SpaceMobile 기업분석", "ASTS", "AST SpaceMobile, Inc.", "우주항공", "위성 직접 통신 · 현금 소진 점검", "#f5f3ff", "통신 위성 · 시총 $144억", "https://www.ast-science.com"),
+ ("rocket-lab.html", "rklb", [CONTENT + "/rklb/body.html"], "Rocket Lab 기업분석", "RKLB", "Rocket Lab Corporation", "우주항공", "발사·우주시스템 · 흑자 전환 점검", "#f5f3ff", "우주 · 시총 $352억", "https://www.rocketlabusa.com"),
  ("servicenow.html", "now", [CONTENT + "/now/body.html"], "ServiceNow 기업분석", "NOW", "ServiceNow, Inc.", "소프트웨어", "엔터프라이즈 AI 워크플로 · 분할 후 PER 74배", "#f5f3ff", "SaaS · 시총 $1,067억", "https://www.servicenow.com"),
  ("salesforce.html", "crm", [CONTENT + "/crm/body.html"], "Salesforce 기업분석", "CRM", "Salesforce, Inc.", "소프트웨어", "PEG 0.33 · GAAP 왜곡 점검", "#f5f3ff", "SaaS · 시총 $1,769억", "https://www.salesforce.com"),
- ("reddit.html", "rddt", [CONTENT + "/rddt/body.html"], "Reddit 기업분석", "RDDT", "Reddit, Inc.", "빅테크", "PEG 0.11 · 광고 성장", "#fff7ed", "소셜 플랫폼 · 시총 $195억", "https://www.redditinc.com"),
+ ("reddit.html", "rddt", [CONTENT + "/rddt/body.html"], "Reddit 기업분석", "RDDT", "Reddit, Inc.", "커뮤니티", "PEG 0.11 · 광고 성장", "#fff7ed", "소셜 플랫폼 · 시총 $195억", "https://www.redditinc.com"),
  ("supermicro.html", "smci", [CONTENT + "/smci/body.html"], "Super Micro Computer 기업분석", "SMCI", "Super Micro Computer, Inc.", "반도체", "PER 6.0배 · PEG 0.02", "#eff6ff", "AI 서버 · 시총 $188억", "https://www.supermicro.com"),
- ("iren.html", "iren", [CONTENT + "/iren/body.html"], "IREN 기업분석", "IREN", "IREN Limited", "소프트웨어", "AI 클라우드 전환 · 적자", "#f5f3ff", "AI 인프라 · 시총 $87억", "https://www.iren.com"),
- ("western-digital.html", "wdc", [CONTENT + "/wdc/body.html"], "Western Digital 기업분석", "WDC", "Western Digital Corporation", "반도체", "HDD AI 수요 · PER 11배", "#eff6ff", "저장장치 · 시총 $1,085억", "https://www.westerndigital.com"),
- ("vertiv.html", "vrt", [CONTENT + "/vrt/body.html"], "Vertiv 기업분석", "VRT", "Vertiv Holdings Co", "반도체", "유기적 주문 +100% · 주가 -47%", "#eff6ff", "데이터센터 전력·냉각 · 시총 $772억", "https://www.vertiv.com"),
- ("coherent.html", "cohr", [CONTENT + "/cohr/body.html"], "Coherent 기업분석", "COHR", "Coherent Corp.", "반도체", "광통신 · FCF -$18억", "#eff6ff", "광 트랜시버 · 시총 $444억", "https://www.coherent.com"),
- ("strategy.html", "mstr", [CONTENT + "/mstr/body.html"], "Strategy 기업분석", "MSTR", "Strategy Inc.", "소프트웨어", "BTC 848,517개 · mNAV 0.77", "#f5f3ff", "비트코인 보유 · 시총 $530억", "https://www.strategy.com"),
+ ("iren.html", "iren", [CONTENT + "/iren/body.html"], "IREN 기업분석", "IREN", "IREN Limited", "데이터센터", "AI 클라우드 전환 · 적자", "#f5f3ff", "AI 인프라 · 시총 $87억", "https://www.iren.com"),
+ ("western-digital.html", "wdc", [CONTENT + "/wdc/body.html"], "Western Digital 기업분석", "WDC", "Western Digital Corporation", "컴퓨터 하드웨어", "HDD AI 수요 · PER 11배", "#eff6ff", "저장장치 · 시총 $1,085억", "https://www.westerndigital.com"),
+ ("vertiv.html", "vrt", [CONTENT + "/vrt/body.html"], "Vertiv 기업분석", "VRT", "Vertiv Holdings Co", "데이터센터", "유기적 주문 +100% · 주가 -47%", "#eff6ff", "데이터센터 전력·냉각 · 시총 $772억", "https://www.vertiv.com"),
+ ("coherent.html", "cohr", [CONTENT + "/cohr/body.html"], "Coherent 기업분석", "COHR", "Coherent Corp.", "광통신", "광통신 · FCF -$18억", "#eff6ff", "광 트랜시버 · 시총 $444억", "https://www.coherent.com"),
+ ("strategy.html", "mstr", [CONTENT + "/mstr/body.html"], "Strategy 기업분석", "MSTR", "Strategy Inc.", "코인", "BTC 848,517개 · mNAV 0.77", "#f5f3ff", "비트코인 보유 · 시총 $530억", "https://www.strategy.com"),
  ("unitedhealth.html", "unh", [CONTENT + "/unh/body.html"], "UnitedHealth 기업분석", "UNH", "UnitedHealth Group Incorporated", "헬스케어", "이익 V자 회복 · MCR 88.4%", "#f0f9ff", "건강보험·의료 · 시총 $353B", "https://www.unitedhealthgroup.com"),
  ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "영업이익률 33% · PEG 2.3 · 사상 최고가", "#fef2f2", "음료 · 시총 $412B", "https://www.coca-colacompany.com"),
  ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통 · 시총 $996B", "https://corporate.walmart.com"),
@@ -579,6 +579,9 @@ def shell(title, inner, on="home"):
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<span class="st">{STAMP}</span><button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
 {inner}{THEME_JS}</body></html>"""
 
+_LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
+PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
+
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
     px, ch, c = PRICE[tk]
@@ -730,7 +733,7 @@ home = f"""<main class="home">
 
 <section id="reports">
 <div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · {len(REPORTS)}개 기업 · 미국 종목 등락률 1분 갱신</span></div>
-<div class="pills"><button class="pill on" data-f="all">전체</button><button class="pill" data-f="반도체">반도체</button><button class="pill" data-f="빅테크">빅테크</button><button class="pill" data-f="소프트웨어">소프트웨어·클라우드</button><button class="pill" data-f="양자">양자컴퓨팅</button><button class="pill" data-f="헬스케어">헬스케어</button><button class="pill" data-f="금융">금융</button><button class="pill" data-f="소비재">소비재</button></div>
+<div class="pills">{PILLS}</div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
 </section>
