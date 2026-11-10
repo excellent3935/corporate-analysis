@@ -758,18 +758,18 @@ home = f"""<main class="home">
 <table class="comp" id="fgcomp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
 </div>
 
-<div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2><span class="sm">실시간 · 트레이딩뷰 (달러 인덱스·유가는 CFD 시세) · VIX·금 선물은 CNBC 시세 1분 갱신</span></div>
+<div class="sech"><h2>변동성 · 달러 · 환율 · 원자재</h2></div>
 <div class="tiles">{"".join(tile_any(n, y) for n, y in MACRO_LIVE)}</div>
 <div class="note oneline"><b>한 줄 해석</b> · {ONE_LINE} <span style="opacity:.7">(전일 종가 기준)</span></div>
 
-<div class="sech"><h2>국채 금리</h2><span class="sm">CNBC 시세 1분 갱신 · 소수점 둘째 자리</span></div>
+<div class="sech"><h2>국채 금리</h2></div>
 <div class="tiles">{"".join(tile_any(n, y) for n, y in RATE_LIVE)}</div>
 
 <div class="note">데이터: Yahoo Finance(선물·지수·환율·원자재), 미국 재무부·일본 재무성(국채 금리), CNN Business(공포·탐욕 지수). 매일 미국장 마감 후(06:30 KST)와 한국장 마감 후(16:00 KST) 자동 갱신됩니다. 선물·히트맵·변동성·환율·원자재·국채 금리 칸과 기업별 차트는 트레이딩뷰 위젯으로 장중에 실시간(일부 지연) 반영됩니다.</div>
 </section>
 
 <section id="cta">
-<div class="sech"><h2 id="sch2">CTA 스코어보드</h2><span class="sm" id="schs">8개 추세추종 신호 평균 · 이동평균 {CTA_DATE} 종가 기준 · 현재가 1분 갱신(미국 종목)</span></div>
+<div class="sech"><h2 id="sch2">CTA 스코어보드</h2><span class="sm" id="schs"></span></div>
 <div class="stabs"><button class="stab on" data-t="cta" type="button">CTA 스코어보드</button><button class="stab" data-t="peg" type="button">PEG 스코어보드</button></div>
 <div id="pane-cta">
 {cta_board()}
@@ -782,7 +782,7 @@ home = f"""<main class="home">
 </section>
 
 <section id="reports">
-<div class="sech"><h2>기업분석</h2><span class="sm">실적 + 심층 분석 통합 · {len(REPORTS)}개 기업 · 미국 종목 등락률 1분 갱신</span></div>
+<div class="sech"><h2>기업분석</h2></div>
 <div class="bsw"><input id="bsq" type="search" placeholder="기업명·티커 검색 (예: 엔비디아, NVDA)" autocomplete="off"><span id="bsn"></span></div><div class="pills">{PILLS}</div>
 <div class="books">{"".join(cover(r) for r in REPORTS)}</div>
 
@@ -820,7 +820,7 @@ R.forEach(r=>{{const q=Q[r.dataset.q];if(!q||q.last==null)return;let L=num(q.las
 if(isNaN(L))return;if(isNaN(C)){{const pv=num(q.previous_day_closing);C=pv?(L-pv)/pv*100:0;}}r.children[2].innerHTML=fmt(L)+'<br><span class="'+(C>0?'up':C<0?'down':'')+'">'+(C>=0?'+':'')+C.toFixed(2)+'%</span>';}});}}catch(e){{}}}}
 upd();setInterval(()=>{{if(!document.hidden)upd();}},60000);}})();
 (function(){{const tb=document.querySelectorAll('.stab'),H=document.getElementById('sch2'),S=document.getElementById('schs'),pc=document.getElementById('pane-cta'),pp=document.getElementById('pane-peg');
-const T={{cta:['CTA 스코어보드',S.textContent],peg:['PEG 스코어보드','PER ÷ EPS 성장률 · 낮은 순 · 기업 보고서의 트레이딩뷰 데이터 기준 · 현재가 1분 갱신(미국 종목)']}};
+const T={{cta:['CTA 스코어보드',S.textContent],peg:['PEG 스코어보드','']}};
 function set(t){{tb.forEach(b=>b.classList.toggle('on',b.dataset.t===t));pc.hidden=t!=='cta';pp.hidden=t!=='peg';H.textContent=T[t][0];S.textContent=T[t][1];try{{localStorage.setItem('scTab',t)}}catch(e){{}}}}
 tb.forEach(b=>b.addEventListener('click',()=>set(b.dataset.t)));let t0='cta';try{{t0=localStorage.getItem('scTab')||'cta'}}catch(e){{}}if(location.hash==='#peg')t0='peg';set(t0);}})();
 var BF='all';function bfil(){{var q=(document.getElementById('bsq').value||'').trim().toLowerCase(),n=0;document.querySelectorAll('.book').forEach(function(b){{var ok=(BF==='all'||b.dataset.tag===BF)&&(!q||(b.dataset.s||'').indexOf(q)>=0);b.style.display=ok?'':'none';if(ok)n++;}});var e=document.getElementById('bsn');if(e)e.textContent=(q||BF!=='all')?n+'개':'';}}
