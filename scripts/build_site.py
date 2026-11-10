@@ -598,6 +598,14 @@ ADJ_PEG = {
     "QCOM": {"mode": "none", "note": "조정 EPS(비GAAP) 기준으로도 순이익 -15%·선행 -36%라 PEG 산출 불가. 트레이딩뷰 0.08은 착시"},
     "INTC": {"mode": "none", "note": "조정 EPS(비GAAP)도 4Q 가이던스가 전 분기 대비 -52%라 PEG 산출 불가"},
     "CRWD": {"mode": "none", "note": "조정 EPS(비GAAP, FY27 가이던스 $1.255) 기준 PER 약 173배이나 전년 비교치를 확인하지 못해 산출 불가"},
+    "CRM": {"mode": "gain", "peg": 2.3, "per": "약 23배", "gr": "+10%(가정)", "why": "투자이익 제외 기초 이익"},
+    "WDC": {"mode": "gain", "peg": 0.31, "per": "15.6배", "gr": "+50%(가정)", "why": "비영업 이익 제외 비GAAP 연환산"},
+    "GOOGL": {"mode": "gain", "peg": 1.0, "per": "약 26.6배", "gr": "+26.5%", "why": "지분 평가이익 제외 영업이익"},
+    "AMZN": {"mode": "gain", "peg": 0.87, "per": "약 32.3배", "gr": "+37.1%", "why": "지분 평가이익 제외 영업이익"},
+    "MSFT": {"mode": "gain", "peg": 1.46, "per": "약 29.2배", "gr": "+20%", "why": "오픈AI 손익 제외 영업이익"},
+    "AAPL": {"mode": "gain", "peg": 2.2, "per": "38.9배", "gr": "+18%", "why": "관세 환급 제외"},
+    "ORCL": {"mode": "gain", "peg": 0.62, "per": "14.3배", "gr": "+23%", "why": "암페어 이익 제외 선행 EPS"},
+    "NVDA": {"mode": "gain", "peg": 0.26, "per": "약 27.6배", "gr": "+106%", "why": "지분 평가이익 제외 영업이익"},
 }
 
 def peg_board():
@@ -606,7 +614,10 @@ def peg_board():
         tk = r[4]; d = _peg_data(r); px, ch, c = PRICE[tk]
         per, gr, peg, lim = d if d else ("-", "-", None, False)
         ad = ADJ_PEG.get(tk, {}); adj_note = ad.get("note", "")
-        if ad.get("mode") == "main": per, gr, peg, lim = ad["per"], ad["gr"], ad["peg"], False
+        if ad.get("mode") == "gain":
+            adj_note = f"조정 EPS 기준({ad['why']}, 보고서 추정). 일회성 이익 포함 PEG {peg:.2f}" if peg is not None else ""
+            per, gr, peg, lim = ad["per"], ad["gr"], ad["peg"], False
+        elif ad.get("mode") == "main": per, gr, peg, lim = ad["per"], ad["gr"], ad["peg"], False
         elif ad.get("mode") == "none": peg, lim = None, False
         if peg is None: v, tg = "산출 불가", '<span class="small">산출 불가</span>'
         elif peg <= 0.5: v, tg = f"{peg:.2f}", '<span class="tag g">적극 매수권</span>'
