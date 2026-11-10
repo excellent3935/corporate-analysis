@@ -144,10 +144,10 @@ for d in sorted(os.listdir(CONTENT)):
         if f.endswith((".png", ".jpg")): shutil.copy(f"{CONTENT}/{d}/{f}", f"{OUT}/{d}/{f}")
 
 REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, stock line, url
- ("micron.html", "mu", [CONTENT + "/mu/report.html", CONTENT + "/mu/body2.html"], "Micron Technology 기업분석", "MU", "Micron Technology, Inc.", "반도체", "8개 분기 실적 · DRAM 수요 · 이평선·CTA", "#eef2ff", "반도체 · 시총 $780.7B · 직원 약 6.1만 명", "https://www.micron.com"),
+ ("micron.html", "mu", [CONTENT + "/mu/body.html"], "Micron Technology 기업분석", "MU", "Micron Technology, Inc.", "반도체", "FQ4 매출 +379% · 영업이익률 81% · CTA -0.50", "#eef2ff", "반도체 · 시총 $780.7B · 직원 약 6.1만 명", "https://www.micron.com"),
  ("alphabet.html", "googl", [CONTENT + "/googl/body.html"], "Alphabet 기업분석", "GOOGL", "Alphabet Inc. Class A", "빅테크", "클라우드 +103% · FCF 마이너스 · CTA -0.75", "#ecfdf5", "인터넷 서비스 · 시총 $3.47T · 직원 204,757명", "https://abc.xyz"),
  ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · FCF 플러스 · 천장 테스트", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
- ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS 재가속 · 설비투자 $77B · 박스권", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
+ ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS +39% · FCF -$424억 · CTA +0.50", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
  ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "매출 $96B · 가이던스 $108B · 약정 $279B", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
  ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "반도체", "맞춤형 칩·광 연결 · 루멘텀 인수", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
  ("samsung.html", "sec", [CONTENT + "/sec/body.html"], "삼성전자 기업분석", "005930", "삼성전자", "반도체", "분기 영업이익 107조 · HBM4 · 주주환원", "#eff6ff", "반도체·전자 · 시총 약 1,390조 원", "https://www.samsung.com/sec"),
@@ -161,10 +161,10 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("palantir.html", "pltr", [CONTENT + "/pltr/body.html"], "Palantir 기업분석", "PLTR", "Palantir Technologies Inc.", "소프트웨어", "매출 +96% · 순이익률 49% · TCV 둔화", "#f4f4f5", "소프트웨어 · 시총 $386B", "https://www.palantir.com"),
  ("meta.html", "meta", [CONTENT + "/meta/body.html"], "Meta 기업분석", "META", "Meta Platforms, Inc.", "빅테크", "매출 +26% · 이익률 20% · 설비투자 $140B", "#eef4ff", "인터넷 서비스 · 시총 $1.56T", "https://about.meta.com"),
  ("coreweave.html", "crwv", [CONTENT + "/crwv/body.html"], "CoreWeave 기업분석", "CRWV", "CoreWeave, Inc.", "소프트웨어", "AI 클라우드 · 잔고 $104B · 부채 $35B", "#f5f3ff", "AI 클라우드 · 시총 $25.6B", "https://www.coreweave.com"),
- ("tesla.html", "tsla", [CONTENT + "/tsla/body.html"], "Tesla 기업분석", "TSLA", "Tesla, Inc.", "빅테크", "로보택시·FSD 174만 · 영업이익률 2.6%", "#fff1f2", "자동차·에너지·AI · 시총 $1.42T", "https://www.tesla.com"),
+ ("tesla.html", "tsla", [CONTENT + "/tsla/body.html"], "Tesla 기업분석", "TSLA", "Tesla, Inc.", "빅테크", "FSD 174만 · 영업이익률 2.6% · PER 394배", "#fff1f2", "자동차·에너지·AI · 시총 $1.42T", "https://www.tesla.com"),
  ("spacex.html", "spcx", [CONTENT + "/spcx/body.html"], "SpaceX 기업분석", "SPCX", "Space Exploration Technologies Corp.", "빅테크", "매출 +161% · AI(SI) $76억 · 첫 흑자", "#f1f5f9", "우주·통신·AI · 시총 $1.82T", "https://www.spacex.com"),
  ("dell.html", "dell", [CONTENT + "/dell/body.html"], "Dell 기업분석", "DELL", "Dell Technologies Inc.", "반도체", "AI 서버 잔고 $950억 · 매출 +58%", "#eff6ff", "IT 하드웨어 · 시총 $2,089억", "https://www.dell.com"),
- ("sandisk.html", "sndk", [CONTENT + "/sndk/body.html"], "Sandisk 기업분석", "SNDK", "Sandisk Corporation", "반도체", "매출총이익률 85% · 8:1 분할", "#fef2f2", "메모리 반도체 · 시총 $1,188억", "https://www.sandisk.com"),
+ ("sandisk.html", "sndk", [CONTENT + "/sndk/body.html"], "Sandisk 기업분석", "SNDK", "Sandisk Corporation", "반도체", "매출총이익률 85% · PER 6.7배 · CTA -0.50", "#fef2f2", "메모리 반도체 · 시총 $1,188억", "https://www.sandisk.com"),
  ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "소프트웨어", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
  ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "소프트웨어", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
