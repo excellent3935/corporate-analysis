@@ -488,7 +488,7 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 .pills{flex-wrap:wrap;gap:5px;margin:4px 0 12px}.pill{padding:3px 10px;font-size:11.5px;white-space:nowrap}
 @media(max-width:560px){.pills{flex-wrap:nowrap}.bsw input{max-width:none}}
 .stabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}.stab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.stab:before{content:"- ";opacity:.5}.stab.on{color:var(--ink);border-bottom-color:var(--ink)}
-#pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard sup{color:var(--muted);margin-left:2px}
+#pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard td.rm{font-size:11.5px;color:var(--muted);line-height:1.4;min-width:150px}
 @media(max-width:640px){#pegboard .xd{display:none}.stab{padding:8px 12px;font-size:13px}}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
@@ -596,12 +596,14 @@ def peg_board():
         elif peg <= 0.5: v, tg = f"{peg:.2f}", '<span class="tag g">적극 매수권</span>'
         elif peg <= 1.0: v, tg = f"{peg:.2f}", '<span class="tag y">투자 적격</span>'
         else: v, tg = f"{peg:.2f}", '<span class="tag b">기준 초과</span>'
-        star = "<sup title='성장률 기저 착시·의미 제한: 숫자만으로 판단하기 어려움'>※</sup>" if peg is not None and (peg < 0.05 or lim) else ""
+        rem = "" if peg is None else ("성장률이 불황 바닥 기준이라 부풀려진 값, 의미 제한적" if lim or peg < 0.05 else "")
+        if peg is None: rem = "적자 등으로 산출 불가" if d else "보고서에 PEG 정보 없음"
+        star = ""
         live = f" data-q='{tk}'" if tk not in ("005930", "000660") else ""
         rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a></td>'
-                     f'<td class="r">{px}<br><span class="{c}">{ch}</span></td><td class="r xd">{per}</td><td class="r xd">{gr}</td><td class="r"><b>{v}</b>{star}</td><td>{tg}</td></tr>'))
+                     f'<td class="r">{px}<br><span class="{c}">{ch}</span></td><td class="r xd">{per}</td><td class="r xd">{gr}</td><td class="r"><b>{v}</b></td><td>{tg}</td><td class="rm xd">{rem}</td></tr>'))
     rows.sort(key=lambda x: x[0])
-    return ('<div class="panel cmp board" id="pegboard"><table><thead><tr><th class="rk">#</th><th>기업</th><th class="r">종가</th><th class="r xd">PER(TTM)</th><th class="r xd">EPS 성장(YoY)</th><th class="r">PEG</th><th>판정</th></tr></thead><tbody>'
+    return ('<div class="panel cmp board" id="pegboard"><table><thead><tr><th class="rk">#</th><th>기업</th><th class="r">종가</th><th class="r xd">PER(TTM)</th><th class="r xd">EPS 성장(YoY)</th><th class="r">PEG</th><th>판정</th><th class="xd">비고</th></tr></thead><tbody>'
             + "".join(x[1] for x in rows) + '</tbody></table></div><div class="pager" id="pegpager"></div>')
 
 def fg_label(v):
@@ -775,7 +777,7 @@ home = f"""<main class="home">
 </div>
 <div id="pane-peg" hidden>
 {peg_board()}
-<div class="note">PEG = PER ÷ EPS 성장률. 낮은 순서로 정렬했고, 값은 각 기업 보고서의 동종업계 비교표(트레이딩뷰 TTM, 11/6 종가 환산)에서 가져옵니다. 판정: 0.5 이하 적극 매수권, 1.0 이하 투자 적격, 초과는 기준 초과. 적자 등으로 PEG가 없는 종목은 맨 아래에 둡니다. ※는 성장률 기저 착시로 숫자만 보고 판단하기 어려운 경우입니다. 종가는 1분마다 갱신됩니다(미국 종목).</div>
+<div class="note">PEG = PER ÷ EPS 성장률. 낮은 순서로 정렬했고, 값은 각 기업 보고서의 동종업계 비교표(트레이딩뷰 TTM, 11/6 종가 환산)에서 가져옵니다. 판정: 0.5 이하 적극 매수권, 1.0 이하 투자 적격, 초과는 기준 초과. 적자 등으로 PEG가 없는 종목은 맨 아래에 둡니다. 비고란에 "의미 제한적"이라고 적힌 종목은 성장률 기저 착시 등으로 PEG 숫자만 보고 판단하기 어렵습니다. 종가는 1분마다 갱신됩니다(미국 종목).</div>
 </div>
 </section>
 
