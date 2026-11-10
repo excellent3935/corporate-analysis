@@ -154,7 +154,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("skhynix.html", "skh", [CONTENT + "/skh/body.html"], "SK하이닉스 기업분석", "000660", "SK하이닉스", "반도체", "이익률 80% · 장기계약 · 2030년 부족", "#fef2f2", "메모리 반도체 · 시총 약 1,018조 원", "https://www.skhynix.com"),
  ("tsmc.html", "tsm", [CONTENT + "/tsm/body.html"], "TSMC 기업분석", "TSM", "Taiwan Semiconductor Manufacturing Co.", "반도체", "3Q26 매출 +41% · PER 24.2배 · CTA -0.50", "#f0fdfa", "반도체 위탁생산 · 시총 $1.78T", "https://www.tsmc.com"),
  ("broadcom.html", "avgo", [CONTENT + "/avgo/body.html"], "Broadcom 기업분석", "AVGO", "Broadcom Inc.", "반도체", "AI +221% · PER 37.5배 · CTA -1.00", "#fff1f2", "반도체·소프트웨어 · 시총 $1.40T", "https://www.broadcom.com"),
- ("amd.html", "amd", [CONTENT + "/amd/body.html"], "AMD 기업분석", "AMD", "Advanced Micro Devices, Inc.", "반도체", "데이터센터 +97% · 헬리오스 · 4Q $17B", "#f1f5f9", "반도체 · 시총 $733B", "https://www.amd.com"),
+ ("amd.html", "amd", [CONTENT + "/amd/body.html"], "AMD 기업분석", "AMD", "Advanced Micro Devices, Inc.", "반도체", "데이터센터 +97% · PER 97.6배 · CTA -0.25", "#f1f5f9", "반도체 · 시총 $733B", "https://www.amd.com"),
  ("intel.html", "intc", [CONTENT + "/intc/body.html"], "Intel 기업분석", "INTC", "Intel Corporation", "반도체", "DCAI +78% · 이익률 43% · 4Q 가이던스 쇼크", "#eef6ff", "반도체 · 시총 $299B", "https://www.intel.com"),
  ("qualcomm.html", "qcom", [CONTENT + "/qcom/body.html"], "Qualcomm 기업분석", "QCOM", "QUALCOMM Incorporated", "반도체", "자동차 +89% · 핸드셋 -26% · 데이터센터 $5B", "#f0f4ff", "반도체(팹리스) · 시총 $177B", "https://www.qualcomm.com"),
  ("oracle.html", "orcl", [CONTENT + "/orcl/body.html"], "Oracle 기업분석", "ORCL", "Oracle Corporation", "소프트웨어", "OCI +121% · RPO $664B · FCF 마이너스", "#fff5f5", "소프트웨어·클라우드 · 시총 $351B", "https://www.oracle.com"),
