@@ -491,8 +491,9 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 #pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard td.rm{font-size:11.5px;color:var(--muted);line-height:1.4;min-width:150px}
 @media(max-width:640px){#pegboard .xd{display:none}.stab{padding:8px 12px;font-size:13px}}
 .vis{text-align:center;font-size:11px;color:var(--muted);opacity:.7;padding:18px 0 22px;letter-spacing:.02em}
+.cnst{text-align:center;font-size:11.5px;color:var(--muted);margin:-2px 0 6px}.cnst .dn{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:6px}.cnst .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}
 """
-THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
+THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script><script>(function(){var of=window.fetch,last=0,bad=0;function pad(n){return('0'+n).slice(-2)}function show(){var e=document.getElementById('cnst');if(!e)return;if(!last){e.innerHTML='<span class=\"dn\"></span>CNBC 시세 · 대기 중';return}var d=new Date(last),age=(Date.now()-last)/1000,ok=age<150;e.innerHTML='<span class=\"'+(ok?'live':'dn')+'\"></span>CNBC 시세 '+(ok?'1분마다 갱신':'갱신 지연')+' · 마지막 '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}window.fetch=function(u){var q=String(u&&u.url||u),p=of.apply(this,arguments);if(q.indexOf('quote.cnbc.com')>-1)p.then(function(r){if(r&&r.ok){last=Date.now();show()}}).catch(function(){});return p};document.addEventListener('DOMContentLoaded',show);setInterval(show,5000)})();</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
 function tv(sel){document.querySelectorAll(sel||'.tvw').forEach(function(c){var cfg=JSON.parse(c.dataset.cfg);var dk=R.getAttribute('data-theme')==='dark'?'dark':'light';if('colorTheme' in cfg)cfg.colorTheme=dk;else cfg.theme=dk;
 c.innerHTML='<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';var s=document.createElement('script');s.type='text/javascript';s.src=c.dataset.src;s.async=true;s.innerHTML=JSON.stringify(cfg);c.appendChild(s);});}
@@ -755,7 +756,7 @@ home = f"""<main class="home">
 
 <div class="sech"><h2>CNN 공포·탐욕 지수</h2></div>
 <div class="panel fgwrap">
-<div>{gauge(FG["score"])}<div class="fgnum" id="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
+<div><div class="cnst" id="cnst">CNBC 시세 · 확인 중</div>{gauge(FG["score"])}<div class="fgnum" id="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
 <div style="margin-top:10px" id="fgspk">{spark(FG["hist"], 260, 46, bcol(FG["score"]))}</div><div class="note" style="text-align:center;margin-top:2px">최근 약 3.5개월 추이</div></div>
 <table class="hist" id="fghist" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">시점별 비교</td></tr>{hist_rows}</table>
 <table class="comp" id="fgcomp" style="width:100%;border-collapse:collapse"><tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>{comp_rows}</table>
