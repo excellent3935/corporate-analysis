@@ -747,7 +747,7 @@ home = f"""<main class="home">
 <div class="sech"><h2>미국 지수 선물</h2></div>
 <div class="grid3">{fut("NQ","나스닥100 선물","NQ1!")}{fut("ES","S&P500 선물","ES1!")}{fut("YM","다우존스 선물","YM1!")}</div>
 
-<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2><span class="sm">실시간 · 섹터 › 산업 묶음 · 칸 크기 = 시가총액, 색 = 전일 종가 대비 등락률 · CNBC 시세 1분 갱신 · 섹터·산업 분류 Finviz 기준</span></div>
+<div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2></div>
 {heatmap()}
 
 <div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm" id="fgasof">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
