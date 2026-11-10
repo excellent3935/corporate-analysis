@@ -487,6 +487,9 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 .bsw{display:flex;align-items:center;gap:10px;margin:2px 0 8px}.bsw input{flex:1;max-width:340px;font:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line);border-radius:3px;background:var(--card);color:var(--ink)}.bsw input:focus{outline:none;border-color:var(--gold)}#bsn{font-size:12px;color:var(--muted)}
 .pills{flex-wrap:wrap;gap:5px;margin:4px 0 12px}.pill{padding:3px 10px;font-size:11.5px;white-space:nowrap}
 @media(max-width:560px){.pills{flex-wrap:nowrap}.bsw input{max-width:none}}
+.stabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}.stab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.stab:before{content:"- ";opacity:.5}.stab.on{color:var(--ink);border-bottom-color:var(--ink)}
+#pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard sup{color:var(--muted);margin-left:2px}
+@media(max-width:640px){#pegboard .xd{display:none}.stab{padding:8px 12px;font-size:13px}}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
@@ -571,6 +574,35 @@ def cta_board():
     return ('<div class="bdtool"><div class="pills" style="margin:0"><button class="pill on" data-v="full">전체 보기</button><button class="pill" data-v="brief">간략히 보기</button></div></div>'
             '<div class="panel cmp board" id="ctaboard"><table><thead><tr><th>기업</th><th class="r">종가</th><th class="r xd">200일선 대비</th><th class="xd">8개 신호 (추세3·채널·모멘텀4)</th><th class="xd">점수 추이</th><th>CTA</th></tr></thead><tbody>'
             + "".join(x[1] for x in rows) + '</tbody></table></div><div class="pager" id="ctapager"></div>')
+
+def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩뷰 11/6 환산)에서 자기 종목 행을 읽는다 → 보고서를 올리면 자동 반영
+    tk = r[4]
+    for src in r[2]:
+        try: h = open(src, encoding="utf-8").read()
+        except OSError: continue
+        for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", h, re.S):
+            c = [re.sub(r"<[^>]+>", "", x).strip() for x in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S)]
+            if len(c) >= 7 and c[0] == tk and re.search(r"배|적자|–", c[3]):
+                m = re.match(r"([0-9]+\.[0-9]+)", c[4])
+                return c[3].split(" (")[0].replace("약 ", ""), (c[6].split(" ")[0] if re.match(r"[+-]", c[6]) else "-"), float(m.group(1)) if m else None, ("의미 제한" in c[4])
+    return None
+
+def peg_board():
+    rows = []
+    for r in REPORTS:
+        tk = r[4]; d = _peg_data(r); px, ch, c = PRICE[tk]
+        per, gr, peg, lim = d if d else ("-", "-", None, False)
+        if peg is None: v, tg = "산출 불가", '<span class="small">산출 불가</span>'
+        elif peg <= 0.5: v, tg = f"{peg:.2f}", '<span class="tag g">적극 매수권</span>'
+        elif peg <= 1.0: v, tg = f"{peg:.2f}", '<span class="tag y">투자 적격</span>'
+        else: v, tg = f"{peg:.2f}", '<span class="tag b">기준 초과</span>'
+        star = "<sup title='성장률 기저 착시·의미 제한: 숫자만으로 판단하기 어려움'>※</sup>" if peg is not None and (peg < 0.05 or lim) else ""
+        live = f" data-q='{tk}'" if tk not in ("005930", "000660") else ""
+        rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a></td>'
+                     f'<td class="r">{px}<br><span class="{c}">{ch}</span></td><td class="r xd">{per}</td><td class="r xd">{gr}</td><td class="r"><b>{v}</b>{star}</td><td>{tg}</td></tr>'))
+    rows.sort(key=lambda x: x[0])
+    return ('<div class="panel cmp board" id="pegboard"><table><thead><tr><th class="rk">#</th><th>기업</th><th class="r">종가</th><th class="r xd">PER(TTM)</th><th class="r xd">EPS 성장(YoY)</th><th class="r">PEG</th><th>판정</th></tr></thead><tbody>'
+            + "".join(x[1] for x in rows) + '</tbody></table></div><div class="pager" id="pegpager"></div>')
 
 def fg_label(v):
     return "극단적 공포" if v < 25 else ("공포" if v < 45 else ("중립" if v <= 55 else ("탐욕" if v < 75 else "극단적 탐욕")))
@@ -735,9 +767,16 @@ home = f"""<main class="home">
 </section>
 
 <section id="cta">
-<div class="sech"><h2>CTA 스코어보드</h2><span class="sm">8개 추세추종 신호 평균 · 이동평균 {CTA_DATE} 종가 기준 · 현재가 1분 갱신(미국 종목)</span></div>
+<div class="sech"><h2 id="sch2">CTA 스코어보드</h2><span class="sm" id="schs">8개 추세추종 신호 평균 · 이동평균 {CTA_DATE} 종가 기준 · 현재가 1분 갱신(미국 종목)</span></div>
+<div class="stabs"><button class="stab on" data-t="cta" type="button">CTA 스코어보드</button><button class="stab" data-t="peg" type="button">PEG 스코어보드</button></div>
+<div id="pane-cta">
 {cta_board()}
 <div class="note">점수 +1은 8개 신호가 모두 매수, -1은 모두 매도입니다. 추세추종(CTA) 자금의 움직임을 흉내 낸 자체 계산 모델이며, 실제 증권사 CTA 포지션 데이터가 아닙니다.</div>
+</div>
+<div id="pane-peg" hidden>
+{peg_board()}
+<div class="note">PEG = PER ÷ EPS 성장률. 낮은 순서로 정렬했고, 값은 각 기업 보고서의 동종업계 비교표(트레이딩뷰 TTM, 11/6 종가 환산)에서 가져옵니다. 판정: 0.5 이하 적극 매수권, 1.0 이하 투자 적격, 초과는 기준 초과. 적자 등으로 PEG가 없는 종목은 맨 아래에 둡니다. ※는 성장률 기저 착시로 숫자만 보고 판단하기 어려운 경우입니다. 종가는 1분마다 갱신됩니다(미국 종목).</div>
+</div>
 </section>
 
 <section id="reports">
@@ -767,6 +806,21 @@ P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disa
 let v=matchMedia('(max-width:640px)').matches?'brief':'full';try{{v=localStorage.getItem('ctaView')||v}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
 function setV(x){{B.classList.toggle('brief',x==='brief');vb.forEach(b=>b.classList.toggle('on',b.dataset.v===x));try{{localStorage.setItem('ctaView',x)}}catch(e){{}}}}
 vb.forEach(b=>b.addEventListener('click',()=>setV(b.dataset.v)));setV(v);}})();
+(function(){{const B=document.getElementById('pegboard'),P=document.getElementById('pegpager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);rows.forEach((r,k)=>r.firstChild.textContent=k+1);
+function show(i){{rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?'':'none');if(pages<2){{P.innerHTML='';return;}}
+let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
+h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
+P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disabled)show(+b.dataset.p);}});show(0);
+const R=rows.filter(r=>r.dataset.q),U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json&events=1&symbols='+R.map(r=>encodeURIComponent(r.dataset.q)).join('|');
+const num=v=>parseFloat(String(v).replace(/[%,+$]/g,'')),fmt=v=>v<1000?'$'+v.toFixed(2):'$'+Math.round(v).toLocaleString('en-US');
+async function upd(){{try{{const j=await (await fetch(U,{{cache:'no-store'}})).json();const Q={{}};[].concat(j.FormattedQuoteResult.FormattedQuote||[]).forEach(q=>Q[q.symbol]=q);
+R.forEach(r=>{{const q=Q[r.dataset.q];if(!q||q.last==null)return;let L=num(q.last),C=num(q.change_pct);const e=q.ExtendedMktQuote;if(q.curmktstatus!=='REG_MKT'&&e&&e.last&&!/PREV/.test(e.type||'')){{L=num(e.last);C=num(e.change_pct);}}
+if(isNaN(L))return;if(isNaN(C)){{const pv=num(q.previous_day_closing);C=pv?(L-pv)/pv*100:0;}}r.children[2].innerHTML=fmt(L)+'<br><span class="'+(C>0?'up':C<0?'down':'')+'">'+(C>=0?'+':'')+C.toFixed(2)+'%</span>';}});}}catch(e){{}}}}
+upd();setInterval(()=>{{if(!document.hidden)upd();}},60000);}})();
+(function(){{const tb=document.querySelectorAll('.stab'),H=document.getElementById('sch2'),S=document.getElementById('schs'),pc=document.getElementById('pane-cta'),pp=document.getElementById('pane-peg');
+const T={{cta:['CTA 스코어보드',S.textContent],peg:['PEG 스코어보드','PER ÷ EPS 성장률 · 낮은 순 · 기업 보고서의 트레이딩뷰 데이터 기준 · 현재가 1분 갱신(미국 종목)']}};
+function set(t){{tb.forEach(b=>b.classList.toggle('on',b.dataset.t===t));pc.hidden=t!=='cta';pp.hidden=t!=='peg';H.textContent=T[t][0];S.textContent=T[t][1];try{{localStorage.setItem('scTab',t)}}catch(e){{}}}}
+tb.forEach(b=>b.addEventListener('click',()=>set(b.dataset.t)));let t0='cta';try{{t0=localStorage.getItem('scTab')||'cta'}}catch(e){{}}if(location.hash==='#peg')t0='peg';set(t0);}})();
 var BF='all';function bfil(){{var q=(document.getElementById('bsq').value||'').trim().toLowerCase(),n=0;document.querySelectorAll('.book').forEach(function(b){{var ok=(BF==='all'||b.dataset.tag===BF)&&(!q||(b.dataset.s||'').indexOf(q)>=0);b.style.display=ok?'':'none';if(ok)n++;}});var e=document.getElementById('bsn');if(e)e.textContent=(q||BF!=='all')?n+'개':'';}}
 document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));BF=p.dataset.f;bfil();}}));
 document.getElementById('bsq').addEventListener('input',bfil);</script>"""
