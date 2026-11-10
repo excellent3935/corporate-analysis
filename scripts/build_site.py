@@ -148,7 +148,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("alphabet.html", "googl", [CONTENT + "/googl/body.html"], "Alphabet 기업분석", "GOOGL", "Alphabet Inc. Class A", "빅테크", "클라우드 +103% · FCF 마이너스 · CTA -0.75", "#ecfdf5", "인터넷 서비스 · 시총 $3.47T · 직원 204,757명", "https://abc.xyz"),
  ("microsoft.html", "msft", [CONTENT + "/msft/body.html"], "Microsoft 기업분석", "MSFT", "Microsoft Corporation", "빅테크", "Azure +48% · FCF 플러스 · 천장 테스트", "#f0f9ff", "패키지 소프트웨어 · 시총 $3.94T", "https://www.microsoft.com"),
  ("amazon.html", "amzn", [CONTENT + "/amzn/body.html"], "Amazon 기업분석", "AMZN", "Amazon.com, Inc.", "빅테크", "AWS +39% · FCF -$424억 · CTA +0.50", "#fff7ed", "인터넷 유통 · 시총 $2.80T", "https://www.amazon.com"),
- ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "매출 $96B · 가이던스 $108B · 약정 $279B", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
+ ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "FY27Q2 매출 +106% · PER 23.6배 · CTA -0.75", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
  ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "반도체", "맞춤형 칩·광 연결 · 루멘텀 인수", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
  ("samsung.html", "sec", [CONTENT + "/sec/body.html"], "삼성전자 기업분석", "005930", "삼성전자", "반도체", "분기 영업이익 107조 · HBM4 · 주주환원", "#eff6ff", "반도체·전자 · 시총 약 1,390조 원", "https://www.samsung.com/sec"),
  ("skhynix.html", "skh", [CONTENT + "/skh/body.html"], "SK하이닉스 기업분석", "000660", "SK하이닉스", "반도체", "이익률 80% · 장기계약 · 2030년 부족", "#fef2f2", "메모리 반도체 · 시총 약 1,018조 원", "https://www.skhynix.com"),
