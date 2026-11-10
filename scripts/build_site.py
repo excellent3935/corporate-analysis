@@ -151,7 +151,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("nvidia.html", "nvda", [CONTENT + "/nvda/body.html"], "NVIDIA 기업분석", "NVDA", "NVIDIA Corporation", "반도체", "FY27Q2 매출 +106% · PER 23.6배 · CTA -0.75", "#f0fdf4", "반도체 · 시총 $4.50T", "https://www.nvidia.com"),
  ("marvell.html", "mrvl", [CONTENT + "/mrvl/body.html"], "Marvell 기업분석", "MRVL", "Marvell Technology, Inc.", "반도체", "FY28 가이던스 $18B · 루멘텀 인수 · CTA -0.50", "#f5f3ff", "반도체 · 시총 $123.8B", "https://www.marvell.com"),
  ("samsung.html", "sec", [CONTENT + "/sec/body.html"], "삼성전자 기업분석", "005930", "삼성전자", "반도체", "분기 영업이익 107조 · HBM4 · 주주환원", "#eff6ff", "반도체·전자 · 시총 약 1,390조 원", "https://www.samsung.com/sec"),
- ("skhynix.html", "skh", [CONTENT + "/skh/body.html"], "SK하이닉스 기업분석", "000660", "SK하이닉스", "반도체", "이익률 80% · 장기계약 · 2030년 부족", "#fef2f2", "메모리 반도체 · 시총 약 1,018조 원", "https://www.skhynix.com"),
+ ("skhynix.html", "skh", [CONTENT + "/skh/body.html"], "SK하이닉스 기업분석", "000660", "SK하이닉스", "반도체", "영업이익률 80% · EV/EBITDA 2.6배 · CTA -0.50", "#fef2f2", "메모리 반도체 · 시총 약 1,018조 원", "https://www.skhynix.com"),
  ("tsmc.html", "tsm", [CONTENT + "/tsm/body.html"], "TSMC 기업분석", "TSM", "Taiwan Semiconductor Manufacturing Co.", "반도체", "3Q26 매출 +41% · PER 24.2배 · CTA -0.50", "#f0fdfa", "반도체 위탁생산 · 시총 $1.78T", "https://www.tsmc.com"),
  ("broadcom.html", "avgo", [CONTENT + "/avgo/body.html"], "Broadcom 기업분석", "AVGO", "Broadcom Inc.", "반도체", "AI +221% · PER 37.5배 · CTA -1.00", "#fff1f2", "반도체·소프트웨어 · 시총 $1.40T", "https://www.broadcom.com"),
  ("amd.html", "amd", [CONTENT + "/amd/body.html"], "AMD 기업분석", "AMD", "Advanced Micro Devices, Inc.", "반도체", "데이터센터 +97% · PER 97.6배 · CTA -0.25", "#f1f5f9", "반도체 · 시총 $733B", "https://www.amd.com"),
