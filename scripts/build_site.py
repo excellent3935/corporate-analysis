@@ -490,6 +490,7 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 .stabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}.stab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.stab:before{content:"- ";opacity:.5}.stab.on{color:var(--ink);border-bottom-color:var(--ink)}
 #pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard td.rm{font-size:11.5px;color:var(--muted);line-height:1.4;min-width:150px}
 @media(max-width:640px){#pegboard .xd{display:none}.stab{padding:8px 12px;font-size:13px}}
+.vis{text-align:center;font-size:11px;color:var(--muted);opacity:.7;padding:18px 0 22px;letter-spacing:.02em}
 """
 THEME_INIT = "<script>(function(){try{var t=localStorage.getItem('theme')}catch(e){}if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t)})()</script>"
 THEME_JS = """<script>(function(){var R=document.documentElement;
@@ -614,7 +615,9 @@ def shell(title, inner, on="home"):
                   [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
-{inner}{THEME_JS}</body></html>"""
+{inner}<div class="vis" id="vis" aria-live="off"></div><script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
+function g(k,hit){{return fetch(B+(hit?'hit/':'get/')+N+k).then(function(r){{return r.ok?r.json():{{value:0}}}}).then(function(j){{return j.value||0}}).catch(function(){{return null}})}}
+Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)return;try{{localStorage.setItem('visD',d)}}catch(e){{}}el.textContent='방문 누적 '+v[0].toLocaleString('ko-KR')+' · 오늘 '+(v[1]||0).toLocaleString('ko-KR')}})}})();</script>{THEME_JS}</body></html>"""
 
 _LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
 PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
@@ -750,7 +753,7 @@ home = f"""<main class="home">
 <div class="sech" id="heatmap"><h2>S&amp;P500 히트맵</h2></div>
 {heatmap()}
 
-<div class="sech"><h2>CNN 공포·탐욕 지수</h2><span class="sm" id="fgasof">Fear &amp; Greed Index · CNN 기준 {FG["asof"]}</span></div>
+<div class="sech"><h2>CNN 공포·탐욕 지수</h2></div>
 <div class="panel fgwrap">
 <div>{gauge(FG["score"])}<div class="fgnum" id="fgnum"><b style="color:{bcol(FG["score"])}">{FG["score"]:.0f}</b><div style="color:{bcol(FG["score"])}">{FG["rating"]}</div></div>
 <div style="margin-top:10px" id="fgspk">{spark(FG["hist"], 260, 46, bcol(FG["score"]))}</div><div class="note" style="text-align:center;margin-top:2px">최근 약 3.5개월 추이</div></div>

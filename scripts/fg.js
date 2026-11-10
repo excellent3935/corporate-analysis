@@ -12,7 +12,6 @@ const h=(j.fear_and_greed_historical&&j.fear_and_greed_historical.data||[]).map(
 const rows=[['현재',s],['전일 종가',f.previous_close],['1주 전',f.previous_1_week],['1개월 전',f.previous_1_month],['1년 전',f.previous_1_year]];
 $('fghist').innerHTML='<tr><td colspan="3" style="font-weight:700;color:var(--ink)">시점별 비교</td></tr>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td style="text-align:right;font-weight:700">'+Math.round(r[1])+'</td><td style="color:var(--muted)">'+lab(r[1])+'</td></tr>').join('');
 $('fgcomp').innerHTML='<tr><td colspan="3" style="font-weight:700;color:var(--ink)">7개 구성 지표</td></tr>'+COMP.map(k=>{const x=j[k[0]]||{},v=Math.round(x.score||0),cc=col(v);return '<tr><td><b>'+k[1]+'</b><br><span style="font-size:12px;color:var(--muted)">'+k[2]+'</span></td><td><span class="bar"><span style="width:'+v+'%;background:'+cc+'"></span></span> '+v+'</td><td style="font-size:12.5px;color:'+cc+';font-weight:700">'+(RT[String(x.rating).toLowerCase()]||'-')+'</td></tr>';}).join('');
-const ts=new Date(f.timestamp);$('fgasof').innerHTML='Fear &amp; Greed Index · CNN 기준 '+ts.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false})+' · <span class="livedot"></span>1분마다 갱신';
 }catch(e){}}
 upd();setInterval(()=>{if(!document.hidden)upd();},60000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)upd();});
 })();
