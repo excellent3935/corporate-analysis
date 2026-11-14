@@ -166,7 +166,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("dell.html", "dell", [CONTENT + "/dell/body.html"], "Dell 기업분석", "DELL", "Dell Technologies Inc.", "반도체", "AI 서버 잔고 $950억 · 매출 +58%", "#eff6ff", "IT 하드웨어 · 시총 $2,089억", "https://www.dell.com"),
  ("sandisk.html", "sndk", [CONTENT + "/sndk/body.html"], "Sandisk 기업분석", "SNDK", "Sandisk Corporation", "반도체", "매출총이익률 85% · PER 6.7배 · CTA -0.50", "#fef2f2", "메모리 반도체 · 시총 $1,188억", "https://www.sandisk.com"),
  ("crowdstrike.html", "crwd", [CONTENT + "/crwd/body.html"], "CrowdStrike 기업분석", "CRWD", "CrowdStrike Holdings, Inc.", "사이버 보안", "순신규 ARR +51% · AI 보안", "#fff1f2", "사이버 보안 · 시총 $2,221억", "https://www.crowdstrike.com"),
- ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "데이터센터", "AI 클라우드 · 매출 +454% · 선수금 $60억", "#f7fee7", "AI 클라우드 · 시총 $352억", "https://nebius.com"),
+ ("nebius.html", "nbis", [CONTENT + "/nbis/body.html"], "Nebius 기업분석", "NBIS", "Nebius Group N.V.", "데이터센터", "AI 클라우드 · 매출 +571% · 첫 영업흑자", "#f7fee7", "AI 클라우드 · 시총 $276억", "https://nebius.com"),
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자 · 시총 $4.98T", "https://www.apple.com"),
  ("eli-lilly.html", "lly", [CONTENT + "/lly/body.html"], "Eli Lilly 기업분석", "LLY", "Eli Lilly and Company", "헬스케어", "비만약 매출 66% · PEG 0.92 · CTA +1.0", "#fdf2f8", "제약 · 시총 $1.27T", "https://www.lilly.com"),
  ("jpmorgan.html", "jpm", [CONTENT + "/jpm/body.html"], "JPMorgan Chase 기업분석", "JPM", "JPMorgan Chase & Co.", "금융", "ROTCE 20% · PEG 0.79 · P/TBV 3배", "#eff6ff", "은행 · 시총 $889B", "https://www.jpmorganchase.com"),
