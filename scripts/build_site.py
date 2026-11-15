@@ -216,6 +216,16 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("appliedmaterials.html", "amat", [CONTENT + "/amat/body.html"], "Applied Materials 기업분석", "AMAT", "Applied Materials, Inc.", "반도체", "FQ4 매출 +53% · 조정 PEG 0.78 · CTA -0.75", "#f0fdf4", "반도체 장비 · 시총 $294B", "https://www.appliedmaterials.com"),
  ("kla.html", "klac", [CONTENT + "/klac/body.html"], "KLA 기업분석", "KLAC", "KLA Corporation", "반도체", "FQ1 매출 +29% · 조정 PEG 2.09 · CTA -0.75", "#eef2ff", "반도체 장비 · 시총 $198.5B", "https://www.kla.com"),
  ("teradyne.html", "ter", [CONTENT + "/ter/body.html"], "Teradyne 기업분석", "TER", "Teradyne, Inc.", "반도체", "3Q 매출 +70% · 두 분기 정체 · CTA -0.75", "#fdf4ff", "반도체 테스트 · 시총 $39B", "https://www.teradyne.com"),
+ ("hims.html", "hims", [CONTENT + "/hims/body.html"], "HIMS & HERS 기업분석", "HIMS", "Hims & Hers Health, Inc.", "헬스케어", "매출 +49% · 총이익률 57% · CTA -0.75", "#fdf2f8", "디지털 헬스 · 시총 $4.6B", "https://www.forhims.com"),
+ ("tempus.html", "tem", [CONTENT + "/tem/body.html"], "Tempus AI 기업분석", "TEM", "Tempus AI, Inc.", "헬스케어", "매출 +23% · 조정 EBITDA 흑자 · CTA +0.75", "#f0fdfa", "AI 정밀의료 · 시총 $13.1B", "https://www.tempus.com"),
+ ("novonordisk.html", "nvo", [CONTENT + "/nvo/body.html"], "Novo Nordisk 기업분석", "NVO", "Novo Nordisk A/S", "헬스케어", "알약 54억 DKK · 조정 영업이익 +27% · CTA -0.75", "#eff6ff", "비만·당뇨 제약 · 시총 $182B", "https://www.novonordisk.com"),
+ ("crispr.html", "crsp", [CONTENT + "/crsp/body.html"], "CRISPR Therapeutics 기업분석", "CRSP", "CRISPR Therapeutics AG", "헬스케어", "카스제비 $0.99억 · 런웨이 약 6년 · CTA -1.00", "#fef2f2", "유전자 편집 · 시총 $4.1B", "https://www.crisprtx.com"),
+ ("dwave.html", "qbts", [CONTENT + "/qbts/body.html"], "D-Wave Quantum 기업분석", "QBTS", "D-Wave Quantum Inc.", "양자", "수주 +611% · 런웨이 약 3.5년 · CTA -1.00", "#f5f3ff", "양자 어닐링 · 시총 $3.6B", "https://www.dwavequantum.com"),
+ ("rigetti.html", "rgti", [CONTENT + "/rgti/body.html"], "Rigetti Computing 기업분석", "RGTI", "Rigetti Computing, Inc.", "양자", "9개월 매출 +110% · 3Q -28% · CTA -1.00", "#faf5ff", "초전도 양자컴퓨터 · 시총 $3.3B", "https://www.rigetti.com"),
+ ("datadog.html", "ddog", [CONTENT + "/ddog/body.html"], "Datadog 기업분석", "DDOG", "Datadog, Inc.", "소프트웨어", "매출 +35% · PEG 1.82 · CTA -0.75", "#faf5ff", "클라우드 관측 · 시총 $66.5B", "https://www.datadoghq.com"),
+ ("synopsys.html", "snps", [CONTENT + "/snps/body.html"], "Synopsys 기업분석", "SNPS", "Synopsys, Inc.", "소프트웨어", "FQ3 매출 +42% · 비GAAP 영업이익률 41.6% · CTA +0.50", "#eef2ff", "반도체 설계 소프트웨어 · 시총 $87.2B", "https://www.synopsys.com"),
+ ("verisign.html", "vrsn", [CONTENT + "/vrsn/body.html"], "VeriSign 기업분석", "VRSN", "VeriSign, Inc.", "소프트웨어", "영업이익률 67% · PEG 4.07 · CTA +1.00", "#f0f9ff", "도메인 레지스트리 · 시총 $28.1B", "https://www.verisign.com"),
+ ("credo.html", "crdo", [CONTENT + "/crdo/body.html"], "Credo Technology 기업분석", "CRDO", "Credo Technology Group Holding Ltd", "반도체", "FQ1 매출 +115% · PEG 0.16 · CTA -1.00", "#ecfdf5", "AI 연결 반도체 · 시총 $24.7B", "https://www.credosemi.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -230,7 +240,7 @@ except (OSError, ValueError):
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE"}
+EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
@@ -239,7 +249,7 @@ LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microso
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
         "LLY": "eli-lilly", "JPM": "jpmorgan-chase", "UNH": "unitedhealth", "KO": "coca-cola", "WMT": "walmart", "COST": "costco-wholesale", "IONQ": "ionq",
         "TXN": "texas-instruments", "ASTS": "ast-spacemobile", "RKLB": "rocket-lab", "NOW": "servicenow", "CRM": "salesforce", "RDDT": "reddit", "SMCI": "super-micro-computer",
-        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing", "GE": "ge-aerospace", "RTX": "raytheon", "LMT": "lockheed-martin", "AXON": "axon-enterprise", "BAC": "bank-of-america", "WFC": "wells-fargo", "V": "visa", "MA": "mastercard", "MP": "mp-materials", "LRCX": "lam-research", "AMAT": "applied-materials", "KLAC": "kla-tencor", "TER": "teradyne"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing", "GE": "ge-aerospace", "RTX": "raytheon", "LMT": "lockheed-martin", "AXON": "axon-enterprise", "BAC": "bank-of-america", "WFC": "wells-fargo", "V": "visa", "MA": "mastercard", "MP": "mp-materials", "LRCX": "lam-research", "AMAT": "applied-materials", "KLAC": "kla-tencor", "TER": "teradyne", "HIMS": "hims-and-hers-health", "TEM": "tempus-ai", "NVO": "novo-nordisk", "CRSP": "crispr-therapeutics-ag", "QBTS": "d-wave-quantum", "RGTI": "rigetti-computing-redeemable", "DDOG": "datadog", "SNPS": "synopsys", "VRSN": "verisign", "CRDO": "credo-technology-ltd"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -637,6 +647,7 @@ ADJ_PEG = {
     "MA": {"mode": "main", "peg": 1.48, "per": "33.5배", "gr": "+22.6%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). 트레이딩뷰는 PEG 미제공"},
     "AMAT": {"mode": "main", "peg": 0.78, "per": "28.7배", "gr": "+36.9%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). GAAP 기준 0.65"},
     "KLAC": {"mode": "main", "peg": 2.09, "per": "37.2배", "gr": "+17.8%", "note": "조정 EPS 기준 PEG. GAAP 성장률은 FQ2'25 낮은 GAAP EPS 기저로 부풀려져(GAAP 기준 1.49)"},
+    "NVO": {"mode": "none", "note": "트레이딩뷰 PEG 0.65는 2026년 상반기 340B 환급 일회성으로 EPS가 부풀려져 판정에서 제외"},
     "TER": {"mode": "none", "note": "AI 수요로 EPS가 한 번에 3배 가까이 뛴 기저 효과(계산상 0.13)여서 판정에서 제외"},
     "MRVL": {"mode": "main", "peg": 0.64, "per": "약 32배", "gr": "+50%(가정)", "note": "조정 EPS 기준: 비GAAP 선행 EPS(FY27Q3 가이던스×4) 추정, 성장률 +50% 가정. 트레이딩뷰 PEG는 $1.9B 매각 이익 때문에 산출 불가"},
     "SNDK": {"mode": "main", "peg": 0.02, "per": "3.7배", "gr": "+199%(추정)", "note": "조정 EPS 기준: 비GAAP 2Q 가이던스 연환산 추정. 트레이딩뷰 PEG는 1년 전 적자 기저로 산출 불가"},
@@ -715,7 +726,7 @@ KO_ALIAS = {"MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이�
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
-    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉", "GE": "지이 에어로스페이스 항공엔진 ge", "RTX": "레이시온 알티엑스 방산", "LMT": "록히드마틴 방산", "AXON": "액슨 테이저", "BAC": "뱅크오브아메리카 뱅오아 은행", "WFC": "웰스파고 은행", "V": "비자 카드 결제", "MA": "마스터카드 결제", "MP": "엠피 머티리얼즈 희토류", "LRCX": "램리서치 반도체장비", "AMAT": "어플라이드 머티어리얼즈 어플라이드머티리얼즈 반도체장비", "KLAC": "케이엘에이 kla 반도체장비", "TER": "테라다인 반도체 테스트"}
+    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉", "GE": "지이 에어로스페이스 항공엔진 ge", "RTX": "레이시온 알티엑스 방산", "LMT": "록히드마틴 방산", "AXON": "액슨 테이저", "BAC": "뱅크오브아메리카 뱅오아 은행", "WFC": "웰스파고 은행", "V": "비자 카드 결제", "MA": "마스터카드 결제", "MP": "엠피 머티리얼즈 희토류", "LRCX": "램리서치 반도체장비", "AMAT": "어플라이드 머티어리얼즈 어플라이드머티리얼즈 반도체장비", "KLAC": "케이엘에이 kla 반도체장비", "TER": "테라다인 반도체 테스트", "HIMS": "힘스앤허스 힘스 원격의료", "TEM": "템퍼스 ai 정밀의료", "NVO": "노보 노디스크 위고비 비만", "CRSP": "크리스퍼 유전자가위", "QBTS": "디웨이브 양자", "RGTI": "리게티 양자", "DDOG": "데이터독 관측", "SNPS": "시높시스 eda 반도체설계", "VRSN": "베리사인 도메인", "CRDO": "크레도 aec 광연결"}
 
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
