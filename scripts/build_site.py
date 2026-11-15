@@ -624,6 +624,63 @@ TG_CSS = """
 """
 CSS += TG_CSS
 
+try:
+    _INS = json.load(open(os.path.join(ROOT, "data", "insiders.json"), encoding="utf-8")).get("t", {})
+except (OSError, ValueError):
+    _INS = {}
+try:
+    _F13 = json.load(open(os.path.join(ROOT, "data", "funds13f.json"), encoding="utf-8")).get("f", {})
+except (OSError, ValueError):
+    _F13 = {}
+_IK = {"buy": ("매수", "up"), "sell": ("매도", "down"), "grant": ("주식 보상", "mu"), "exercise": ("옵션 행사/전환", "mu"), "gift": ("증여", "mu"), "other": ("기타", "mu")}
+def _usd(v):
+    if v is None: return "-"
+    a = abs(v); return ("$%.2fB" % (v / 1e9)) if a >= 1e9 else ("$%.1fM" % (v / 1e6)) if a >= 1e6 else ("$%.0fK" % (v / 1e3)) if a >= 1e3 else "$%.0f" % v
+def _sh(n): return f"{n:,.0f}"
+def smart_box(tk):
+    import datetime as _d
+    out = ""
+    rows = _INS.get(tk) or []
+    if rows:
+        cut = (_d.date.today() - _d.timedelta(days=183)).isoformat()
+        rec = [x for x in rows if x["d"] >= cut]
+        nb = [x for x in rec if x["k"] == "buy"]; ns = [x for x in rec if x["k"] == "sell"]
+        vb = sum(x["v"] or 0 for x in nb); vs = sum(x["v"] or 0 for x in ns)
+        summ = f'최근 6개월 공개 시장 매수 {len(nb)}건 {_usd(vb)} · 매도 {len(ns)}건 {_usd(vs)}' if rec else "최근 6개월 신고 내역 없음"
+        tr = ""
+        for x in rows[:15]:
+            lb, cl = _IK.get(x["k"], _IK["other"])
+            who = x["n"] + (f' <small>{x["p"]}</small>' if x.get("p") else "")
+            link = f'<a href="{x["u"]}" target="_blank" rel="noopener">원문</a>' if x.get("u", "").startswith("http") else ""
+            tr += f'<tr><td>{x["d"]}</td><td>{who}</td><td><span class="{cl}">{lb}</span></td><td class="r">{_sh(x["sh"]) if x.get("sh") else "-"}</td><td class="r">{("$%.2f" % x["px"]) if x.get("px") else "-"}</td><td class="r">{_usd(x["v"]) if x.get("v") else "-"}</td><td>{link}</td></tr>'
+        out += (f'<details class="smd"><summary>🧑‍💼 내부자 거래 (Form 4) <span>{summ}</span></summary><div class="tw"><table><tr><th>거래일</th><th>내부자</th><th>구분</th><th class="r">수량</th><th class="r">가격</th><th class="r">금액</th><th></th></tr>{tr}</table></div>'
+                '<div class="nt">출처: Yahoo Finance(SEC Form 4). 주식 보상·옵션 행사는 시장 매매가 아니므로 매수/매도와 구분해 표시합니다. 가격은 신고 문구에서 추출해 일부는 비어 있을 수 있습니다.</div></details>')
+    fr = []
+    for cik, f in _F13.items():
+        c, p = f["rows"].get(tk), f["prows"].get(tk)
+        if not c and not p: continue
+        sh, psh = (c or {}).get("sh", 0), (p or {}).get("sh", 0)
+        if psh == 0 and sh > 0: ac, cl = "신규 매수", "up"
+        elif sh == 0: ac, cl = "전량 매도", "down"
+        elif sh > psh: ac, cl = f"확대 +{(sh / psh - 1) * 100:.0f}%", "up"
+        elif sh < psh: ac, cl = f"축소 {(sh / psh - 1) * 100:.0f}%", "down"
+        else: ac, cl = "변동 없음", "mu"
+        w = c["v"] / f["total"] * 100 if c and f.get("total") else None
+        pw = p["v"] / f["ptotal"] * 100 if p and f.get("ptotal") else None
+        est = (c or p).get("est") if sh != psh else None
+        fr.append((c["v"] if c else 0, f'<tr><td>{f["name"]}</td><td>{f["period"][:7]}</td><td><span class="{cl}">{ac}</span></td><td class="r">{_sh(psh)} → <b>{_sh(sh)}</b></td><td class="r">{(f"{pw:.2f}% → " if pw is not None else "")}<b>{(f"{w:.2f}%" if w is not None else "0%")}</b></td><td class="r">{_usd(c["v"]) if c else "-"}</td><td class="r">{(("추정 $%.2f" % est) if est else "-")}</td></tr>'))
+    if fr:
+        fr.sort(key=lambda x: -x[0]); per = max(f["period"] for f in _F13.values())
+        out += (f'<details class="smd"><summary>🏦 네임드 펀드 13F 매매 <span>{len(fr)}개 펀드 · 최신 {per} 분기 기준</span></summary><div class="tw"><table><tr><th>펀드</th><th>기준</th><th>행동</th><th class="r">보유 주식</th><th class="r">포트폴리오 비중</th><th class="r">평가금액</th><th class="r">추정 평단(매도가)</th></tr>' + "".join(x[1] for x in fr) + '</table></div>'
+                '<div class="nt">13F는 분기 말 기준 보유 내역이라 정확한 매매일·체결가는 알 수 없습니다. 비중은 해당 펀드의 13F 보고 포트폴리오(미국 상장 롱 포지션) 대비이며 전체 운용자산(시드)과는 다릅니다. 추정 평단은 변동이 생긴 분기의 거래량가중 평균가로, 실제 체결가와 다를 수 있는 추정치입니다. 공시는 분기 종료 후 최대 45일 뒤에 나옵니다.</div></details>')
+    return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 · 네임드 펀드 매수·매도 기록</span></div>' + out + '</div>' if out else ""
+SM_CSS = """
+.smd{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.smd summary{cursor:pointer;font-size:13.5px;font-weight:700}.smd summary span{font-weight:500;font-size:12px;color:var(--muted);margin-left:8px}
+.smd .tw{overflow-x:auto;margin-top:8px}.smd table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}.smd th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}.smd td{padding:5px 8px;border-bottom:1px solid var(--line)}
+.smd .r{text-align:right}.smd small{color:var(--muted)}.smd .up{color:var(--up);font-weight:700}.smd .down{color:var(--down);font-weight:700}.smd .mu{color:var(--muted)}.smd .nt{font-size:11.5px;color:var(--muted);margin-top:8px;white-space:normal}
+"""
+CSS += SM_CSS
+
 def cta_box(tk):
     e = CTA.get(tk, {}); sig, sc = signals(e)
     if sig is None:
@@ -924,7 +981,7 @@ for i, r in enumerate(REPORTS):
 <div class="prembox"><div class="ic">{ICON[tk]}</div><div><div class="k">REPORT · {tag}</div>{sub} — 8개 분기 공시·컨퍼런스콜과 트레이딩뷰 데이터를 바탕으로 정리했습니다.</div></div>
 {tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (이동평균선 20·50·200) · 한국 종목은 트레이딩뷰 위젯 미지원으로 직접 계산" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
-{target_box(tk)}{cta_box(tk)}{body}{endnav}</div></div>"""
+{target_box(tk)}{smart_box(tk)}{cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports", f))
 
 # --------------- news page ---------------
