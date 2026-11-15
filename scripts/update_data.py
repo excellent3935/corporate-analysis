@@ -299,6 +299,7 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
     ("1061165", "론 파인", "LONE PINE"), ("1061768", "바우포스트", "BAUPOST"), ("1273087", "밀레니엄", "MILLENNIUM"),
     ("1167557", "AQR", "AQR"),
 ]
+MAP_VER = 2  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
     "ALPHABET INC": "GOOGL",
@@ -467,7 +468,7 @@ def update_funds(cta):
             if not fl:
                 continue
             per, filed, acc = fl[0]
-            if res.get(cik, {}).get("acc") == acc:
+            if res.get(cik, {}).get("acc") == acc and res[cik].get("mv") == MAP_VER:
                 print(f"{label}: 변경 없음 ({per})"); continue
             cur = _fund_table(cik, acc); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
@@ -496,7 +497,7 @@ def update_funds(cta):
                         r["est"] = _qavg(ours[tk], per)
                     except Exception:
                         pass
-            res[cik] = {"name": label, "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "", "total": round(tot), "ptotal": round(ptot), "rows": rows, "prows": prows}
+            res[cik] = {"mv": MAP_VER, "name": label, "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "", "total": round(tot), "ptotal": round(ptot), "rows": rows, "prows": prows}
             print(f"{label}: {per} 보유 {len(cur)}종목 중 등록 종목 {len(rows)}개")
         except Exception:
             print("[실패]", label)
