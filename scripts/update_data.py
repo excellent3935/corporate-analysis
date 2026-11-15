@@ -286,8 +286,43 @@ def update_news(cta):
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)).isoformat(timespec="minutes")
     for tk in list(out):  # 30일 지난 기사 제거
         out[tk] = [x for x in out[tk] if x["d"] >= cutoff]
+    translate_items(out, old.get("items", {}))
     save("news.json", {"asof": dt.datetime.now(KST).isoformat(timespec="minutes"), "items": out})
     print("뉴스", ok, "개 종목 갱신")
+
+
+def translate_items(cur, prev):
+    """기사 제목·요약을 한국어로 번역해 tk/sk에 저장. 이미 번역한 링크는 재사용하고, 새 기사만 번역한다(시간 제한 있음)."""
+    import time
+    from concurrent.futures import ThreadPoolExecutor
+    cache = {x["l"]: (x["tk"], x.get("sk", "")) for its in prev.values() for x in its if x.get("tk")}
+    todo = {}
+    for its in cur.values():
+        for x in its:
+            if x["l"] in cache:
+                x["tk"], x["sk"] = cache[x["l"]]
+            elif x["l"] not in todo:
+                todo[x["l"]] = x
+    t0 = time.time()
+
+    def job(x):
+        if time.time() - t0 > 480:  # 8분 넘으면 중단, 나머지는 다음 갱신 때
+            return
+        raw = x["t"] + ("\n\n" + x["s"] if x.get("s") else "")
+        ko = translate_ko(raw)
+        if not ko:
+            return
+        parts = [p.strip() for p in __import__("re").split(r"\n+", ko) if p.strip()]
+        x["tk"] = parts[0]
+        x["sk"] = _cut(" ".join(parts[1:]), 200) if len(parts) > 1 else ""
+
+    with ThreadPoolExecutor(6) as ex:
+        list(ex.map(job, list(todo.values())))
+    for its in cur.values():  # 같은 링크가 여러 종목에 걸려 있으면 번역 공유
+        for x in its:
+            if x["l"] in todo and todo[x["l"]].get("tk"):
+                x["tk"], x["sk"] = todo[x["l"]]["tk"], todo[x["l"]].get("sk", "")
+    print("번역", sum(1 for x in todo.values() if x.get("tk")), "/", len(todo), "건")
 
 
 # ---------------- 장전·장후 뉴스 브리핑 (규칙 기반 선별 + 한국어 번역 요약) ----------------
@@ -314,10 +349,10 @@ def translate_ko(text):
     if not text or _HAN.search(text):
         return text or None
     try:
-        r = requests.get("https://translate.googleapis.com/translate_a/single", headers=UA, timeout=15, params={"client": "gtx", "sl": "en", "tl": "ko", "dt": "t", "q": text[:1200]})
+        r = requests.get("https://translate.googleapis.com/translate_a/single", headers=UA, timeout=15, params={"client": "gtx", "sl": "en", "tl": "ko", "dt": "t", "q": text[:1500]})
         r.raise_for_status()
         out = "".join(seg[0] for seg in r.json()[0] if seg and seg[0]).strip()
-        time.sleep(0.25)
+        time.sleep(0.1)
         return out or None
     except Exception:
         return None
@@ -421,8 +456,8 @@ def update_briefing(mode="auto"):
     cnt = Counter(t for x in items for t in x["k"][:3])
     labs = Counter(x["lab"] for x in items)
     for x in items:
-        x["ko"] = translate_ko(x["t"]) or x["t"]
-        x["ks"] = _cut(translate_ko(x.get("s", "")) or "") if x.get("s") else ""
+        x["ko"] = x.get("tk") or translate_ko(x["t"]) or x["t"]
+        x["ks"] = x["sk"] if x.get("tk") else (_cut(translate_ko(x.get("s", "")) or "") if x.get("s") else "")
         x["tr"] = bool(_HAN.search(x["ko"]))
     name = "장 시작 전" if kind == "pre" else "장 마감 후"
     span = "전 거래일 마감 이후" if kind == "pre" else "오늘 정규장 시간(09:30~16:00 ET)"
