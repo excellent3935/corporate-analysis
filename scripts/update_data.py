@@ -290,10 +290,165 @@ def update_news(cta):
     print("뉴스", ok, "개 종목 갱신")
 
 
+# ---------------- 장전·장후 뉴스 브리핑 (규칙 기반 선별 + 한국어 번역 요약) ----------------
+_HAN = __import__("re").compile("[가-힣]")
+KW = [  # (정규식, 분류, 가중치)
+    (r"\b(earnings|eps|revenue|guidance|outlook|forecast|quarterly results|profit|sales)\b", "실적·가이던스", 3.0),
+    (r"\b(acquir\w*|acquisition|merger|takeover|buyout|deal|stake|partnership|contract|invests?|investment)\b", "인수합병·계약", 3.0),
+    (r"\b(sec|ftc|doj|lawsuit|sues?|sued|probe|investigation|antitrust|fines?|fined|ban|tariffs?|sanctions?|export controls?|regulators?)\b", "규제·소송", 3.0),
+    (r"\b(ceo|cfo|resign\w*|steps? down|appoints?|layoffs?|job cuts|restructur\w*)\b", "경영진·구조조정", 2.5),
+    (r"\b(upgrad\w*|downgrad\w*|price target|raises? target|cuts? target|initiates?)\b", "애널리스트 의견", 2.0),
+    (r"\b(plunge[sd]?|surge[sd]?|soar\w*|tumble[sd]?|jump[sd]?|sinks?|rall(y|ies|ied)|crash\w*|record high|all-time high|sell-?off|slump\w*)\b", "주가 급등락", 2.5),
+    (r"\b(fed|fomc|cpi|inflation|rate cuts?|yields?|treasury|jobs report|gdp|powell)\b", "거시경제", 2.0),
+    (r"\b(launch\w*|unveil\w*|chips?|ai model|breakthrough|approval|fda|trial|recall|data cent(er|re)s?)\b", "제품·기술", 1.5),
+]
+CLICK = __import__("re").compile(r"(better buy|should you|stock a buy|here'?s why|worth buying|buy now|motley fool|retire|dividend stock|passive income|\d+ stocks|zero signs|trustee|\$\d[\d,]* (invested|investment))", __import__("re").I)
+SRC_UP = ("reuters.com", "cnbc.com", "bloomberg.com", "wsj.com", "ft.com", "marketwatch.com", "barrons.com", "investing.com", "apnews.com")
+SRC_DN = ("fool.com", "247wallst.com", "stocktwits.com", "thestreet.com")
+
+
+def translate_ko(text):
+    """구글 번역 비공식 엔드포인트(키 없음). 실패하면 None → 영어 원문 유지."""
+    import time
+    text = (text or "").strip()
+    if not text or _HAN.search(text):
+        return text or None
+    try:
+        r = requests.get("https://translate.googleapis.com/translate_a/single", headers=UA, timeout=15, params={"client": "gtx", "sl": "en", "tl": "ko", "dt": "t", "q": text[:1200]})
+        r.raise_for_status()
+        out = "".join(seg[0] for seg in r.json()[0] if seg and seg[0]).strip()
+        time.sleep(0.25)
+        return out or None
+    except Exception:
+        return None
+
+
+def _cut(text, n=170):
+    if len(text) <= n:
+        return text
+    t = text[:n]
+    k = max(t.rfind("다. "), t.rfind(". "), t.rfind("다."))
+    return (t[:k + 1] if k > n * 0.5 else t.rstrip() + "…").strip()
+
+
+def _words(t):
+    import re
+    return {w for w in re.findall(r"[a-z0-9가-힣]+", t.lower()) if len(w) > 3}
+
+
+def pick_briefing(news, start, end, cap, top=10):
+    """news: data/news.json items. start/end: UTC ISO. 규칙 점수로 핵심 기사 top건 선별."""
+    import re
+    import math
+    from urllib.parse import urlparse
+    by = {}
+    for tk, its in news.items():
+        for x in its:
+            e = by.setdefault(x["l"].split("?")[0], dict(x, k=[]))
+            if tk not in e["k"]:
+                e["k"].append(tk)
+    pool = [x for x in by.values() if start <= x["d"] <= end]
+    rank = {t: i for i, t in enumerate(sorted(cap, key=lambda t: -(cap.get(t) or 0)))}
+    n = max(len(rank), 1)
+    scored = []
+    for x in pool:
+        text = x["t"] + " " + x.get("s", "")
+        sc, labels = 0.0, []
+        for pat, lab, w in KW:
+            if re.search(pat, text, re.I):
+                sc += w
+                labels.append((w, lab))
+        sc = min(sc, 6.0)
+        host = (urlparse(x["l"]).hostname or "").replace("www.", "")
+        sc += 1.5 if host.endswith(SRC_UP) else (-1.0 if host.endswith(SRC_DN) else (0.5 if "yahoo" in host else 0))
+        if CLICK.search(x["t"]):
+            sc -= 2.5
+        best = min((rank.get(t, n) for t in x["k"]), default=n)
+        sc += 2.0 * (1 - best / n) + min(len(x["k"]) - 1, 3) * 0.6
+        prim = min(x["k"], key=lambda t: rank.get(t, n))
+        lab = max(labels)[1] if labels else "일반"
+        scored.append((sc, x["d"], x, prim, lab))
+    scored.sort(key=lambda z: (z[0], z[1]), reverse=True)
+    chosen, per, seen = [], {}, []
+    for sc, d, x, prim, lab in scored:
+        w = _words(x["t"])
+        if any(len(w & v) / max(len(w | v), 1) >= 0.5 for v in seen):
+            continue
+        if per.get(prim, 0) >= 2:
+            continue
+        per[prim] = per.get(prim, 0) + 1
+        seen.append(w)
+        chosen.append(dict(x, prim=prim, lab=lab, sc=round(sc, 2)))
+        if len(chosen) >= top:
+            break
+    return len(pool), chosen
+
+
+def update_briefing(mode="auto"):
+    """mode: auto(현재 미국 동부시간 기준 창에 맞으면 생성) | pre | post(강제). data/briefing.json에 최근 14개 보관."""
+    from zoneinfo import ZoneInfo
+    ET = ZoneInfo("America/New_York")
+    now = dt.datetime.now(ET)
+    hm = now.hour * 60 + now.minute
+    kind = mode if mode in ("pre", "post") else None
+    if kind is None:
+        if now.weekday() < 5 and 8 * 60 <= hm < 9 * 60 + 30:
+            kind = "pre"
+        elif now.weekday() < 5 and hm >= 16 * 60:
+            kind = "post"
+        else:
+            print("브리핑 생성 시간대가 아님 (ET", now.strftime("%a %H:%M"), ")")
+            return
+    day = now.strftime("%Y-%m-%d")
+    store = load("briefing.json", {"b": []})
+    if mode == "auto" and any(b["day"] == day and b["kind"] == kind for b in store["b"]):
+        print("이미 생성됨", day, kind)
+        return
+    close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+    if kind == "pre":
+        end = now
+        start = close - dt.timedelta(days=1)
+        while start.weekday() > 4:
+            start -= dt.timedelta(days=1)
+    else:
+        start = now.replace(hour=9, minute=30, second=0, microsecond=0)
+        end = min(now, close)
+    u = lambda d: d.astimezone(dt.timezone.utc).isoformat(timespec="minutes")  # noqa: E731
+    news = load("news.json", {"items": {}})["items"]
+    cap = load("mcap.json", {"usd": {}}).get("usd", {})
+    total, items = pick_briefing(news, u(start), u(end), cap)
+    from collections import Counter
+    cnt = Counter(t for x in items for t in x["k"][:3])
+    labs = Counter(x["lab"] for x in items)
+    for x in items:
+        x["ko"] = translate_ko(x["t"]) or x["t"]
+        x["ks"] = _cut(translate_ko(x.get("s", "")) or "") if x.get("s") else ""
+        x["tr"] = bool(_HAN.search(x["ko"]))
+    name = "장 시작 전" if kind == "pre" else "장 마감 후"
+    span = "전 거래일 마감 이후" if kind == "pre" else "오늘 정규장 시간(09:30~16:00 ET)"
+    top = ", ".join(f"{t}({c}건)" for t, c in cnt.most_common(3))
+    lb = ", ".join(f"{l} {c}건" for l, c in labs.most_common(4))
+    summ = (f"{span} 수집된 기사 {total}건 중 핵심 {len(items)}건을 선별했습니다." if items else f"{span} 수집된 기사가 없습니다.")
+    if items:
+        summ += f" 가장 많이 언급된 종목은 {top}입니다. 분류는 {lb} 순입니다."
+    store["b"] = [b for b in store["b"] if not (b["day"] == day and b["kind"] == kind)]
+    store["b"].append({"day": day, "kind": kind, "name": name, "gen": dt.datetime.now(KST).isoformat(timespec="minutes"), "total": total, "summary": summ,
+                       "items": [{"ko": x["ko"], "ks": x["ks"], "t": x["t"], "l": x["l"], "d": x["d"], "src": x["src"], "k": x["k"][:4], "lab": x["lab"], "tr": x["tr"]} for x in items]})
+    store["b"].sort(key=lambda b: (b["day"], b["kind"] == "post"), reverse=True)
+    store["b"] = store["b"][:14]
+    save("briefing.json", store)
+    print("브리핑", day, kind, len(items), "건")
+
+
 if __name__ == "__main__":
     now = dt.datetime.now(KST)
     if len(sys.argv) > 1 and sys.argv[1] == "news":  # 뉴스만 빠르게 갱신 (몇 시간마다)
         update_news(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "briefing":  # 최신 뉴스 수집 후 브리핑 생성: briefing [auto|pre|post]
+        mode = sys.argv[2] if len(sys.argv) > 2 else "auto"
+        update_news(load("cta.json", {"tickers": {}}))
+        update_briefing(mode)
         sys.exit(0)
     m = load("market.json", {"series": {}, "snap": {}, "fg": {}})
     cta = load("cta.json", {"tickers": {}})
@@ -302,6 +457,7 @@ if __name__ == "__main__":
     update_cta(cta)
     update_mcap(cta)
     update_news(cta)
+    update_briefing("auto")
     last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
     m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
     m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"

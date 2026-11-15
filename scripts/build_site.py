@@ -718,9 +718,18 @@ NEWS_CSS = """
 """
 CSS += NEWS_CSS
 
+BR_CSS = """
+.brtab{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:4px 0 12px}.brtab .pill{padding:6px 16px}.brtab select{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 9px;margin-left:auto}
+.brsum{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:8px;padding:12px 14px;font-size:14px;line-height:1.65;margin-bottom:6px}.brsum .gn{display:block;font-size:12px;color:var(--muted);margin-top:4px}
+.brl{list-style:none;margin:0;padding:0;counter-reset:br}.brl li{counter-increment:br;border-bottom:1px solid var(--line);padding:14px 2px 14px 34px;position:relative}.brl li:before{content:counter(br);position:absolute;left:2px;top:14px;width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--card);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.brl .lb{display:inline-block;font-size:11px;font-weight:700;border-radius:3px;padding:1px 7px;margin-right:6px;background:var(--soft,#eee);color:var(--ink2);vertical-align:1px}.brl a.t{font-size:15.5px;font-weight:700;color:var(--ink);text-decoration:none;line-height:1.5}.brl a.t:hover{text-decoration:underline}
+.brl .s{font-size:13.5px;color:var(--ink2);margin:5px 0;line-height:1.6}.brl .o{font-size:12px;color:var(--muted);margin:3px 0 6px;font-style:italic}.brl .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}.brl .tk{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11.5px;color:var(--ink2);text-decoration:none;background:var(--card)}
+"""
+CSS += BR_CSS
+
 def shell(title, inner, on="home"):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
 {inner}<div class="vis" id="vis" aria-live="off"></div><script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
@@ -747,7 +756,7 @@ def cover(r):  # 작은 정사각 타일
 # --------------- read pages ---------------
 def side(active):
     items = "".join(f'<a class="{"on" if r[0] == active else ""}" href="{r[0]}">{r[3]}</a>' for r in REPORTS)
-    return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a><a class="{"on" if active=="news.html" else ""}" href="news.html">📰 뉴스</a>'
+    return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a><a class="{"on" if active=="news.html" else ""}" href="news.html">📰 뉴스</a><a class="{"on" if active=="briefing.html" else ""}" href="briefing.html">🗞 브리핑</a>'
             f'<div class="prem"><div class="t" style="color:var(--muted)">REPORTS</div>{items}</div>'
             f'<div class="h">자료 기준</div><div style="font-size:12px;color:var(--muted);padding:0 8px">각 사 IR 실적 발표문·컨퍼런스콜·10-K, 트레이딩뷰(11/6 종가). 작도 없는 기본 차트만 사용.</div></aside>')
 
@@ -798,6 +807,35 @@ news_inner = (f'<div class="readwrap">{side("news.html")}<div class="read"><div 
     f'<div class="nwnote">기사는 야후 파이낸스(삼성전자·SK하이닉스는 구글뉴스 한국어 기사 포함)에서 자동 수집한 헤드라인·요약이며, 제목을 누르면 원문 사이트로 이동합니다. 원문은 영어일 수 있고, 최근 30일 기사만 보관합니다. 일부 기사는 종목과 직접 관련이 약할 수 있습니다.</div>'
     f'</div></div>' + NEWS_JS.replace("__DATA__", _nd))
 open(f"{OUT}/news.html", "w", encoding="utf-8").write(shell("뉴스 — Corporate Analysis", news_inner, "news"))
+
+# --------------- briefing page ---------------
+try:
+    _BR = json.load(open(os.path.join(ROOT, "data", "briefing.json"), encoding="utf-8")).get("b", [])
+except (OSError, ValueError):
+    _BR = []
+_bd = json.dumps({"b": _BR, "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
+BR_JS = """<script>(function(){var D=__DATA__,K='pre',L=document.getElementById('brl'),SM=document.getElementById('brs'),SEL=document.getElementById('brd'),NX=document.getElementById('brn');
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function kst(iso){return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}
+function host(u){try{return new URL(u).hostname.replace(/^www\\./,'')}catch(e){return ''}}
+function etOff(d){var p=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}).formatToParts(d).find(function(x){return x.type==='timeZoneName'}).value;var m=/GMT([+-]\\d+)/.exec(p);return m?+m[1]:-5}
+function hh(m){m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+var o=etOff(new Date()),sh=(9-o)*60;NX.textContent='자동 생성 시각(현재 한국시간 기준): 장 시작 전 브리핑 '+hh(8*60+30+sh)+' (개장 1시간 전) · 장 마감 후 브리핑 '+hh(16*60+5+sh)+' (마감 직후). 서머타임 변경은 자동 반영됩니다.';
+function list(){return D.b.filter(function(b){return b.kind===K})}
+function fill(){var a=list();SEL.innerHTML=a.map(function(b,i){return'<option value="'+i+'">'+b.day+'</option>'}).join('');SEL.style.display=a.length>1?'':'none';draw()}
+function draw(){var a=list(),b=a[+SEL.value||0];document.querySelectorAll('.brtab .pill').forEach(function(p){p.classList.toggle('on',p.dataset.k===K)});
+if(!b){SM.innerHTML='아직 생성된 '+(K==='pre'?'장 시작 전':'장 마감 후')+' 브리핑이 없습니다. 위 시각에 자동으로 만들어집니다.';L.innerHTML='';return}
+SM.innerHTML=esc(b.summary)+'<span class="gn">'+esc(b.day)+' · '+kst(b.gen)+' 생성 · 영어 기사의 제목·요약은 기계 번역입니다</span>';
+L.innerHTML=b.items.map(function(x){var tags=x.k.map(function(t){return'<a class="tk" href="'+(D.lk[t]||'#')+'">'+esc(D.nm[t]||t)+'</a>'}).join('');
+return'<li><div><span class="lb">'+esc(x.lab)+'</span><a class="t" href="'+esc(x.l)+'" target="_blank" rel="noopener noreferrer">'+esc(x.ko)+'</a></div>'+(x.ks?'<div class="s">'+esc(x.ks)+'</div>':'')+(x.tr?'<div class="o">'+esc(x.t)+'</div>':'')+'<div class="m">'+tags+'<span>'+esc(host(x.l))+'</span><span>·</span><span>'+kst(x.d)+'</span></div></li>'}).join('')}
+document.querySelectorAll('.brtab .pill').forEach(function(p){p.addEventListener('click',function(){K=p.dataset.k;fill()})});SEL.addEventListener('change',draw);
+var l=D.b[0];if(l)K=l.kind;fill();})();</script>"""
+br_inner = (f'<div class="readwrap">{side("briefing.html")}<div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">뉴스 브리핑</div><div class="a">장 시작 1시간 전 · 장 마감 후 핵심 뉴스 {len(REPORTS)}개 기업 대상</div></div></div>'
+    '<div class="brtab"><button class="pill on" data-k="pre" type="button">장 시작 전</button><button class="pill" data-k="post" type="button">장 마감 후</button><select id="brd" aria-label="날짜"></select></div>'
+    '<div class="brsum" id="brs"></div><ol class="brl" id="brl"></ol>'
+    '<div class="nwnote" id="brn"></div><div class="nwnote">핵심 기사는 사람이 고르지 않고 규칙으로 자동 선별합니다. 종목 시가총액, 실적·인수합병·규제·경영진·애널리스트·급등락 같은 키워드, 출처 신뢰도, 여러 종목에 걸친 기사 여부로 점수를 매기고, 투자 권유성 기사와 중복 기사는 낮추거나 제외합니다. 한국어 문장은 번역이므로 정확한 내용은 원문을 확인하세요. 투자 조언이 아닙니다.</div>'
+    '</div></div>' + BR_JS.replace("__DATA__", _bd))
+open(f"{OUT}/briefing.html", "w", encoding="utf-8").write(shell("뉴스 브리핑 — Corporate Analysis", br_inner, "briefing"))
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
