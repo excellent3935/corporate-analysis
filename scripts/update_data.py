@@ -293,7 +293,7 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
     ("1067983", "버크셔 해서웨이", "BERKSHIRE"), ("1350694", "브리지워터", "BRIDGEWATER"), ("1423053", "시타델", "CITADEL"),
     ("1037389", "르네상스 테크놀로지스", "RENAISSANCE"), ("1336528", "퍼싱 스퀘어", "PERSHING"), ("1167483", "타이거 글로벌", "TIGER GLOBAL"),
     ("1029160", "소로스 펀드", "SOROS"), ("1040273", "서드 포인트", "THIRD POINT"), ("1656456", "애팔루사", "APPALOOSA"),
-    ("1649339", "사이언(마이클 버리)", "SCION"), ("1536411", "듀케인(드러켄밀러)", "DUQUESNE"), ("1336920", "코튜", "COATUE"),
+    ("1536411", "듀케인(드러켄밀러)", "DUQUESNE"), ("1135730", "코튜", "COATUE"),
     ("1103804", "바이킹 글로벌", "VIKING"), ("1603466", "포인트72", "POINT72"), ("1179392", "투 시그마", "TWO SIGMA"),
     ("1009207", "D.E. 쇼", "SHAW"), ("1697748", "ARK 인베스트", "ARK INVEST"), ("1791786", "엘리엇", "ELLIOTT"),
     ("1061165", "론 파인", "LONE PINE"), ("1061768", "바우포스트", "BAUPOST"), ("1273087", "밀레니엄", "MILLENNIUM"),
@@ -301,9 +301,13 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
 ]
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
-    "ALPHABET INC": "GOOGL", "BROADCOM INC": "AVGO", "ELI LILLY & CO": "LLY", "SPACE EXPLORATION TECHNOLOGIES CORP": "SPCX",
+    "ALPHABET INC": "GOOGL",
+    "APPLIED MATLS INC": "AMAT", "BANK AMER CORP": "BAC", "INTERNATIONAL BUSINESS MACHS COR": "IBM", "INTERNATIONAL BUSINESS MACHINES": "IBM",
+    "MASTERCARD INC": "MA", "MASTERCARD INCORPORATED": "MA", "TEXAS INSTRS INC": "TXN", "TEXAS INSTRUMENTS INC": "TXN", "VERISIGN INC": "VRSN",
+    "WELLS FARGO & CO NEW": "WFC", "WELLS FARGO & CO": "WFC", "GE AEROSPACE": "GE", "GENERAL ELECTRIC CO": "GE",
+    "CREDO TECHNOLOGY GROUP HOLDING": "CRDO", "CREDO TECHNOLOGY GROUP HLDG": "CRDO", "UNUSUAL MACHINES INC": "UMAC", "BROADCOM INC": "AVGO", "ELI LILLY & CO": "LLY", "SPACE EXPLORATION TECHNOLOGIES CORP": "SPCX",
 }
-_STOP = {"INC", "CORP", "CORPORATION", "CO", "COMPANY", "LTD", "LIMITED", "PLC", "HOLDINGS", "HLDGS", "HLDG", "GROUP", "THE", "NV", "SA", "AG", "LP", "CLASS", "CL", "A", "B", "C", "NEW", "DEL", "COM", "SPONSORED", "ADS", "ADR", "DE"}
+_STOP = {"INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY", "LTD", "LIMITED", "PLC", "HOLDINGS", "HLDGS", "HLDG", "GROUP", "THE", "NV", "SA", "AG", "LP", "CLASS", "CL", "A", "B", "C", "NEW", "DEL", "COM", "SPONSORED", "ADS", "ADR", "DE"}
 
 
 def _norm(name):
@@ -453,6 +457,7 @@ def update_funds(cta):
         return c[0] if c else None
 
     import time
+    issuers = set()
     for cik, label, kw in NAMED_FUNDS:
         try:
             sec_name, fl = _fund_filings(cik)
@@ -467,6 +472,8 @@ def update_funds(cta):
             cur = _fund_table(cik, acc); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
             time.sleep(0.3)
+
+            issuers.update(e["name"] for e in cur.values())
 
             def pick(tab):
                 rows = {}
@@ -497,6 +504,9 @@ def update_funds(cta):
     save("funds13f.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d"), "f": res})
     seen = {tk for f in res.values() for tk in list(f["rows"]) + list(f["prows"])}
     print("13F 펀드", len(res), "개 / 보유 확인된 종목", len(seen), "개 / 미확인:", sorted(set(ours) - seen))
+    for tk in sorted(set(ours) - seen):  # 이름 매칭 점검용: 첫 단어가 같은 발행사명 후보
+        w = (titles.get(tk, tk).upper().split() or [tk])[0]
+        print("  후보", tk, titles.get(tk), "→", sorted(n for n in issuers if n.upper().startswith(w))[:4])
 
 
 def update_news(cta):
