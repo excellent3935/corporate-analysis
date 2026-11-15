@@ -17,6 +17,11 @@ on:
         type: choice
         default: none
         options: [none, pre, post]
+      only:
+        description: "일부만 갱신 (all이면 전체)"
+        type: choice
+        default: all
+        options: [all, funds, insiders]
   push:
     branches: [main]          # 리포트 파일을 올리면 바로 다시 배포
 
@@ -44,11 +49,15 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: 시세·CTA·공포탐욕 지수 갱신
-        if: github.event_name != 'push' && !contains(fromJSON('["17 */4 * * *","35 12,13 * * 1-5","10 20,21 * * 1-5","55 12,13 * * 1-5","10 14,15 * * 1-5","25 20,21 * * 1-5"]'), github.event.schedule) && (github.event_name != 'workflow_dispatch' || inputs.briefing == 'none')
+        if: github.event_name != 'push' && !contains(fromJSON('["17 */4 * * *","35 12,13 * * 1-5","10 20,21 * * 1-5","55 12,13 * * 1-5","10 14,15 * * 1-5","25 20,21 * * 1-5"]'), github.event.schedule) && (github.event_name != 'workflow_dispatch' || (inputs.briefing == 'none' && inputs.only == 'all'))
         run: python scripts/update_data.py
 
+      - name: 펀드·내부자만 갱신 (수동)
+        if: github.event_name == 'workflow_dispatch' && inputs.only != 'all'
+        run: python scripts/update_data.py ${{ inputs.only }}
+
       - name: 뉴스 브리핑 생성
-        if: contains(fromJSON('["35 12,13 * * 1-5","10 20,21 * * 1-5"]'), github.event.schedule) || (github.event_name == 'workflow_dispatch' && inputs.briefing != 'none')
+        if: contains(fromJSON('["35 12,13 * * 1-5","10 20,21 * * 1-5"]'), github.event.schedule) || (github.event_name == 'workflow_dispatch' && inputs.briefing != 'none' && inputs.only == 'all')
         run: python scripts/update_data.py briefing ${{ inputs.briefing || 'auto' }}
 
       - name: 일정(경제지표·실적) 갱신

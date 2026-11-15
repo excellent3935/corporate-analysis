@@ -288,6 +288,211 @@ def update_targets(cta):
     print("목표가", got, "개 갱신 /", len(out), "개 보유 / 기관별 내역", sum(1 for v in out.values() if v.get("recent")), "개")
 
 
+# ---------------- 내부자 거래 (Form 4) · 네임드 펀드 13F ----------------
+SEC_UA = {"User-Agent": "CorporateAnalysisSite/1.0 (https://github.com/excellent3935/corporate-analysis)", "Accept-Encoding": "gzip, deflate"}
+NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름에 들어 있어야 함)
+    ("1067983", "버크셔 해서웨이", "BERKSHIRE"), ("1350694", "브리지워터", "BRIDGEWATER"), ("1423053", "시타델", "CITADEL"),
+    ("1037389", "르네상스 테크놀로지스", "RENAISSANCE"), ("1336528", "퍼싱 스퀘어", "PERSHING"), ("1167483", "타이거 글로벌", "TIGER GLOBAL"),
+    ("1029160", "소로스 펀드", "SOROS"), ("1040273", "서드 포인트", "THIRD POINT"), ("1656456", "애팔루사", "APPALOOSA"),
+    ("1649339", "사이언(마이클 버리)", "SCION"), ("1536411", "듀케인(드러켄밀러)", "DUQUESNE"), ("1336920", "코튜", "COATUE"),
+    ("1103804", "바이킹 글로벌", "VIKING"), ("1603466", "포인트72", "POINT72"), ("1179392", "투 시그마", "TWO SIGMA"),
+    ("1009207", "D.E. 쇼", "SHAW"), ("1697748", "ARK 인베스트", "ARK INVEST"), ("1791786", "엘리엇", "ELLIOTT"),
+    ("1061165", "론 파인", "LONE PINE"), ("1061768", "바우포스트", "BAUPOST"), ("1273087", "밀레니엄", "MILLENNIUM"),
+    ("1167557", "AQR", "AQR"),
+]
+NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
+    "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
+    "ALPHABET INC": "GOOGL", "BROADCOM INC": "AVGO", "ELI LILLY & CO": "LLY", "SPACE EXPLORATION TECHNOLOGIES CORP": "SPCX",
+}
+_STOP = {"INC", "CORP", "CORPORATION", "CO", "COMPANY", "LTD", "LIMITED", "PLC", "HOLDINGS", "HLDGS", "HLDG", "GROUP", "THE", "NV", "SA", "AG", "LP", "CLASS", "CL", "A", "B", "C", "NEW", "DEL", "COM", "SPONSORED", "ADS", "ADR", "DE"}
+
+
+def _norm(name):
+    import re
+    t = re.sub(r"[^A-Z0-9 ]", " ", str(name).upper().replace("&", " "))
+    return frozenset(w for w in t.split() if w not in _STOP)
+
+
+def update_insiders(cta):
+    """내부자 거래(Form 4) 최근 내역을 야후(yfinance)로 받아 data/insiders.json에 저장. 실패한 종목은 이전 값 유지."""
+    import re
+    old = load("insiders.json", {"t": {}})
+    out = dict(old.get("t", {}))
+    today = dt.datetime.now(KST).strftime("%Y-%m-%d")
+    got = 0
+
+    def kind(text, tx):
+        z = (str(tx or "") + " " + str(text or "")).lower()
+        if "purchase" in z or "buy" in z: return "buy"
+        if "sale" in z or "sold" in z: return "sell"
+        if "award" in z or "grant" in z: return "grant"
+        if "exercise" in z or "conversion" in z: return "exercise"
+        if "gift" in z: return "gift"
+        return "other"
+
+    for tk, sym in STOCKS.items():
+        if sym.endswith(".KS"):
+            continue
+        try:
+            df = yf.Ticker(sym).insider_transactions
+            if df is None or len(df) == 0:
+                continue
+            rows = []
+            for _, r in df.iterrows():
+                d = r.get("Start Date")
+                d = str(d)[:10] if d is not None and str(d) != "NaT" else ""
+                text = str(r.get("Text", "") or "")
+                m = re.search(r"(?:price|at)\s+\$?\s*([0-9][0-9,]*\.?[0-9]*)", text)
+                sh = r.get("Shares"); va = r.get("Value")
+                rows.append({"d": d, "n": str(r.get("Insider", "") or "").title(), "p": str(r.get("Position", "") or ""), "k": kind(text, r.get("Transaction")),
+                             "sh": int(sh) if sh == sh and sh is not None else None, "v": float(va) if va == va and va is not None else None,
+                             "px": float(m.group(1).replace(",", "")) if m else None, "u": str(r.get("URL", "") or "")})
+            rows.sort(key=lambda x: x["d"], reverse=True)
+            out[tk] = rows[:25]
+            got += 1
+        except Exception:
+            traceback.print_exc()
+    save("insiders.json", {"asof": today, "t": out})
+    print("내부자 거래", got, "개 갱신 /", len(out), "개 보유")
+
+
+def _sec_get(url, tries=3):
+    import time
+    for i in range(tries):
+        r = requests.get(url, headers=SEC_UA, timeout=40)
+        if r.status_code == 200:
+            return r
+        time.sleep(1.5 * (i + 1))
+    r.raise_for_status()
+
+
+def _parse_infotable(xml_bytes):
+    """13F 정보표 XML → {cusip: {name, cls, sh, v}} (옵션·채권 제외, 같은 CUSIP은 합산)"""
+    import xml.etree.ElementTree as ET
+    root = ET.fromstring(xml_bytes)
+    out = {}
+    for it in root.iter():
+        if not it.tag.endswith("infoTable"):
+            continue
+        f = {c.tag.split("}")[-1]: c for c in it.iter()}
+        txt = lambda k: (f[k].text or "").strip() if k in f else ""
+        if txt("putCall") or txt("sshPrnamtType") not in ("SH", ""):
+            continue
+        try:
+            sh = float(txt("sshPrnamt") or 0); v = float(txt("value") or 0)
+        except ValueError:
+            continue
+        c = txt("cusip")
+        e = out.setdefault(c, {"name": txt("nameOfIssuer"), "cls": txt("titleOfClass"), "sh": 0.0, "v": 0.0})
+        e["sh"] += sh; e["v"] += v
+    return out
+
+
+def _fund_filings(cik):
+    j = _sec_get(f"https://data.sec.gov/submissions/CIK{int(cik):010d}.json").json()
+    rc = j["filings"]["recent"]
+    fl = [(rc["reportDate"][i], rc["filingDate"][i], rc["accessionNumber"][i]) for i in range(len(rc["form"])) if rc["form"][i] == "13F-HR"]
+    fl.sort(reverse=True)
+    return j.get("name", ""), fl
+
+
+def _fund_table(cik, acc):
+    idx = _sec_get(f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc.replace('-', '')}/index.json").json()
+    xs = [x for x in idx["directory"]["item"] if x["name"].lower().endswith(".xml") and "primary_doc" not in x["name"].lower()]
+    if not xs:
+        raise RuntimeError("정보표 XML 없음 " + acc)
+    xs.sort(key=lambda x: ("infotable" not in x["name"].lower(), -int(x.get("size") or 0)))
+    return _parse_infotable(_sec_get(f"https://www.sec.gov/Archives/edgar/data/{int(cik)}/{acc.replace('-', '')}/{xs[0]['name']}").content)
+
+
+def _qavg(sym, period):
+    """해당 분기(period=분기 말일 YYYY-MM-DD)의 거래량가중 평균가 — 추정 평단/매도가로 쓴다."""
+    end = dt.date.fromisoformat(period)
+    start = (end.replace(day=1) - dt.timedelta(days=62)).replace(day=1)
+    df = yf.Ticker(sym).history(start=start.isoformat(), end=(end + dt.timedelta(days=1)).isoformat(), interval="1d", auto_adjust=False)
+    if len(df) == 0:
+        return None
+    v = df["Volume"].sum()
+    return round(float((df["Close"] * df["Volume"]).sum() / v) if v else float(df["Close"].mean()), 2)
+
+
+def update_funds(cta):
+    """네임드 펀드 13F: 최신·직전 분기 보유 중 사이트 등록 종목만 data/funds13f.json에 저장. 접수번호가 같으면 재수집하지 않는다."""
+    old = load("funds13f.json", {"f": {}})
+    res = dict(old.get("f", {}))
+    # SEC 종목 목록으로 사이트 티커의 정식 이름 확보 → 13F 발행사명과 이름 집합으로 매칭
+    try:
+        co = _sec_get("https://www.sec.gov/files/company_tickers.json").json()
+        titles = {}
+        for v in co.values():
+            titles.setdefault(v["ticker"].upper(), v["title"])
+    except Exception:
+        traceback.print_exc()
+        titles = {}
+    ours = {tk: STOCKS[tk] for tk in STOCKS if not STOCKS[tk].endswith(".KS")}
+    by_name = {}
+    for tk in ours:
+        t = titles.get(tk.replace("-", "."))
+        if t:
+            by_name.setdefault(_norm(t), []).append(tk)
+    ov = {_norm(k): v for k, v in NAME_OVERRIDE.items()}
+
+    def tick_of(name, cls):
+        k = _norm(name)
+        if k in ov and ov[k] in ours:
+            if ov[k] == "GOOGL" and "C" in str(cls).upper().split() and "A" not in str(cls).upper().split():
+                return None
+            return ov[k]
+        c = by_name.get(k)
+        return c[0] if c else None
+
+    import time
+    for cik, label, kw in NAMED_FUNDS:
+        try:
+            sec_name, fl = _fund_filings(cik)
+            if kw not in sec_name.upper():
+                print(f"[건너뜀] {label}: CIK {cik} 이름 불일치 → {sec_name}")
+                continue
+            if not fl:
+                continue
+            per, filed, acc = fl[0]
+            if res.get(cik, {}).get("acc") == acc:
+                print(f"{label}: 변경 없음 ({per})"); continue
+            cur = _fund_table(cik, acc); time.sleep(0.3)
+            prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
+            time.sleep(0.3)
+
+            def pick(tab):
+                rows = {}
+                for c, e in tab.items():
+                    tk = tick_of(e["name"], e["cls"])
+                    if tk:
+                        r = rows.setdefault(tk, {"sh": 0.0, "v": 0.0}); r["sh"] += e["sh"]; r["v"] += e["v"]
+                return {k: {"sh": round(v["sh"]), "v": round(v["v"])} for k, v in rows.items()}
+            rows, prows = pick(cur), pick(prv)
+            tot, ptot = sum(e["v"] for e in cur.values()), sum(e["v"] for e in prv.values())
+            for tk, r in rows.items():  # 변동이 있는 종목은 분기 평균가(추정 평단/매도가) 계산
+                if r["sh"] != prows.get(tk, {}).get("sh", 0):
+                    try:
+                        r["est"] = _qavg(ours[tk], per)
+                    except Exception:
+                        pass
+            for tk, r in prows.items():
+                if tk not in rows:  # 청산 종목
+                    try:
+                        r["est"] = _qavg(ours[tk], per)
+                    except Exception:
+                        pass
+            res[cik] = {"name": label, "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "", "total": round(tot), "ptotal": round(ptot), "rows": rows, "prows": prows}
+            print(f"{label}: {per} 보유 {len(cur)}종목 중 등록 종목 {len(rows)}개")
+        except Exception:
+            print("[실패]", label)
+            traceback.print_exc()
+    save("funds13f.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d"), "f": res})
+    seen = {tk for f in res.values() for tk in list(f["rows"]) + list(f["prows"])}
+    print("13F 펀드", len(res), "개 / 보유 확인된 종목", len(seen), "개 / 미확인:", sorted(set(ours) - seen))
+
+
 def update_news(cta):
     """종목별 최신 뉴스를 data/news.json에 저장 — 야후 파이낸스 종목 RSS(영문), 한국 종목은 구글뉴스 한국어 RSS를 추가로 사용. 실패한 종목은 이전 값 유지."""
     import time
@@ -657,6 +862,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "calendar":  # 일정(경제지표 결과·실적 일정)만 갱신
         update_calendar(load("cta.json", {"tickers": {}}))
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds"):  # 내부자 거래 / 13F만 갱신
+        {"insiders": update_insiders, "funds": update_funds}[sys.argv[1]](load("cta.json", {"tickers": {}}))
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신
         update_targets(load("cta.json", {"tickers": {}}))
         sys.exit(0)
@@ -672,6 +880,8 @@ if __name__ == "__main__":
     update_cta(cta)
     update_mcap(cta)
     update_targets(cta)
+    update_insiders(cta)
+    update_funds(cta)
     update_news(cta)
     update_briefing("auto")
     update_calendar(cta)
