@@ -954,39 +954,6 @@ try:
 except (OSError, ValueError):
     _CAL = {"asof": "", "econ": [], "earn": []}
 _cd = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "asof": _CAL.get("asof", ""), "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
-CAL_JS = """<script>(function(){var D=__DATA__,T='econ',I=2,E=document.getElementById('cle'),H=document.getElementById('clh'),ER=false;
-function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-var KD=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}),KT=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false}),WD=['일','월','화','수','목','금','토'];
-function kday(d){return KD.format(d)}function lab(k){var p=k.split('-');var w=new Date(k+'T12:00:00+09:00').getDay();return +p[1]+'월 '+ +p[2]+'일 ('+WD[w]+')'}
-function num(v){if(v==null)return NaN;var s=String(v).replace(/[,$%\\s]/g,''),m=1,x=/([KMBT])$/i.exec(s);if(x){m={K:1e3,M:1e6,B:1e9,T:1e12}[x[1].toUpperCase()];s=s.slice(0,-1)}var n=parseFloat(s);return isNaN(n)?NaN:n*m}
-function cmp(a,c){var x=num(a),y=num(c);if(isNaN(x)||isNaN(y))return'';var d=x-y;return Math.abs(d)<1e-9?'<span class="bg eq">예상 부합</span>':d>0?'<span class="bg up">예상 상회</span>':'<span class="bg dn">예상 하회</span>'}
-function econ(){var now=Date.now(),td=kday(new Date()),rows=D.econ.filter(function(e){return e.imp>=I});if(!rows.length)return'<div class="clempty">표시할 지표가 없습니다. 아직 일정 데이터가 수집되지 않았을 수 있습니다.</div>';
-var h='<div class="clwrap"><table class="cltb"><thead><tr><th>시간(KST)</th><th>지표</th><th class="r">예상</th><th class="r">이전</th><th class="r">실제</th><th>결과</th></tr></thead><tbody>',last='';
-rows.forEach(function(e){var dt=new Date(e.ts),k=kday(dt);if(k!==last){last=k;h+='<tr class="dh'+(k===td?' td':'')+'"><td colspan="6">'+lab(k)+(k===td?' · 오늘':'')+'</td></tr>'}
-var done=e.a!=='',past=dt.getTime()<now;h+='<tr><td class="t">'+(e.allday?'종일':KT.format(dt))+'</td><td><span class="st">'+'★'.repeat(e.imp)+'</span> '+esc(e.ko||e.name)+(e.ko&&e.ko!==e.name?'<span class="en">'+esc(e.name)+'</span>':'')+'</td><td class="r">'+esc(e.c||'-')+'</td><td class="r">'+esc(e.p||'-')+'</td><td class="r"><b>'+(done?esc(e.a):'<span class="pend">'+(past?'집계 대기':'-')+'</span>')+'</b></td><td>'+(done?cmp(e.a,e.c):'')+'</td></tr>'});
-return h+'</tbody></table></div>'}
-var TM={pre:'장 시작 전',post:'장 마감 후',na:'시간 미정'};
-function earn(){var td=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/New_York'}).format(new Date()),rows=D.earn.filter(function(e){return ER?e.day<td:e.day>=td});
-if(!rows.length)return'<div class="clempty">'+(ER?'최근 발표한 등록 기업이 없습니다.':'예정된 등록 기업 실적 발표가 없습니다.')+'</div>';rows.sort(function(a,b){return ER?(a.day<b.day?1:a.day>b.day?-1:0):(a.day<b.day?-1:a.day>b.day?1:0)});
-var h='<div class="clwrap"><table class="cltb"><thead><tr><th>기업</th><th>분기</th><th>시간</th><th class="r">예상 EPS</th><th class="r">전년 동기</th><th class="r">애널리스트</th>'+(ER?'<th class="r">실제 EPS</th><th>결과</th>':'')+'</tr></thead><tbody>',last='';
-rows.forEach(function(e){if(e.day!==last){last=e.day;var w=new Date(e.day+'T12:00:00Z').getUTCDay();h+='<tr class="dh'+(e.day===td?' td':'')+'"><td colspan="'+(ER?8:6)+'">'+(+e.day.slice(5,7))+'월 '+(+e.day.slice(8))+'일 ('+WD[w]+', 미국 현지)'+(e.day===td?' · 오늘':'')+'</td></tr>'}
-var sr=e.sur!==''&&!isNaN(parseFloat(e.sur))?parseFloat(e.sur):null,res=ER&&e.eps?(sr==null?cmp(e.eps,e.est):(sr>0?'<span class="bg up">상회 +'+sr.toFixed(1)+'%</span>':sr<0?'<span class="bg dn">하회 '+sr.toFixed(1)+'%</span>':'<span class="bg eq">부합</span>')):'';
-h+='<tr><td><a class="cn" href="'+esc(D.lk[e.tk]||'#')+'">'+esc(D.nm[e.tk]||e.tk)+'</a> <span class="en" style="display:inline">'+esc(e.tk)+'</span></td><td>'+esc(e.fq||'-')+'</td><td>'+TM[e.time]+'</td><td class="r">'+esc(e.est||'-')+'</td><td class="r">'+esc(e.ly||'-')+'</td><td class="r">'+esc(e.n||'-')+'</td>'+(ER?'<td class="r"><b>'+esc(e.eps||'-')+'</b></td><td>'+res+'</td>':'')+'</tr>'});
-return h+'</tbody></table></div>'}
-function draw(){document.querySelectorAll('[data-t]').forEach(function(b){b.classList.toggle('on',b.dataset.t===T)});document.querySelectorAll('[data-i]').forEach(function(b){b.classList.toggle('on',+b.dataset.i===I)});document.querySelectorAll('[data-r]').forEach(function(b){b.classList.toggle('on',(b.dataset.r==='1')===ER)});
-document.getElementById('clie').style.display=T==='econ'?'contents':'none';document.getElementById('clne').style.display=T==='earn'?'flex':'none';E.innerHTML=T==='econ'?econ():earn()}
-document.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){T=b.dataset.t;draw()})});document.querySelectorAll('[data-i]').forEach(function(b){b.addEventListener('click',function(){I=+b.dataset.i;draw()})});document.querySelectorAll('[data-r]').forEach(function(b){b.addEventListener('click',function(){ER=b.dataset.r==='1';draw()})});
-if(D.asof)H.textContent='마지막 갱신 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});draw();})();</script>"""
-cal_inner = (f'<div class="readwrap"><div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">일정</div><div class="a">미국 경제지표와 등록 기업 실적 발표 · <span id="clh"></span></div></div></div>'
-    '<div class="cdl"><a class="on" href="calendar.html">목록형</a><a href="calendar-a.html">달력 A · 월간 격자 (초안)</a><a href="calendar-b.html">달력 B · 주간 보드 (초안)</a></div>'
-    '<div class="cltabs"><button class="pill on" data-t="econ" type="button">경제지표</button><button class="pill" data-t="earn" type="button">기업 실적</button>'
-    '<span id="clie" style="display:contents"><span class="sp"></span><button class="pill" data-i="3" type="button">핵심 ★★★</button><button class="pill on" data-i="2" type="button">주요 ★★ 이상</button><button class="pill" data-i="1" type="button">전체</button></span>'
-    '<span id="clne" style="display:none;margin-left:auto;gap:8px"><button class="pill on" data-r="0" type="button">예정</button><button class="pill" data-r="1" type="button">최근 발표</button></span></div>'
-    '<div id="cle"></div>'
-    '<div class="nwnote">시간은 한국시간(KST)입니다. 경제지표는 미국 발표 기준이며 예상치는 시장 컨센서스, 실제치는 발표 후 자동 반영됩니다(지표 발표 직후와 장 마감 후 갱신). 결과 배지는 숫자 크기만 비교한 것이며 호재·악재 판단이 아닙니다. 기업 실적은 이 사이트에 등록된 미국 상장 기업만 보여주고, 발표일은 미국 현지 날짜입니다. 일정은 회사 사정으로 바뀔 수 있습니다. 데이터 출처: Nasdaq.</div>'
-    '</div></div>' + CAL_JS.replace("__DATA__", _cd))
-open(f"{OUT}/calendar.html", "w", encoding="utf-8").write(shell("일정 — Corporate Analysis", cal_inner, "calendar"))
-
 # --------------- calendar drafts (달력형 초안 A·B) ---------------
 CALX_JS = """var D=__DATA__,S={tab:'earn',I:2},NOW=Date.now();
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -1023,25 +990,15 @@ l.slice(0,N).forEach(function(e){if(e.k==='econ')h+='<div class="cbar i'+e.imp+(
 if(l.length>N)h+='<button class="more" type="button">+'+(l.length-N)+'개</button>';if(l.length)h+='<span class="cn">'+l.length+'</span>';h+='</div>'}
 B.innerHTML='<div class="cdh">'+range()+' · 날짜를 누르면 상세가 열립니다</div><div class="mg">'+h+'</div>';B.querySelectorAll('.dc[data-k]').forEach(function(c){c.onclick=function(){openDay(c.dataset.k)}})}
 draw();"""
-CALB_JS = """var C=document.getElementById('chd'),B=document.getElementById('cbody'),t0=TODAY.split('-'),wk=0;
-function mon(k,w){var p=k.split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2],12)),o=(d.getUTCDay()+6)%7;return new Date(d.getTime()+(w*7-o)*864e5)}
-function draw(){var s=mon(TODAY,wk),days=[];for(var i=0;i<7;i++)days.push(new Date(s.getTime()+i*864e5).toISOString().slice(0,10));
-C.innerHTML='<button class="sq" id="pv" aria-label="이전 주">‹</button><span class="ttl">'+(+days[0].slice(5,7))+'/'+(+days[0].slice(8))+' – '+(+days[6].slice(5,7))+'/'+(+days[6].slice(8))+'</span><button class="sq" id="nx" aria-label="다음 주">›</button><button id="tdy">이번 주</button><span class="grp">'+ctl()+'</span><span class="sp"></span>'+ictl();
-document.getElementById('pv').onclick=function(){wk--;draw()};document.getElementById('nx').onclick=function(){wk++;draw()};document.getElementById('tdy').onclick=function(){wk=0;draw()};wire(C,draw);
-var h='<div class="cdh">'+range()+'</div><div class="wk">';
-days.forEach(function(k,i){var l=evs(k);h+='<div class="wd'+(k===TODAY?' td':'')+(i>4?' we':'')+'"><div class="wh2"><b>'+WD[(i+1)%7]+' '+(+k.slice(8))+'</b><span>'+(k===TODAY?'오늘 · ':'')+(l.length?l.length+'건':'')+'</span></div><div class="bd">'+(l.length?l.map(card).join(''):'<div class="emp">일정 없음</div>')+'</div></div>'});
-B.innerHTML=h+'</div>'}
-draw();"""
-def cal_draft(kind):
-    nm, js, ttl = ("calendar-a.html", CALA_JS, "달력 A · 월간 격자") if kind == "a" else ("calendar-b.html", CALB_JS, "달력 B · 주간 보드")
+def cal_page():
+    nm, js, ttl = "calendar.html", CALA_JS, "일정"
     data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
-    links = '<div class="cdl"><a href="calendar.html">목록형</a>' + "".join(f'<a class="{"on" if h == nm else ""}" href="{h}">{t}</a>' for h, t in [("calendar-a.html", "달력 A · 월간 격자"), ("calendar-b.html", "달력 B · 주간 보드")]) + '</div>'
-    inner = (f'<div class="calw"><div class="cph"><span class="t">일정 · {ttl}</span><span class="a">초안 — 마음에 드는 쪽을 알려 주세요</span></div>{links}<div class="chd" id="chd"></div><div id="cbody"></div>'
+    inner = (f'<div class="calw"><div class="cph"><span class="t">{ttl}</span><span class="a">미국 경제지표와 등록 기업 실적 · 시간은 한국시간(KST)</span></div><div class="chd" id="chd"></div><div id="cbody"></div>'
              '<div class="nwnote">실적 시각 표기: 미국 장 시작 전 발표는 개장 시각(KST) 기준 "전", 장 마감 후 발표는 마감 시각(KST) 기준 "후"로 표시하며 실제 발표 시각과 다를 수 있습니다(시간 미정은 "미정"). 경제지표는 발표 시각을 한국시간으로 환산했습니다. 데이터 출처: Nasdaq. 실적은 이 사이트에 등록된 미국 상장 기업만 보여줍니다.</div></div>'
              '<div class="cdm" id="cdm"><div class="cdb" id="cdb"></div></div>'
              '<script>(function(){' + CALX_JS.replace("__DATA__", data) + js + '})();</script>')
     open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("일정 — " + ttl, inner, "calendar"))
-cal_draft("a"); cal_draft("b")
+cal_page()
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
