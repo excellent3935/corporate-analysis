@@ -289,7 +289,6 @@ def update_targets(cta):
 
 
 # ---------------- 내부자 거래 (Form 4) · 네임드 펀드 13F ----------------
-SEC_UA = {"User-Agent": "CorporateAnalysis excellent3935@users.noreply.github.com", "Accept-Encoding": "gzip, deflate"}
 NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름에 들어 있어야 함)
     ("1067983", "버크셔 해서웨이", "BERKSHIRE"), ("1350694", "브리지워터", "BRIDGEWATER"), ("1423053", "시타델", "CITADEL"),
     ("1037389", "르네상스 테크놀로지스", "RENAISSANCE"), ("1336528", "퍼싱 스퀘어", "PERSHING"), ("1167483", "타이거 글로벌", "TIGER GLOBAL"),
@@ -357,12 +356,19 @@ def update_insiders(cta):
 
 
 def _sec_get(url, tries=3):
+    """SEC 공개 데이터 요청. SEC 규정상 User-Agent에 운영자 연락처가 필요해, GitHub 시크릿 SEC_CONTACT(메일 주소)를 읽어 쓴다. 속도는 초당 10회 이하로 제한."""
     import time
+    contact = os.environ.get("SEC_CONTACT", "").strip()
+    if not contact:
+        raise RuntimeError("SEC_CONTACT 시크릿이 없습니다 (저장소 Settings > Secrets and variables > Actions)")
+    time.sleep(0.15)
     for i in range(tries):
-        r = requests.get(url, headers=SEC_UA, timeout=40)
+        r = requests.get(url, headers={"User-Agent": f"CorporateAnalysis {contact}", "Accept-Encoding": "gzip, deflate"}, timeout=40)
         if r.status_code == 200:
             return r
-        time.sleep(1.5 * (i + 1))
+        if i == 0:
+            print(f"[SEC {r.status_code}] {url} :: {r.text[:120]!r}")
+        time.sleep(2 * (i + 1))
     r.raise_for_status()
 
 
