@@ -237,6 +237,10 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("synopsys.html", "snps", [CONTENT + "/snps/body.html"], "Synopsys 기업분석", "SNPS", "Synopsys, Inc.", "소프트웨어", "FQ3 매출 +42% · 비GAAP 영업이익률 41.6% · CTA +0.50", "#eef2ff", "반도체 설계 소프트웨어", "https://www.synopsys.com"),
  ("verisign.html", "vrsn", [CONTENT + "/vrsn/body.html"], "VeriSign 기업분석", "VRSN", "VeriSign, Inc.", "소프트웨어", "영업이익률 67% · PEG 4.07 · CTA +1.00", "#f0f9ff", "도메인 레지스트리", "https://www.verisign.com"),
  ("credo.html", "crdo", [CONTENT + "/crdo/body.html"], "Credo Technology 기업분석", "CRDO", "Credo Technology Group Holding Ltd", "반도체", "FQ1 매출 +115% · PEG 0.16 · CTA -1.00", "#ecfdf5", "AI 연결 반도체", "https://www.credosemi.com"),
+ ("onsemi.html", "on", [CONTENT + "/on/body.html"], "onsemi 기업분석", "ON", "ON Semiconductor Corporation", "반도체", "3Q AI 데이터센터 +175% · GAAP PEG 0.35(조정 약 2.5) · CTA -0.75", "#ecfdf5", "전력·센서 반도체", "https://www.onsemi.com"),
+ ("analogdevices.html", "adi", [CONTENT + "/adi/body.html"], "Analog Devices 기업분석", "ADI", "Analog Devices, Inc.", "반도체", "FQ3 매출 +40% · PEG 0.42(조정 약 0.63) · CTA +0.50", "#eff6ff", "아날로그·혼합신호 반도체", "https://www.analog.com"),
+ ("merck.html", "mrk", [CONTENT + "/mrk/body.html"], "Merck 기업분석", "MRK", "Merck & Co., Inc.", "헬스케어", "3Q 매출 +5% · PEG 산출 불가 · CTA +1.00", "#f0fdfa", "제약·백신", "https://www.merck.com"),
+ ("moderna.html", "mrna", [CONTENT + "/mrna/body.html"], "Moderna 기업분석", "MRNA", "Moderna, Inc.", "헬스케어", "3Q 첫 흑자 · 적자로 PEG 산출 불가 · CTA +0.75", "#fff1f2", "mRNA 백신·치료제", "https://www.modernatx.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -251,10 +255,10 @@ except (OSError, ValueError):
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE"}
+EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
-LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
+LOGO = {"ON": "on-semiconductor", "ADI": "analog-devices", "MRK": "merck-and-co", "MRNA": "moderna", "NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
         "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave",
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
@@ -781,6 +785,10 @@ def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩
 # 일회성 비용·비교 기저 왜곡으로 트레이딩뷰 PEG가 없거나 낮게 나온 종목의 조정 EPS 기준 값. 모두 해당 기업 보고서 PEG 심층 표의 수치.
 #  main: 조정 EPS 기준 PEG를 PEG 칸에 넣는다 / side: PEG 칸은 그대로 두고 비고에 일회성 비용 제외 PEG를 적는다 / none: 조정해도 산출 불가
 ADJ_PEG = {
+    "ON": {"mode": "side", "note": "트레이딩뷰 PEG 0.35는 1Q25 GAAP 순손실(저기저) 효과. 조정 EPS 기준 PEG 약 2.5"},
+    "ADI": {"mode": "side", "note": "조정 EPS 기준 PEG 약 0.63"},
+    "MRK": {"mode": "none", "note": "GAAP·조정 EPS 모두 감소(취득 IPR&D 비용)해 산출 불가"},
+    "MRNA": {"mode": "none", "note": "TTM 순손실이라 산출 불가"},
     "LITE": {"mode": "main", "peg": 0.17, "per": "50.4배", "gr": "+299%", "note": "조정 EPS 기준(내 계산, 직전 4분기 저기저로 기저효과 큼). GAAP은 FQ4'26 일회성 비현금 비용으로 산출 불가"},
     "PANW": {"mode": "main", "peg": 5.7, "per": "84.1배", "gr": "+14.7%", "note": "조정 EPS 기준 PEG(내 계산). GAAP은 인수 비용으로 EPS가 감소해 산출 불가"},
     "NFLX": {"mode": "gain", "peg": 0.96, "per": "21.1배", "gr": "+22%", "why": "WBD 위약금 $28억 세후 약 $0.53 제외, 세율·주식수는 내 가정"},
@@ -1004,7 +1012,7 @@ Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)
 _LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
 PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
 
-KO_ALIAS = {"MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
+KO_ALIAS = {"ON": "온세미 온세미컨덕터 on semiconductor", "ADI": "아날로그 디바이시스 아날로그디바이스", "MRK": "머크 엠에스디 msd 키트루다", "MRNA": "모더나 엠알엔에이", "MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
