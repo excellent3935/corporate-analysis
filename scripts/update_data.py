@@ -260,12 +260,32 @@ def update_targets(cta):
                     e["rec"] = inf["recommendationKey"]
             except Exception:
                 pass
+            try:  # 최근 기관별 목표가 변경 내역 (목표가가 있는 건만, 최신 12건)
+                ud = t.upgrades_downgrades
+                rec = []
+                for idx, r in ud.sort_index(ascending=False).iterrows():
+                    pt_now = r.get("currentPriceTarget")
+                    if pt_now is None or pt_now != pt_now or not float(pt_now):
+                        continue
+                    pp = r.get("priorPriceTarget")
+                    rec.append({"d": str(idx)[:10], "f": str(r.get("Firm", "")), "to": str(r.get("ToGrade", "") or ""), "fr": str(r.get("FromGrade", "") or ""),
+                                "ac": str(r.get("priceTargetAction", "") or ""), "pt": round(float(pt_now), 2),
+                                "pp": round(float(pp), 2) if pp is not None and pp == pp and float(pp) else None})
+                    if len(rec) >= 12:
+                        break
+                if rec:
+                    e["recent"] = rec
+                elif out.get(tk, {}).get("recent"):
+                    e["recent"] = out[tk]["recent"]
+            except Exception:
+                if out.get(tk, {}).get("recent"):
+                    e["recent"] = out[tk]["recent"]
             out[tk] = e
             got += 1
         except Exception:
             traceback.print_exc()
     save("targets.json", {"asof": today, "t": out})
-    print("목표가", got, "개 갱신 /", len(out), "개 보유")
+    print("목표가", got, "개 갱신 /", len(out), "개 보유 / 기관별 내역", sum(1 for v in out.values() if v.get("recent")), "개")
 
 
 def update_news(cta):

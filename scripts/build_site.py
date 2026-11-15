@@ -597,15 +597,28 @@ def target_box(tk):
     for k, lb in (("high", "최고"), ("median", "중앙값"), ("low", "최저")):
         if t.get(k): cells.append((lb, F(t[k]), f'{(t[k] / e["close"] - 1) * 100:+.1f}%'))
     meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), f'{t.get("d", "")} 기준') if x)
+    det = ""
+    if t.get("recent"):
+        _AC = {"raises": ("상향", "up"), "lowers": ("하향", "down"), "maintains": ("유지", ""), "announces": ("신규", ""), "initiates": ("신규", ""), "reiterates": ("유지", ""), "unchanged": ("유지", "")}
+        rows = ""
+        for x in t["recent"]:
+            lb, cl = _AC.get((x.get("ac") or "").lower(), ("", ""))
+            if not lb and x.get("pp"): lb, cl = (("상향", "up") if x["pt"] > x["pp"] else ("하향", "down") if x["pt"] < x["pp"] else ("유지", ""))
+            pr = f'{F(x["pp"])} → <b>{F(x["pt"])}</b>' if x.get("pp") and x["pp"] != x["pt"] else f'<b>{F(x["pt"])}</b>'
+            rt = f'{x["fr"]} → {x["to"]}' if x.get("fr") and x.get("to") and x["fr"] != x["to"] else (x.get("to") or "-")
+            rows += f'<tr><td>{x["d"]}</td><td>{x["f"]}</td><td>{rt}</td><td>{pr}</td><td><span class="{cl}">{lb or "-"}</span></td><td>{(x["pt"] / e["close"] - 1) * 100:+.1f}%</td></tr>'
+        det = ('<details class="tgd"><summary>세부정보 보기 · 최근 기관별 목표가</summary><div class="tw"><table><tr><th>날짜</th><th>기관</th><th>투자의견</th><th>목표가</th><th>변경</th><th>현재가 대비</th></tr>' + rows + '</table></div></details>')
     return ('<div class="tgbox"><div class="hd"><b>애널리스트 목표가</b><span>' + meta + '</span></div><div class="cs">'
             + "".join(f'<div><small>{a}</small><b>{b}</b><em>{c}</em></div>' for a, b, c in cells)
-            + '</div><div class="nt">출처: Yahoo Finance 컨센서스 · 상승여력은 최근 종가 기준이며 매일 자동 갱신됩니다.</div></div>')
+            + '</div>' + det + '<div class="nt">출처: Yahoo Finance 컨센서스 · 상승여력은 최근 종가 기준이며 매일 자동 갱신됩니다.</div></div>')
 TG_CSS = """
 .tgbox{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;margin:0 0 16px}
 .tgbox .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}.tgbox .hd b{font-size:14px}.tgbox .hd span{font-size:12px;color:var(--muted)}
 .tgbox .cs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.tgbox .cs div{display:flex;flex-direction:column;gap:2px}
 .tgbox .cs small{font-size:11.5px;color:var(--muted)}.tgbox .cs b{font-size:18px;font-weight:800}.tgbox .cs em{font-style:normal;font-size:12px;color:var(--muted)}
 .tgbox .cs em .up{color:var(--up);font-weight:700}.tgbox .cs em .down{color:var(--down);font-weight:700}
+.tgd{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.tgd summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--blue)}
+.tgd .tw{overflow-x:auto;margin-top:8px}.tgd table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}.tgd th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}.tgd td{padding:5px 8px;border-bottom:1px solid var(--line)}.tgd .up{color:var(--up);font-weight:700}.tgd .down{color:var(--down);font-weight:700}
 .tgbox .nt{font-size:11.5px;color:var(--muted);margin-top:8px}
 @media(max-width:640px){.tgbox .cs{grid-template-columns:repeat(2,1fr)}}
 """
