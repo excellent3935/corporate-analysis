@@ -536,7 +536,8 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 @media(max-width:560px){.pills{flex-wrap:nowrap}.bsw input{max-width:none}}
 .stabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}.stab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.stab:before{content:"- ";opacity:.5}.stab.on{color:var(--ink);border-bottom-color:var(--ink)}
 #pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard td.rm{font-size:11.5px;color:var(--muted);line-height:1.4;min-width:150px}
-@media(max-width:640px){#pegboard .xd{display:none}.stab{padding:8px 12px;font-size:13px}}
+#pegboard .mnote{display:none}
+@media(max-width:640px){#pegboard .xd{display:none}#pegboard .mnote{display:block;font-size:11px;color:var(--muted);line-height:1.4;margin:4px 0 0 31px;white-space:normal;max-width:210px}#pegboard .mnote:empty{display:none}.stab{padding:8px 12px;font-size:13px}}
 .vis{text-align:center;font-size:11px;color:var(--muted);opacity:.7;padding:18px 0 22px;letter-spacing:.02em}
 .cnst{text-align:center;font-size:11.5px;color:var(--muted);margin:-2px 0 6px}.cnst .dn{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:6px}.cnst .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}
 """
@@ -703,7 +704,7 @@ def peg_board():
         if adj_note: rem = (adj_note + ". " + rem).rstrip(". ") if rem and peg is not None else (adj_note if peg is not None or ad.get("mode") != "none" else adj_note)
         star = ""
         live = f" data-q='{tk}'" if tk not in ("005930", "000660") else ""
-        rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a></td>'
+        rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a><div class="mnote">{rem}</div></td>'
                      f'<td class="r">{px}<br><span class="{c}">{ch}</span></td><td class="r xd">{per}</td><td class="r xd">{gr}</td><td class="r"><b>{v}</b></td><td>{tg}</td><td class="rm xd">{rem}</td></tr>'))
     rows.sort(key=lambda x: x[0])
     return ('<div class="panel cmp board" id="pegboard"><table><thead><tr><th class="rk">#</th><th>기업</th><th class="r">종가</th><th class="r xd">PER(TTM)</th><th class="r xd">EPS 성장(YoY)</th><th class="r">PEG</th><th>판정</th><th class="xd">비고</th></tr></thead><tbody>'
@@ -752,10 +753,36 @@ var a=L&&L.querySelector('a.on');if(a&&d.open)L.scrollTop=Math.max(0,a.offsetTop
 var S=[['market','m'],['heatmap','h'],['reports','r']].map(function(x){return[document.getElementById(x[0]),document.querySelector('.gs a[data-k="'+x[1]+'"]')]}),H=document.querySelector('.gs a[data-k="home"]');
 if(S[0][0]&&H){function sp(){var cur=H;S.forEach(function(x){if(x[0]&&x[1]&&x[0].getBoundingClientRect().top<=140)cur=x[1]});[H].concat(S.map(function(x){return x[1]})).forEach(function(l){if(l)l.classList.toggle('on',l===cur)})}addEventListener('scroll',sp,{passive:true});sp()}})();</script>"""
 
+SR_CSS = """
+.gsq{margin:0 2px 8px}.gsq input,.mq input{width:100%;box-sizing:border-box;font:inherit;font-size:13.5px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.gsq input:focus,.mq input:focus{outline:2px solid var(--navy);outline-offset:-1px}
+.sres{display:none;flex-direction:column;gap:1px}.sres a{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:8px 10px;border-radius:7px;text-decoration:none;color:var(--ink);font-size:13.5px}.sres a span{font-size:11.5px;color:var(--muted)}.sres a:hover,.sres a.hi{background:var(--hover)}.sres .none{padding:10px;font-size:13px;color:var(--muted)}
+.gs.searching>:not(.gsq):not(.sres){display:none}.gs.searching>.sres{display:flex}
+.tbtn{display:none;flex:none;width:34px;height:30px;margin-left:6px;border-radius:2px;border:1px solid rgba(230,216,191,.28);background:transparent;color:#E6D8BF;cursor:pointer;font-size:16px;line-height:1;align-items:center;justify-content:center}.tbtn:hover{background:rgba(255,255,255,.08)}
+.mp{display:none;position:fixed;left:0;right:0;top:50px;z-index:40;background:var(--card);color:var(--ink);border-bottom:1px solid var(--line);box-shadow:0 10px 24px rgba(0,0,0,.18);padding:12px 14px 16px;max-height:calc(100vh - 50px);overflow:auto}.mp.open{display:block}
+.mp a.mi{display:flex;align-items:center;gap:10px;padding:12px 8px;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink);font-size:15px;font-weight:600}.mp a.mi.on{color:var(--gold)}.mp a.mi:last-child{border-bottom:0}
+.mp .sres{display:flex;margin-top:8px}.mq input{font-size:16px;padding:10px 12px}
+@media(max-width:1000px){.tbtn{display:flex}.top .thm{margin-left:auto}.top a.nv{display:none}}
+"""
+CSS += SR_CSS
+
+SR_JS = """<script>(function(){var D=__SD__;
+function find(q){q=q.trim().toLowerCase();if(!q)return[];var o=[];D.forEach(function(x){var i=x[3].indexOf(q);if(i>=0)o.push([x,x[2].toLowerCase()===q?-3:x[1].toLowerCase().indexOf(q)===0?-2:(' '+x[3]).indexOf(' '+q)>=0?-1:0])});o.sort(function(a,b){return a[1]-b[1]});return o.slice(0,14).map(function(a){return a[0]})}
+function show(ul,q){var r=find(q);ul.innerHTML=r.length?r.map(function(x,i){return'<a href="'+x[0]+'"'+(i?'':' class="hi"')+'><b>'+x[1]+'</b><span>'+x[2]+'</span></a>'}).join(''):(q.trim()?'<div class="none">검색 결과가 없습니다</div>':'');return r}
+function wire(inp,ul,onq){if(!inp)return;inp.addEventListener('input',function(){show(ul,inp.value);onq&&onq(!!inp.value.trim())});inp.addEventListener('keydown',function(e){if(e.key==='Enter'){var a=ul.querySelector('a');if(a)location.href=a.getAttribute('href')}else if(e.key==='Escape'){inp.value='';show(ul,'');onq&&onq(false);inp.blur()}})}
+var g=document.querySelector('.gs');wire(document.getElementById('sq'),document.getElementById('sr'),function(on){if(g)g.classList.toggle('searching',on)});
+var mq=document.getElementById('mq');wire(mq,document.getElementById('mr'));
+var sp=document.getElementById('spn'),mp=document.getElementById('mpn'),bs=document.getElementById('tsb'),bm=document.getElementById('tmb');
+function tog(a,b,focus){if(!a)return;var o=!a.classList.contains('open');a.classList.toggle('open',o);if(b)b.classList.remove('open');if(o&&focus)setTimeout(function(){focus.focus()},30)}
+if(bs)bs.addEventListener('click',function(e){e.stopPropagation();tog(sp,mp,mq)});if(bm)bm.addEventListener('click',function(e){e.stopPropagation();tog(mp,sp)});
+document.addEventListener('click',function(e){[sp,mp].forEach(function(p){if(p&&p.classList.contains('open')&&!p.contains(e.target))p.classList.remove('open')})});
+document.querySelectorAll('.mp a').forEach(function(a){a.addEventListener('click',function(){[sp,mp].forEach(function(p){p&&p.classList.remove('open')})})});})();</script>"""
+
 def gside(on, cur):
     it = "".join(f'<a class="{"on" if r[0] == cur else ""}" href="{r[0]}">{r[3].replace(" 기업분석", "")}</a>' for r in REPORTS)
     c = lambda k: " on" if on == k else ""
     return ('<aside class="side gs">'
+            '<div class="gsq"><input id="sq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="기업 검색"></div><div class="sres" id="sr"></div>'
             f'<a class="si{" on" if on == "home" else ""}" data-k="home" href="index.html">🏠 홈</a>'
             '<a class="si" data-k="m" href="index.html#market">📈 시장 지표</a>'
             '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
@@ -763,12 +790,22 @@ def gside(on, cur):
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
             f'<a class="si{c("briefing")}" href="briefing.html">🗞 브리핑</a></aside>')
 
+def _sd():
+    return json.dumps([[r[0], r[3].replace(" 기업분석", ""), r[4], (r[4] + " " + r[3].replace(" 기업분석", "") + " " + r[5] + " " + r[6] + " " + KO_ALIAS.get(r[4], "")).lower()] for r in REPORTS], ensure_ascii=False).replace("</", "<\\/")
+def mpanels(on):
+    c = lambda k: " on" if on == k else ""
+    return ('<div class="mp" id="spn"><div class="mq"><input id="mq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="기업 검색"></div><div class="sres" id="mr"></div></div>'
+            '<div class="mp" id="mpn">'
+            f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 시장 지표</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
+            f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
+
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
                   [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
-<div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
-<div class="gl">{gside(on, cur)}<div class="gm">{inner}</div></div><div class="vis" id="vis" aria-live="off"></div>{GS_JS}<script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
+<div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
+{mpanels(on)}
+<div class="gl">{gside(on, cur)}<div class="gm">{inner}</div></div><div class="vis" id="vis" aria-live="off"></div>{GS_JS}{SR_JS.replace("__SD__", _sd())}<script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
 function g(k,hit){{return fetch(B+(hit?'hit/':'get/')+N+k).then(function(r){{return r.ok?r.json():{{value:0}}}}).then(function(j){{return j.value||0}}).catch(function(){{return null}})}}
 Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)return;try{{localStorage.setItem('visD',d)}}catch(e){{}}el.textContent='방문 누적 '+v[0].toLocaleString('ko-KR')+' · 오늘 '+(v[1]||0).toLocaleString('ko-KR')}})}})();</script>{THEME_JS}</body></html>"""
 
