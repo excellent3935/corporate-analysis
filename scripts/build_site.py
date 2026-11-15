@@ -668,10 +668,10 @@ def smart_box(tk):
         w = c["v"] / f["total"] * 100 if c and f.get("total") else None
         pw = p["v"] / f["ptotal"] * 100 if p and f.get("ptotal") else None
         est = (c or p).get("est") if sh != psh else None
-        fr.append((c["v"] if c else 0, f'<tr><td>{f["name"]}</td><td>{f["period"][:7]}</td><td><span class="{cl}">{ac}</span></td><td class="r">{_sh(psh)} → <b>{_sh(sh)}</b></td><td class="r">{(f"{pw:.2f}% → " if pw is not None else "")}<b>{(f"{w:.2f}%" if w is not None else "0%")}</b></td><td class="r">{_usd(c["v"]) if c else "-"}</td><td class="r">{(("추정 $%.2f" % est) if est else "-")}</td></tr>'))
+        fr.append((c["v"] if c else 0, f'<tr><td>{f["name"]}</td><td>{f["period"][:4]} Q{(int(f["period"][5:7]) + 2) // 3}</td><td><span class="{cl}">{ac}</span></td><td class="r">{_sh(psh)} → <b>{_sh(sh)}</b></td><td class="r">{(f"{pw:.2f}% → " if pw is not None else "")}<b>{(f"{w:.2f}%" if w is not None else "0%")}</b></td><td class="r">{_usd(c["v"]) if c else "-"}</td><td class="r">{(("추정 $%.2f" % est) if est else "-")}</td></tr>'))
     if fr:
         fr.sort(key=lambda x: -x[0]); per = max(f["period"] for f in _F13.values())
-        out += (f'<details class="smd"><summary>🏦 네임드 펀드 13F 매매 <span>{len(fr)}개 펀드 · 최신 {per} 분기 기준</span></summary><div class="tw"><table><tr><th>펀드</th><th>기준</th><th>행동</th><th class="r">보유 주식</th><th class="r">포트폴리오 비중</th><th class="r">평가금액</th><th class="r">추정 평단(매도가)</th></tr>' + "".join(x[1] for x in fr) + '</table></div>'
+        out += (f'<details class="smd"><summary>🏦 네임드 펀드 13F 매매 <span>{len(fr)}개 펀드 · 펀드별 가장 최근 공시 분기 기준</span></summary><div class="tw"><table><tr><th>펀드</th><th>기준</th><th>행동</th><th class="r">보유 주식</th><th class="r">포트폴리오 비중</th><th class="r">평가금액</th><th class="r">추정 평단(매도가)</th></tr>' + "".join(x[1] for x in fr) + '</table></div>'
                 '<div class="nt">13F는 분기 말 기준 보유 내역이라 정확한 매매일·체결가는 알 수 없습니다. 비중은 해당 펀드의 13F 보고 포트폴리오(미국 상장 롱 포지션) 대비이며 전체 운용자산(시드)과는 다릅니다. 추정 평단은 변동이 생긴 분기의 거래량가중 평균가로, 실제 체결가와 다를 수 있는 추정치입니다. 공시는 분기 종료 후 최대 45일 뒤에 나옵니다.</div></details>')
     return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 · 네임드 펀드 매수·매도 기록</span></div>' + out + '</div>' if out else ""
 SM_CSS = """
