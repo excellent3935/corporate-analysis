@@ -329,6 +329,10 @@ def translate_items(cur, prev):
 NQ_H = dict(UA, **{"Accept": "application/json, text/plain, */*", "Origin": "https://www.nasdaq.com", "Referer": "https://www.nasdaq.com/"})
 ECON_DROP = __import__("re").compile(r"auction|bill\b|note\b|bond\b|speaks|refinery|distillate|gasoline|heating oil|cushing|crude oil imports|crude runs|production\b", __import__("re").I)
 ECON_KO = [  # (정규식, 한글 이름, 중요도) — 위에서부터 먼저 맞는 항목을 쓴다
+    (r"adp", "ADP 민간고용", 2), (r"nonfarm productivity", "비농업 생산성", 1), (r"nfib", "NFIB 소기업 낙관지수", 2), (r"chicago pmi", "시카고 PMI", 2),
+    (r"fomc statement", "FOMC 성명", 3), (r"fomc press", "FOMC 기자회견", 3), (r"cleveland cpi", "클리블랜드 연은 CPI", 1), (r"core cpi index", "근원 CPI 지수", 1),
+    (r"cpi index|cpi, n\.s\.a|cpi, s\.a", "CPI 세부 지표", 1), (r"ism manufacturing (employment|new orders|prices)", "ISM 제조업 세부지수", 1), (r"ism non-manufacturing (business|employment|new orders|prices)", "ISM 서비스업 세부지수", 1),
+    (r"durables excluding transport", "내구재 주문(운송 제외)", 2),
     (r"gdpnow", "애틀랜타 연은 GDPNow", 1), (r"dallas fed", "댈러스 연은 PCE", 1), (r"gdp price", "GDP 물가지수", 2), (r"gdp sales", "GDP 최종판매", 2),
     (r"core retail", "근원 소매판매", 3), (r"retail sales ex", "소매판매(휘발유·자동차 제외)", 2), (r"core durable", "근원 내구재 주문", 2), (r"durables ex", "내구재 주문(국방 제외)", 2),
     (r"s&p global composite", "S&P 글로벌 종합 PMI", 2), (r"s&p global manufacturing", "S&P 글로벌 제조업 PMI", 2), (r"s&p global services", "S&P 글로벌 서비스업 PMI", 2),
@@ -385,7 +389,7 @@ def update_calendar(cta):
     old_n = {}
     for e in old.get("earn", []):
         old_n.setdefault(e["day"], []).append(e)
-    for off in range(-3, 15):  # 경제지표: 3일 전 ~ 14일 후
+    for off in range(-35, 61):  # 경제지표: 35일 전 ~ 60일 후 (달력 탐색용)
         d = today + dt.timedelta(days=off)
         if d.weekday() > 4:
             continue
@@ -414,7 +418,7 @@ def update_calendar(cta):
             econ.append({"day": ds, "ts": tm.astimezone(dt.timezone.utc).isoformat(timespec="minutes"), "allday": not m, "name": nm, "ko": ko or kocache.get(nm), "imp": imp,
                          "a": _clean(x.get("actual")), "c": _clean(x.get("consensus")), "p": _clean(x.get("previous"))})
         time.sleep(0.2)
-    for off in range(-7, 46):  # 실적: 7일 전 ~ 45일 후
+    for off in range(-35, 76):  # 실적: 35일 전 ~ 75일 후
         d = today + dt.timedelta(days=off)
         if d.weekday() > 4:
             continue

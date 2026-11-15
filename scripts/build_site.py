@@ -787,6 +787,37 @@ html[data-theme=dark] .cltb .bg.up{color:#4ade80}html[data-theme=dark] .cltb .bg
 """
 CSS += CAL_CSS
 
+CALD_CSS = """
+.calw{max-width:1180px;margin:0 auto;padding:20px 22px 80px}
+.cph{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--navy);padding-bottom:10px;margin-bottom:12px}.cph .t{font-size:22px;font-weight:700}.cph .a{font-size:13px;color:var(--muted)}
+.cdl{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.cdl a{font-size:12.5px;text-decoration:none;color:var(--ink2);border:1px solid var(--line);border-radius:999px;padding:4px 12px;background:var(--card)}.cdl a.on{background:var(--navy);color:var(--card);border-color:var(--navy)}
+.chd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}.chd .ttl{font-size:19px;font-weight:700;min-width:118px}.chd .sp{margin-left:auto}.chd .grp{display:flex;gap:6px}
+.chd button,.cnb{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 12px;cursor:pointer}.chd button.on{background:var(--navy);color:var(--card);border-color:var(--navy)}.chd button.sq{width:34px;padding:5px 0}
+.cdh{font-size:12px;color:var(--muted);margin:0 0 8px}
+.mg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);background:var(--card);border-radius:10px;overflow:hidden}
+.mg .wh{padding:7px 10px;font-size:12px;color:var(--muted);border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft)}
+.mg .dc{min-height:128px;padding:6px 6px 5px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column;gap:3px;min-width:0}.mg .dc:hover{background:var(--hover)}
+.mg .dc.out{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(128,128,128,.09) 6px 7px);cursor:default}.mg .dc.we{background:var(--soft)}
+.mg .dn{font-size:13px;font-weight:700;margin-bottom:1px;width:24px;height:24px;display:flex;align-items:center;justify-content:center}.mg .dc.td .dn{background:var(--navy);color:var(--card);border-radius:50%}
+.cbar{flex:none;display:flex;gap:5px;align-items:baseline;border-left:3px solid var(--navy);padding:2px 5px;font-size:11.5px;line-height:1.35;background:rgba(128,128,128,.1);border-radius:0 3px 3px 0;overflow:hidden;white-space:nowrap}.cbar b{overflow:hidden;text-overflow:ellipsis;font-weight:600}.cbar.past{opacity:.5}
+.cbar.i3{border-left-color:#dc2626}.cbar.i2{border-left-color:#d97706}.cbar.i1{border-left-color:#9ca3af}.cbar.e{border-left-color:var(--blue)}
+.tm{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}.tm.pre:after{content:"전";font-size:9.5px;margin-left:1px}.tm.post:after{content:"후";font-size:9.5px;margin-left:1px}
+.more{font:inherit;font-size:11.5px;color:var(--muted);background:none;border:0;text-align:left;padding:1px 4px;cursor:pointer}.mg .cn{display:none}
+.cdm{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}.cdm.open{display:flex}
+.cdb{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:16px 16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.cdb .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cdb .hd b{font-size:17px}.cdb .x{font:inherit;font-size:20px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer}
+.wc{margin:0 0 8px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:6px;font-size:12.5px;background:var(--paper);line-height:1.45}.wc.i3{border-left-color:#dc2626}.wc.i2{border-left-color:#d97706}.wc.i1{border-left-color:#9ca3af}.wc.e{border-left-color:var(--blue)}.wc.past{opacity:.78}
+.wc .wt{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.wc .wt .tm{font-size:15px;font-weight:700;color:var(--ink)}.wc .wt b{font-size:13.5px}.wc .wt a{color:var(--ink);text-decoration:none}.wc .wt a:hover{text-decoration:underline}.wc .st{color:#d97706;font-size:11px;letter-spacing:-1px}
+.wc .en{font-size:11.5px;color:var(--muted)}.wc .vals{display:flex;gap:4px 10px;flex-wrap:wrap;margin-top:5px;font-size:12px;color:var(--ink2);align-items:center}.wc .vals b{color:var(--ink)}
+.bg{display:inline-block;font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}.bg.up{background:rgba(34,197,94,.15);color:#15803d}.bg.dn{background:rgba(239,68,68,.15);color:#b91c1c}.bg.eq{background:var(--soft);color:var(--ink2)}
+html[data-theme=dark] .bg.up{color:#4ade80}html[data-theme=dark] .bg.dn{color:#f87171}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:start}.wd{background:var(--card);border:1px solid var(--line);border-radius:10px;min-height:120px;overflow:hidden}.wd .wh2{padding:8px 10px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:baseline;font-size:13px;font-weight:700;background:var(--soft)}.wd .wh2 span{font-weight:500;font-size:11.5px;color:var(--muted)}
+.wd.td .wh2{background:var(--navy);color:var(--card)}.wd.td .wh2 span{color:var(--card);opacity:.8}.wd .bd{padding:8px 7px 0}.wd .emp{font-size:12px;color:var(--muted);padding:6px 4px 10px;text-align:center}.wd.we{opacity:.9}
+.wk .wc .vals{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px}
+@media(max-width:1000px){.wk{grid-template-columns:1fr}.wd{min-height:0}}
+@media(max-width:700px){.mg .cbar,.mg .more{display:none}.mg .dc{min-height:62px;align-items:flex-start;padding:4px}.mg .cn{display:inline-flex;font-size:11px;font-weight:700;background:var(--navy);color:var(--card);border-radius:999px;min-width:20px;height:20px;align-items:center;justify-content:center;padding:0 5px}.mg .wh{padding:6px 2px;text-align:center}.calw{padding:14px 12px 70px}}
+"""
+CSS += CALD_CSS
+
 def gside(on, cur):
     it = "".join(f'<a class="{"on" if r[0] == cur else ""}" href="{r[0]}">{r[3].replace(" 기업분석", "")}</a>' for r in REPORTS)
     c = lambda k: " on" if on == k else ""
@@ -947,6 +978,7 @@ document.getElementById('clie').style.display=T==='econ'?'contents':'none';docum
 document.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){T=b.dataset.t;draw()})});document.querySelectorAll('[data-i]').forEach(function(b){b.addEventListener('click',function(){I=+b.dataset.i;draw()})});document.querySelectorAll('[data-r]').forEach(function(b){b.addEventListener('click',function(){ER=b.dataset.r==='1';draw()})});
 if(D.asof)H.textContent='마지막 갱신 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});draw();})();</script>"""
 cal_inner = (f'<div class="readwrap"><div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">일정</div><div class="a">미국 경제지표와 등록 기업 실적 발표 · <span id="clh"></span></div></div></div>'
+    '<div class="cdl"><a class="on" href="calendar.html">목록형</a><a href="calendar-a.html">달력 A · 월간 격자 (초안)</a><a href="calendar-b.html">달력 B · 주간 보드 (초안)</a></div>'
     '<div class="cltabs"><button class="pill on" data-t="econ" type="button">경제지표</button><button class="pill" data-t="earn" type="button">기업 실적</button>'
     '<span id="clie" style="display:contents"><span class="sp"></span><button class="pill" data-i="3" type="button">핵심 ★★★</button><button class="pill on" data-i="2" type="button">주요 ★★ 이상</button><button class="pill" data-i="1" type="button">전체</button></span>'
     '<span id="clne" style="display:none;margin-left:auto;gap:8px"><button class="pill on" data-r="0" type="button">예정</button><button class="pill" data-r="1" type="button">최근 발표</button></span></div>'
@@ -954,6 +986,62 @@ cal_inner = (f'<div class="readwrap"><div class="read"><div class="rhead"><a hre
     '<div class="nwnote">시간은 한국시간(KST)입니다. 경제지표는 미국 발표 기준이며 예상치는 시장 컨센서스, 실제치는 발표 후 자동 반영됩니다(지표 발표 직후와 장 마감 후 갱신). 결과 배지는 숫자 크기만 비교한 것이며 호재·악재 판단이 아닙니다. 기업 실적은 이 사이트에 등록된 미국 상장 기업만 보여주고, 발표일은 미국 현지 날짜입니다. 일정은 회사 사정으로 바뀔 수 있습니다. 데이터 출처: Nasdaq.</div>'
     '</div></div>' + CAL_JS.replace("__DATA__", _cd))
 open(f"{OUT}/calendar.html", "w", encoding="utf-8").write(shell("일정 — Corporate Analysis", cal_inner, "calendar"))
+
+# --------------- calendar drafts (달력형 초안 A·B) ---------------
+CALX_JS = """var D=__DATA__,S={tab:'earn',I:2},NOW=Date.now();
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var KD=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}),KT=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}),ET=new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}),WD=['일','월','화','수','목','금','토'];
+function etOff(d){var p=new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',timeZoneName:'shortOffset'}).formatToParts(d).find(function(x){return x.type==='timeZoneName'}).value,m=/GMT([+-]\\d+)/.exec(p);return m?+m[1]:-5}
+function etMs(day,h,m){var p=day.split('-'),g=Date.UTC(+p[0],+p[1]-1,+p[2],h+5,m),o=etOff(new Date(g));return Date.UTC(+p[0],+p[1]-1,+p[2],h-o,m)}
+function num(v){if(v==null)return NaN;var s=String(v).replace(/[,$%\\s()]/g,''),m=1,x=/([KMBT])$/i.exec(s);if(x){m={K:1e3,M:1e6,B:1e9,T:1e12}[x[1].toUpperCase()];s=s.slice(0,-1)}var n=parseFloat(s);return isNaN(n)?NaN:n*m}
+function cmp(a,c){var x=num(a),y=num(c);if(isNaN(x)||isNaN(y))return'';var d=x-y;return Math.abs(d)<1e-9?'<span class="bg eq">예상 부합</span>':d>0?'<span class="bg up">예상 상회</span>':'<span class="bg dn">예상 하회</span>'}
+var EV=[];D.econ.forEach(function(e){var ts=new Date(e.ts).getTime();EV.push({k:'econ',ts:ts,day:KD.format(ts),t:e.allday?'종일':KT.format(ts),et:e.allday?'':ET.format(ts),title:e.ko||e.name,en:e.name,imp:e.imp,a:e.a,c:e.c,p:e.p,done:e.a!==''})});
+D.earn.forEach(function(e){var ts=e.time==='post'?etMs(e.day,16,0):etMs(e.day,9,30);var neg=/^\\(/.test(e.est||'');EV.push({k:'earn',ts:ts,day:KD.format(ts),t:e.time==='na'?'미정':KT.format(ts),pp:e.time,tk:e.tk,title:D.nm[e.tk]||e.tk,when:e.time==='pre'?'미국 장 시작 전 발표 (개장 '+KT.format(etMs(e.day,9,30))+' KST 이전)':e.time==='post'?'미국 장 마감 후 발표 ('+KT.format(etMs(e.day,16,0))+' KST 이후)':'발표 시간 미정',us:e.day,fq:e.fq,est:e.est,ly:e.ly,n:e.n,eps:e.eps,sur:e.sur,done:e.eps!==''})});
+EV.sort(function(a,b){return a.ts-b.ts||(b.imp||0)-(a.imp||0)});
+var BYD={};EV.forEach(function(e){(BYD[e.day]=BYD[e.day]||[]).push(e)});
+var TODAY=KD.format(new Date()),MINK=EV.length?EV[0].day:TODAY,MAXK=EV.length?EV[EV.length-1].day:TODAY;
+function evs(day){return(BYD[day]||[]).filter(function(e){return e.k===S.tab&&(S.tab!=='econ'||e.imp>=S.I)})}
+function card(e){var past=e.ts<NOW?' past':'';if(e.k==='econ'){return'<div class="wc i'+e.imp+past+'"><div class="wt"><span class="tm">'+esc(e.t)+'</span><span class="st">'+'★'.repeat(e.imp)+'</span><b>'+esc(e.title)+'</b></div><div class="en">'+esc(e.en)+(e.et?' · 미국 '+e.et+' ET':'')+'</div><div class="vals"><span>예상 <b>'+esc(e.c||'-')+'</b></span><span>이전 <b>'+esc(e.p||'-')+'</b></span><span>실제 <b>'+(e.done?esc(e.a):(e.ts<NOW?'집계 대기':'-'))+'</b></span>'+(e.done?cmp(e.a,e.c):'')+'</div></div>'}
+var sr=e.sur!==''&&!isNaN(parseFloat(e.sur))?parseFloat(e.sur):null,res=e.done?(sr==null?cmp(e.eps,e.est):(sr>0?'<span class="bg up">상회 +'+sr.toFixed(1)+'%</span>':sr<0?'<span class="bg dn">하회 '+sr.toFixed(1)+'%</span>':'<span class="bg eq">부합</span>')):'';
+return'<div class="wc e'+past+'"><div class="wt"><span class="tm '+(e.pp==='pre'?'pre':e.pp==='post'?'post':'na')+'">'+esc(e.t)+'</span><a href="'+esc(D.lk[e.tk]||'#')+'"><b>'+esc(e.title)+'</b></a><span class="en">'+esc(e.tk)+'</span></div><div class="en">'+esc(e.when)+' · 미국 현지 '+(+e.us.slice(5,7))+'/'+(+e.us.slice(8))+(e.fq?' · '+esc(e.fq)+' 분기':'')+'</div><div class="vals"><span>예상 EPS <b>'+esc(e.est||'-')+'</b></span><span>전년 <b>'+esc(e.ly||'-')+'</b></span><span>애널리스트 <b>'+esc(e.n||'-')+'</b></span>'+(e.done?'<span>실제 <b>'+esc(e.eps)+'</b></span>'+res:'')+'</div></div>'}
+function lab(k){var p=k.split('-'),w=new Date(k+'T12:00:00+09:00').getDay();return +p[1]+'월 '+ +p[2]+'일 ('+WD[w]+')'}
+function ctl(){return'<button class="'+(S.tab==='earn'?'on':'')+'" data-tab="earn">실적</button><button class="'+(S.tab==='econ'?'on':'')+'" data-tab="econ">경제지표</button>'}
+function ictl(){return S.tab==='econ'?'<span class="grp"><button class="'+(S.I===3?'on':'')+'" data-imp="3">핵심 ★★★</button><button class="'+(S.I===2?'on':'')+'" data-imp="2">주요 ★★+</button><button class="'+(S.I===1?'on':'')+'" data-imp="1">전체</button></span>':''}
+function wire(root,redraw){root.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){S.tab=b.dataset.tab;redraw()}});root.querySelectorAll('[data-imp]').forEach(function(b){b.onclick=function(){S.I=+b.dataset.imp;redraw()}})}
+function range(){return'수집 범위 '+lab(MINK)+' ~ '+lab(MAXK)+' · 시간은 모두 한국시간(KST)입니다'}
+"""
+CALA_JS = """var C=document.getElementById('chd'),B=document.getElementById('cbody'),M=document.getElementById('cdm'),MB=document.getElementById('cdb'),t0=TODAY.split('-'),Y=+t0[0],Mo=+t0[1]-1;
+function openDay(k){var l=evs(k);MB.innerHTML='<div class="hd"><b>'+lab(k)+'</b><button class="x" id="cdx" aria-label="닫기">×</button></div>'+(l.length?l.map(card).join(''):'<div class="en">이 날은 표시할 일정이 없습니다.</div>');M.classList.add('open');document.getElementById('cdx').onclick=function(){M.classList.remove('open')}}
+M.addEventListener('click',function(e){if(e.target===M)M.classList.remove('open')});document.addEventListener('keydown',function(e){if(e.key==='Escape')M.classList.remove('open')});
+function draw(){C.innerHTML='<button class="sq" id="pv" aria-label="이전 달">‹</button><span class="ttl">'+Y+'년 '+(Mo+1)+'월</span><button class="sq" id="nx" aria-label="다음 달">›</button><button id="tdy">오늘</button><span class="grp">'+ctl()+'</span><span class="sp"></span>'+ictl();
+document.getElementById('pv').onclick=function(){Mo--;if(Mo<0){Mo=11;Y--}draw()};document.getElementById('nx').onclick=function(){Mo++;if(Mo>11){Mo=0;Y++}draw()};document.getElementById('tdy').onclick=function(){Y=+t0[0];Mo=+t0[1]-1;draw()};wire(C,draw);
+var first=new Date(Date.UTC(Y,Mo,1)),dim=new Date(Date.UTC(Y,Mo+1,0)).getUTCDate(),off=(first.getUTCDay()+6)%7,rows=Math.ceil((off+dim)/7),h='',N=4;
+['월','화','수','목','금','토','일'].forEach(function(w){h+='<div class="wh">'+w+'</div>'});
+for(var i=0;i<rows*7;i++){var d=i-off+1;if(d<1||d>dim){h+='<div class="dc out"></div>';continue}var k=Y+'-'+String(Mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),l=evs(k);
+h+='<div class="dc'+(i%7>4?' we':'')+(k===TODAY?' td':'')+'" data-k="'+k+'"><div class="dn">'+d+'</div>';
+l.slice(0,N).forEach(function(e){if(e.k==='econ')h+='<div class="cbar i'+e.imp+(e.ts<NOW?' past':'')+'"><span class="tm">'+esc(e.t)+'</span><b>'+esc(e.title)+'</b></div>';else h+='<div class="cbar e'+(e.ts<NOW?' past':'')+'"><span class="tm '+(e.pp==='pre'?'pre':e.pp==='post'?'post':'na')+'">'+esc(e.t)+'</span><b>'+esc(e.tk)+'</b></div>'});
+if(l.length>N)h+='<button class="more" type="button">+'+(l.length-N)+'개</button>';if(l.length)h+='<span class="cn">'+l.length+'</span>';h+='</div>'}
+B.innerHTML='<div class="cdh">'+range()+' · 날짜를 누르면 상세가 열립니다</div><div class="mg">'+h+'</div>';B.querySelectorAll('.dc[data-k]').forEach(function(c){c.onclick=function(){openDay(c.dataset.k)}})}
+draw();"""
+CALB_JS = """var C=document.getElementById('chd'),B=document.getElementById('cbody'),t0=TODAY.split('-'),wk=0;
+function mon(k,w){var p=k.split('-'),d=new Date(Date.UTC(+p[0],+p[1]-1,+p[2],12)),o=(d.getUTCDay()+6)%7;return new Date(d.getTime()+(w*7-o)*864e5)}
+function draw(){var s=mon(TODAY,wk),days=[];for(var i=0;i<7;i++)days.push(new Date(s.getTime()+i*864e5).toISOString().slice(0,10));
+C.innerHTML='<button class="sq" id="pv" aria-label="이전 주">‹</button><span class="ttl">'+(+days[0].slice(5,7))+'/'+(+days[0].slice(8))+' – '+(+days[6].slice(5,7))+'/'+(+days[6].slice(8))+'</span><button class="sq" id="nx" aria-label="다음 주">›</button><button id="tdy">이번 주</button><span class="grp">'+ctl()+'</span><span class="sp"></span>'+ictl();
+document.getElementById('pv').onclick=function(){wk--;draw()};document.getElementById('nx').onclick=function(){wk++;draw()};document.getElementById('tdy').onclick=function(){wk=0;draw()};wire(C,draw);
+var h='<div class="cdh">'+range()+'</div><div class="wk">';
+days.forEach(function(k,i){var l=evs(k);h+='<div class="wd'+(k===TODAY?' td':'')+(i>4?' we':'')+'"><div class="wh2"><b>'+WD[(i+1)%7]+' '+(+k.slice(8))+'</b><span>'+(k===TODAY?'오늘 · ':'')+(l.length?l.length+'건':'')+'</span></div><div class="bd">'+(l.length?l.map(card).join(''):'<div class="emp">일정 없음</div>')+'</div></div>'});
+B.innerHTML=h+'</div>'}
+draw();"""
+def cal_draft(kind):
+    nm, js, ttl = ("calendar-a.html", CALA_JS, "달력 A · 월간 격자") if kind == "a" else ("calendar-b.html", CALB_JS, "달력 B · 주간 보드")
+    data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
+    links = '<div class="cdl"><a href="calendar.html">목록형</a>' + "".join(f'<a class="{"on" if h == nm else ""}" href="{h}">{t}</a>' for h, t in [("calendar-a.html", "달력 A · 월간 격자"), ("calendar-b.html", "달력 B · 주간 보드")]) + '</div>'
+    inner = (f'<div class="calw"><div class="cph"><span class="t">일정 · {ttl}</span><span class="a">초안 — 마음에 드는 쪽을 알려 주세요</span></div>{links}<div class="chd" id="chd"></div><div id="cbody"></div>'
+             '<div class="nwnote">실적 시각 표기: 미국 장 시작 전 발표는 개장 시각(KST) 기준 "전", 장 마감 후 발표는 마감 시각(KST) 기준 "후"로 표시하며 실제 발표 시각과 다를 수 있습니다(시간 미정은 "미정"). 경제지표는 발표 시각을 한국시간으로 환산했습니다. 데이터 출처: Nasdaq. 실적은 이 사이트에 등록된 미국 상장 기업만 보여줍니다.</div></div>'
+             '<div class="cdm" id="cdm"><div class="cdb" id="cdb"></div></div>'
+             '<script>(function(){' + CALX_JS.replace("__DATA__", data) + js + '})();</script>')
+    open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("일정 — " + ttl, inner, "calendar"))
+cal_draft("a"); cal_draft("b")
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
