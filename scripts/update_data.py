@@ -513,8 +513,8 @@ def update_funds(cta):
 
 # ---------------- 의원 주식 거래 (STOCK Act PTR, 하원 공식 공시) ----------------
 NAMED_MEMBERS = [  # (성, 이름 앞부분, 표시 이름)
-    ("Pelosi", "Nancy", "낸시 펠로시"), ("Khanna", "Ro", "로 카나"), ("Gottheimer", "Josh", "조시 가트하이머"),
-    ("McCaul", "Michael", "마이클 맥콜"), ("Crenshaw", "Dan", "댄 크렌쇼"), ("Greene", "Marjorie", "마저리 테일러 그린"),
+    ("Pelosi", "Nancy", "낸시 펠로시"), ("Gottheimer", "Josh", "조시 가트하이머"),
+    ("Crenshaw", "Dan", "댄 크렌쇼"), ("Greene", "Marjorie", "마저리 테일러 그린"),
     ("Hern", "Kevin", "케빈 헌"), ("McClain", "Lisa", "리사 맥클레인"), ("Bresnahan", "Rob", "롭 브레스나핸"),
     ("Moskowitz", "Jared", "재러드 모스코위츠"), ("Suozzi", "Thomas", "톰 수오지"), ("Fallon", "Pat", "팻 팰런"),
 ]
