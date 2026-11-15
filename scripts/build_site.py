@@ -188,10 +188,10 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통 · 시총 $467B", "https://www.costco.com"),
  ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "양자", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅 · 시총 $14.0B", "https://ionq.com"),
  ("ibm.html", "ibm", [CONTENT + "/ibm/body.html"], "IBM 기업분석", "IBM", "International Business Machines Corporation", "소프트웨어", "현금 창출 · 조정 PEG 1.65 · CTA +0.50", "#eef2ff", "IT 서비스·소프트웨어 · 시총 $234B", "https://www.ibm.com"),
- ("unusual-machines.html", "umac", [CONTENT + "/umac/body.html"], "Unusual Machines 기업분석", "UMAC", "Unusual Machines, Inc.", "우주항공", "미국산 드론 부품 · 매출 +551% · CTA -0.50", "#f0fdf4", "드론 부품 · 시총 $6억", "https://unusualmachines.com"),
- ("joby.html", "joby", [CONTENT + "/joby/body.html"], "Joby Aviation 기업분석", "JOBY", "Joby Aviation, Inc.", "우주항공", "에어택시 · 현금 $22억 · CTA -0.75", "#f0f9ff", "전기 에어택시 · 시총 $52억", "https://www.jobyaviation.com"),
- ("archer.html", "achr", [CONTENT + "/achr/body.html"], "Archer Aviation 기업분석", "ACHR", "Archer Aviation Inc.", "우주항공", "에어택시·방산 · 현금 $13.5억 · CTA -1.00", "#f5f3ff", "전기 에어택시 · 시총 $32억", "https://archer.com"),
- ("ondas.html", "onds", [CONTENT + "/onds/body.html"], "Ondas 기업분석", "ONDS", "Ondas Inc.", "우주항공", "자율 드론 방산 · 매출 +100% · CTA -1.00", "#fff7ed", "자율 드론·방산 · 시총 $30억", "https://www.ondas.com"),
+ ("unusual-machines.html", "umac", [CONTENT + "/umac/body.html"], "Unusual Machines 기업분석", "UMAC", "Unusual Machines, Inc.", "드론", "미국산 드론 부품 · 매출 +551% · CTA -0.50", "#f0fdf4", "드론 부품 · 시총 $6억", "https://unusualmachines.com"),
+ ("joby.html", "joby", [CONTENT + "/joby/body.html"], "Joby Aviation 기업분석", "JOBY", "Joby Aviation, Inc.", "드론", "에어택시 · 현금 $22억 · CTA -0.75", "#f0f9ff", "전기 에어택시 · 시총 $52억", "https://www.jobyaviation.com"),
+ ("archer.html", "achr", [CONTENT + "/achr/body.html"], "Archer Aviation 기업분석", "ACHR", "Archer Aviation Inc.", "드론", "에어택시·방산 · 현금 $13.5억 · CTA -1.00", "#f5f3ff", "전기 에어택시 · 시총 $32억", "https://archer.com"),
+ ("ondas.html", "onds", [CONTENT + "/onds/body.html"], "Ondas 기업분석", "ONDS", "Ondas Inc.", "드론", "자율 드론 방산 · 매출 +100% · CTA -1.00", "#fff7ed", "자율 드론·방산 · 시총 $30억", "https://www.ondas.com"),
  ("ge-vernova.html", "gev", [CONTENT + "/gev/body.html"], "GE Vernova 기업분석", "GEV", "GE Vernova Inc.", "전력·에너지", "수주잔고 $1,970억 · PER 21배 · CTA -0.75", "#ecfdf5", "발전 설비 · 시총 $213B", "https://www.gevernova.com"),
  ("constellation.html", "ceg", [CONTENT + "/ceg/body.html"], "Constellation Energy 기업분석", "CEG", "Constellation Energy Corporation", "전력·에너지", "원전·전력 · 조정 PEG 0.68 · CTA +0.25", "#f7fee7", "전력 · 시총 $99B", "https://www.constellationenergy.com"),
  ("bloom-energy.html", "be", [CONTENT + "/be/body.html"], "Bloom Energy 기업분석", "BE", "Bloom Energy Corporation", "전력·에너지", "온사이트 전력 · 매출 +138% · CTA -0.50", "#fef2f2", "연료전지 · 시총 $57B", "https://www.bloomenergy.com"),
@@ -202,7 +202,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("jnj.html", "jnj", [CONTENT + "/jnj/body.html"], "Johnson & Johnson 기업분석", "JNJ", "Johnson & Johnson", "헬스케어", "제약·의료기기 · 조정 PEG 10.3 · CTA +1.00", "#fff7ed", "제약·의료기기 · 시총 $688B", "https://www.jnj.com"),
  ("illumina.html", "ilmn", [CONTENT + "/ilmn/body.html"], "Illumina 기업분석", "ILMN", "Illumina, Inc.", "헬스케어", "시퀀싱 · 조정 PEG 2.19 · CTA +0.25", "#f5f3ff", "유전체 시퀀싱 · 시총 $31B", "https://www.illumina.com"),
  ("abbvie.html", "abbv", [CONTENT + "/abbv/body.html"], "AbbVie 기업분석", "ABBV", "AbbVie Inc.", "헬스케어", "제약 · 조정 PEG 0.64 · CTA +1.00", "#f7fee7", "제약 · 시총 $522B", "https://www.abbvie.com"),
- ("boeing.html", "ba", [CONTENT + "/ba/body.html"], "Boeing 기업분석", "BA", "The Boeing Company", "우주항공", "항공기 · 손실 축소 · CTA -1.00", "#fef2f2", "항공우주 · 시총 $136B", "https://www.boeing.com"),
+ ("boeing.html", "ba", [CONTENT + "/ba/body.html"], "Boeing 기업분석", "BA", "The Boeing Company", "방산", "항공기 · 손실 축소 · CTA -1.00", "#fef2f2", "항공우주 · 시총 $136B", "https://www.boeing.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
