@@ -196,6 +196,45 @@ def update_cta(cta):
             traceback.print_exc()
 
 
+def update_mcap(cta):
+    """시가총액(USD)을 data/mcap.json에 저장 — 사이트 기업 목록 정렬에 쓴다. 미국 종목은 CNBC, 한국 종목은 야후(원) ÷ 환율. 실패한 종목은 이전 값 유지."""
+    old = load("mcap.json", {"usd": {}})
+    usd = dict(old.get("usd", {}))
+    tks = [t for t in cta["tickers"] if not t.isdigit()]
+
+    def num(v):
+        v = str(v or "").replace(",", "").strip()
+        mult = {"T": 1e12, "B": 1e9, "M": 1e6, "K": 1e3}
+        try:
+            return float(v[:-1]) * mult[v[-1]] if v and v[-1] in mult else float(v)
+        except ValueError:
+            return None
+
+    try:
+        url = "https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol"
+        for i in range(0, len(tks) + 1, 100):
+            chunk = tks[i:i + 100] + (["KRW="] if i + 100 >= len(tks) else [])
+            r = requests.get(url, headers=UA, timeout=30, params={"requestMethod": "itv", "noform": 1, "partnerId": 2, "fund": 1, "output": "json", "symbols": "|".join(chunk)})
+            q = r.json()["FormattedQuoteResult"]["FormattedQuote"]
+            for x in ([q] if isinstance(q, dict) else q):
+                if x["symbol"] == "KRW=":
+                    usd["_fx"] = num(x.get("last"))
+                elif num(x.get("mktcapView")):
+                    usd[x["symbol"]] = round(num(x["mktcapView"]))
+    except Exception:
+        traceback.print_exc()
+    fx = usd.get("_fx") or 1335.0
+    for tk in [t for t in cta["tickers"] if t.isdigit()]:
+        try:
+            cap = yf.Ticker(tk + ".KS").fast_info["market_cap"]
+            if cap:
+                usd[tk] = round(float(cap) / fx)
+        except Exception:
+            traceback.print_exc()
+    save("mcap.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d"), "usd": usd})
+    print("시가총액", len(usd), "개")
+
+
 if __name__ == "__main__":
     now = dt.datetime.now(KST)
     m = load("market.json", {"series": {}, "snap": {}, "fg": {}})
@@ -203,6 +242,7 @@ if __name__ == "__main__":
     update_market(m)
     update_fg(m)
     update_cta(cta)
+    update_mcap(cta)
     last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
     m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
     m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"

@@ -209,6 +209,13 @@ def _price(tk):
     if "close" not in e: return ("-", "", "")
     ch = e.get("chg", 0)
     return (fmt(e["close"], e.get("cur", "$")), f"{ch:+.2f}%", "up" if ch > 0 else ("down" if ch < 0 else ""))
+# 시가총액(USD) 큰 순서로 정렬 — data/mcap.json은 매일 update_data.py가 갱신한다. 값이 없는 새 종목은 맨 뒤(등록 순서 유지).
+try:
+    _CAP = json.load(open(os.path.join(ROOT, "data", "mcap.json"), encoding="utf-8")).get("usd", {})
+except (OSError, ValueError):
+    _CAP = {}
+REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
+
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
 EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX"}
 
