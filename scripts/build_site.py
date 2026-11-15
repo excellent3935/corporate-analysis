@@ -183,7 +183,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("coherent.html", "cohr", [CONTENT + "/cohr/body.html"], "Coherent 기업분석", "COHR", "Coherent Corp.", "광통신", "광통신 · FCF -$18억", "#eff6ff", "광 트랜시버", "https://www.coherent.com"),
  ("strategy.html", "mstr", [CONTENT + "/mstr/body.html"], "Strategy 기업분석", "MSTR", "Strategy Inc.", "코인", "BTC 848,517개 · mNAV 0.77", "#f5f3ff", "비트코인 보유", "https://www.strategy.com"),
  ("unitedhealth.html", "unh", [CONTENT + "/unh/body.html"], "UnitedHealth 기업분석", "UNH", "UnitedHealth Group Incorporated", "헬스케어", "이익 V자 회복 · MCR 88.4%", "#f0f9ff", "건강보험·의료", "https://www.unitedhealthgroup.com"),
- ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "영업이익률 33% · PEG 2.3 · 사상 최고가", "#fef2f2", "음료", "https://www.coca-colacompany.com"),
+ ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "3Q 판매량 +5% · PEG 2.34(조정 약 2.5) · CTA +1.00", "#fef2f2", "음료", "https://www.coca-colacompany.com"),
  ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통", "https://corporate.walmart.com"),
  ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통", "https://www.costco.com"),
  ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "양자", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅", "https://ionq.com"),
@@ -241,6 +241,10 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("analogdevices.html", "adi", [CONTENT + "/adi/body.html"], "Analog Devices 기업분석", "ADI", "Analog Devices, Inc.", "반도체", "FQ3 매출 +40% · PEG 0.42(조정 약 0.63) · CTA +0.50", "#eff6ff", "아날로그·혼합신호 반도체", "https://www.analog.com"),
  ("merck.html", "mrk", [CONTENT + "/mrk/body.html"], "Merck 기업분석", "MRK", "Merck & Co., Inc.", "헬스케어", "3Q 매출 +5% · PEG 산출 불가 · CTA +1.00", "#f0fdfa", "제약·백신", "https://www.merck.com"),
  ("moderna.html", "mrna", [CONTENT + "/mrna/body.html"], "Moderna 기업분석", "MRNA", "Moderna, Inc.", "헬스케어", "3Q 첫 흑자 · 적자로 PEG 산출 불가 · CTA +0.75", "#fff1f2", "mRNA 백신·치료제", "https://www.modernatx.com"),
+ ("target.html", "tgt", [CONTENT + "/tgt/body.html"], "Target 기업분석", "TGT", "Target Corporation", "소비재", "2Q 비교매출 +3.8% · PEG 1.35(환급 제외 산출 불가) · CTA +0.75", "#fef2f2", "대형 할인점", "https://corporate.target.com"),
+ ("humana.html", "hum", [CONTENT + "/hum/body.html"], "Humana 기업분석", "HUM", "Humana Inc.", "헬스케어", "3Q 매출 +26% · PEG 산출 불가 · CTA +1.00", "#f0fdfa", "메디케어 보험", "https://www.humana.com"),
+ ("uber.html", "uber", [CONTENT + "/uber/body.html"], "Uber 기업분석", "UBER", "Uber Technologies, Inc.", "소비재", "3Q 예약액 +20% · GAAP PEG 산출 불가(비GAAP 추정 약 0.64) · CTA -1.00", "#f3f4f6", "승차·배달 플랫폼", "https://www.uber.com"),
+ ("intuit.html", "intu", [CONTENT + "/intu/body.html"], "Intuit 기업분석", "INTU", "Intuit Inc.", "소프트웨어", "FY26 매출 +14% · PEG 1.01(비GAAP 약 0.70) · CTA 0.00", "#eff6ff", "세금·회계 소프트웨어", "https://www.intuit.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -255,10 +259,10 @@ except (OSError, ValueError):
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
+EXCH = {"TGT": "NYSE", "HUM": "NYSE", "UBER": "NYSE", "NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
-LOGO = {"ON": "on-semiconductor", "ADI": "analog-devices", "MRK": "merck-and-co", "MRNA": "moderna", "NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
+LOGO = {"TGT": "target", "HUM": "humana", "UBER": "uber", "INTU": "intuit", "ON": "on-semiconductor", "ADI": "analog-devices", "MRK": "merck-and-co", "MRNA": "moderna", "NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
         "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave",
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
@@ -789,6 +793,11 @@ ADJ_PEG = {
     "ADI": {"mode": "side", "note": "조정 EPS 기준 PEG 약 0.63"},
     "MRK": {"mode": "none", "note": "GAAP·조정 EPS 모두 감소(취득 IPR&D 비용)해 산출 불가"},
     "MRNA": {"mode": "none", "note": "TTM 순손실이라 산출 불가"},
+    "TGT": {"mode": "side", "note": "트레이딩뷰 PEG 1.35는 관세 환급 $1.65가 포함된 EPS 기준. 환급 제외 TTM EPS가 전년보다 낮아 환급 제외 PEG는 산출 불가"},
+    "KO": {"mode": "side", "note": "조정 EPS 기준 PEG 약 2.5(GAAP 기준 2.34)"},
+    "HUM": {"mode": "none", "note": "GAAP·조정 EPS 모두 감소해 산출 불가"},
+    "UBER": {"mode": "side", "note": "GAAP EPS 성장 -78%(2025년 세금 혜택 기저)로 산출 불가. 비GAAP EPS 기준 PEG 약 0.64(성장률 +35% 가정, 추정)"},
+    "INTU": {"mode": "side", "note": "트레이딩뷰 PEG 1.01은 GAAP 기준. FY26 비GAAP EPS 기준 PEG 약 0.70"},
     "LITE": {"mode": "main", "peg": 0.17, "per": "50.4배", "gr": "+299%", "note": "조정 EPS 기준(내 계산, 직전 4분기 저기저로 기저효과 큼). GAAP은 FQ4'26 일회성 비현금 비용으로 산출 불가"},
     "PANW": {"mode": "main", "peg": 5.7, "per": "84.1배", "gr": "+14.7%", "note": "조정 EPS 기준 PEG(내 계산). GAAP은 인수 비용으로 EPS가 감소해 산출 불가"},
     "NFLX": {"mode": "gain", "peg": 0.96, "per": "21.1배", "gr": "+22%", "why": "WBD 위약금 $28억 세후 약 $0.53 제외, 세율·주식수는 내 가정"},
@@ -1012,7 +1021,7 @@ Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)
 _LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
 PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
 
-KO_ALIAS = {"ON": "온세미 온세미컨덕터 on semiconductor", "ADI": "아날로그 디바이시스 아날로그디바이스", "MRK": "머크 엠에스디 msd 키트루다", "MRNA": "모더나 엠알엔에이", "MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
+KO_ALIAS = {"TGT": "타깃 타겟 target", "HUM": "휴매나 후마나 humana 메디케어", "UBER": "우버 uber 승차 배달", "INTU": "인튜이트 인투이트 intuit 터보택스 퀵북스", "ON": "온세미 온세미컨덕터 on semiconductor", "ADI": "아날로그 디바이시스 아날로그디바이스", "MRK": "머크 엠에스디 msd 키트루다", "MRNA": "모더나 엠알엔에이", "MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
