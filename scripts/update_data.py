@@ -449,6 +449,7 @@ def update_funds(cta):
         if t:
             by_name.setdefault(_norm(t), []).append(tk)
     ov = {_norm(k): v for k, v in NAME_OVERRIDE.items()}
+    SIG = f"{MAP_VER}-" + __import__("hashlib").md5(",".join(sorted(ours)).encode()).hexdigest()[:8]  # 등록 종목이 바뀌면 저장된 펀드를 다시 계산
 
     def tick_of(name, cls):
         k = _norm(name)
@@ -470,7 +471,7 @@ def update_funds(cta):
             if not fl:
                 continue
             per, filed, acc = fl[0]
-            if res.get(cik, {}).get("acc") == acc and res[cik].get("mv") == MAP_VER:
+            if res.get(cik, {}).get("acc") == acc and res[cik].get("mv") == SIG:
                 print(f"{label}: 변경 없음 ({per})"); continue
             cur = _fund_table(cik, acc); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
@@ -499,7 +500,7 @@ def update_funds(cta):
                         r["est"] = _qavg(ours[tk], per)
                     except Exception:
                         pass
-            res[cik] = {"mv": MAP_VER, "name": label, "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "", "total": round(tot), "ptotal": round(ptot), "rows": rows, "prows": prows}
+            res[cik] = {"mv": SIG, "name": label, "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "", "total": round(tot), "ptotal": round(ptot), "rows": rows, "prows": prows}
             print(f"{label}: {per} 보유 {len(cur)}종목 중 등록 종목 {len(rows)}개")
         except Exception:
             print("[실패]", label)
@@ -570,14 +571,14 @@ def update_congress(cta):
     print("대상 PTR 공시", len(filings), "건")
     new = 0
     for ko, doc, fdate, yr in filings:
-        if doc in done:
+        if done.get(doc, {}).get("full"):
             continue
         try:
             r = requests.get(f"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{yr}/{doc}.pdf", headers=UAC, timeout=60)
             r.raise_for_status()
             text = "\n".join((pg.extract_text() or "") for pg in PdfReader(io.BytesIO(r.content)).pages)
             rows = parse_ptr_text(text)
-            done[doc] = {"m": ko, "f": fdate, "yr": yr, "rows": [x for x in rows if x["tk"] in ours], "all": len(rows)}
+            done[doc] = {"m": ko, "f": fdate, "yr": yr, "full": True, "rows": rows, "all": len(rows)}
             new += 1
             time.sleep(0.4)
         except Exception:
@@ -586,6 +587,8 @@ def update_congress(cta):
     t = {}
     for doc, v in done.items():
         for x in v["rows"]:
+            if x["tk"] not in ours:
+                continue
             t.setdefault(x["tk"], []).append(dict(x, m=v["m"], doc=doc, yr=v["yr"], f=v["f"]))
     for tk in t:
         t[tk].sort(key=lambda x: x["d"], reverse=True)
