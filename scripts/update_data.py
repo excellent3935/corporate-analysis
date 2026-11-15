@@ -289,7 +289,7 @@ def update_targets(cta):
 
 
 # ---------------- 내부자 거래 (Form 4) · 네임드 펀드 13F ----------------
-SEC_UA = {"User-Agent": "CorporateAnalysisSite/1.0 (https://github.com/excellent3935/corporate-analysis)", "Accept-Encoding": "gzip, deflate"}
+SEC_UA = {"User-Agent": "CorporateAnalysis excellent3935@users.noreply.github.com", "Accept-Encoding": "gzip, deflate"}
 NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름에 들어 있어야 함)
     ("1067983", "버크셔 해서웨이", "BERKSHIRE"), ("1350694", "브리지워터", "BRIDGEWATER"), ("1423053", "시타델", "CITADEL"),
     ("1037389", "르네상스 테크놀로지스", "RENAISSANCE"), ("1336528", "퍼싱 스퀘어", "PERSHING"), ("1167483", "타이거 글로벌", "TIGER GLOBAL"),
