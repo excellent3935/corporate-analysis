@@ -511,6 +511,87 @@ def update_funds(cta):
         print("  후보", tk, titles.get(tk), "→", sorted(n for n in issuers if n.upper().startswith(w))[:4])
 
 
+# ---------------- 의원 주식 거래 (STOCK Act PTR, 하원 공식 공시) ----------------
+NAMED_MEMBERS = [  # (성, 이름 앞부분, 표시 이름)
+    ("Pelosi", "Nancy", "낸시 펠로시"), ("Khanna", "Ro", "로 카나"), ("Gottheimer", "Josh", "조시 가트하이머"),
+    ("McCaul", "Michael", "마이클 맥콜"), ("Crenshaw", "Dan", "댄 크렌쇼"), ("Greene", "Marjorie", "마저리 테일러 그린"),
+    ("Hern", "Kevin", "케빈 헌"), ("McClain", "Lisa", "리사 맥클레인"), ("Bresnahan", "Rob", "롭 브레스나핸"),
+    ("Moskowitz", "Jared", "재러드 모스코위츠"), ("Suozzi", "Thomas", "톰 수오지"), ("Fallon", "Pat", "팻 팰런"),
+]
+_PTR_RE = None
+
+
+def parse_ptr_text(text):
+    """PTR PDF 텍스트 → [{o: 본인/배우자/자녀/공동, ticker, ty: P|S|SP|E, d: 거래일, n: 통지일, amt}] (주식 [ST]만)"""
+    import re
+    global _PTR_RE
+    if _PTR_RE is None:
+        _PTR_RE = re.compile(r"(.{0,220}?)\(([A-Z][A-Z0-9.\-]{0,5})\)\s*\[ST\]\s*(P|S|E)(\s*\(partial\))?\s+(\d{2}/\d{2}/\d{4})\s+(\d{2}/\d{2}/\d{4})\s+(\$[\d,]+)\s*-?\s*(\$[\d,]+)?")
+    t = re.sub(r"\s+", " ", text)
+    out = []
+    for m in _PTR_RE.finditer(t):
+        pre, tk, ty, part, d, n, a1, a2 = m.groups()
+        own = re.findall(r"(?:^|\s)(SP|DC|JT)(?=\s)", pre[-110:])
+        iso = lambda x: f"{x[6:]}-{x[:2]}-{x[3:5]}"
+        out.append({"o": {"SP": "배우자", "DC": "자녀", "JT": "공동"}.get(own[-1], "본인") if own else "본인", "tk": tk, "ty": "SP" if (ty == "S" and part) else ty,
+                    "d": iso(d), "n": iso(n), "amt": a1 + (" - " + a2 if a2 else "")})
+    return out
+
+
+def update_congress(cta):
+    """네임드 하원의원의 주식 거래(PTR)를 하원 사무처 공시에서 받아 사이트 등록 종목만 data/congress.json에 저장. 문서(DocID)별로 한 번만 처리한다."""
+    import re, time, zipfile, xml.etree.ElementTree as ET
+    old = load("congress.json", {"t": {}, "done": {}})
+    done = dict(old.get("done", {}))
+    ours = {tk for tk, sym in STOCKS.items() if not sym.endswith(".KS")}
+    today = dt.date.today()
+    UAC = {"User-Agent": "CorporateAnalysis (public financial-disclosure reader)"}
+    try:
+        from pypdf import PdfReader
+    except ImportError:
+        print("pypdf 없음 — 의원 거래 건너뜀"); return
+    filings = []
+    for yr in (today.year, today.year - 1):
+        try:
+            r = requests.get(f"https://disclosures-clerk.house.gov/public_disc/financial-pdfs/{yr}FD.zip", headers=UAC, timeout=90)
+            r.raise_for_status()
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            root = ET.fromstring(z.read(f"{yr}FD.xml"))
+        except Exception:
+            print("[하원 색인 실패]", yr); traceback.print_exc(); continue
+        for mem in root.iter("Member"):
+            g = lambda k: (mem.findtext(k) or "").strip()
+            if g("FilingType") != "P":
+                continue
+            for last, first, ko in NAMED_MEMBERS:
+                if g("Last").lower() == last.lower() and g("First").lower().startswith(first.lower()):
+                    filings.append((ko, g("DocID"), g("FilingDate"), yr))
+    print("대상 PTR 공시", len(filings), "건")
+    new = 0
+    for ko, doc, fdate, yr in filings:
+        if doc in done:
+            continue
+        try:
+            r = requests.get(f"https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{yr}/{doc}.pdf", headers=UAC, timeout=60)
+            r.raise_for_status()
+            text = "\n".join((pg.extract_text() or "") for pg in PdfReader(io.BytesIO(r.content)).pages)
+            rows = parse_ptr_text(text)
+            done[doc] = {"m": ko, "f": fdate, "yr": yr, "rows": [x for x in rows if x["tk"] in ours], "all": len(rows)}
+            new += 1
+            time.sleep(0.4)
+        except Exception:
+            print("[PDF 실패]", ko, doc)
+            traceback.print_exc()
+    t = {}
+    for doc, v in done.items():
+        for x in v["rows"]:
+            t.setdefault(x["tk"], []).append(dict(x, m=v["m"], doc=doc, yr=v["yr"], f=v["f"]))
+    for tk in t:
+        t[tk].sort(key=lambda x: x["d"], reverse=True)
+    save("congress.json", {"asof": today.isoformat(), "t": t, "done": done})
+    print("의원 거래: 신규 처리", new, "건 / 누적", len(done), "건 / 등록 종목 거래 있는 종목", len(t), "개 / 파싱 0건 문서", sum(1 for v in done.values() if v["all"] == 0), "건")
+
+
 def update_news(cta):
     """종목별 최신 뉴스를 data/news.json에 저장 — 야후 파이낸스 종목 RSS(영문), 한국 종목은 구글뉴스 한국어 RSS를 추가로 사용. 실패한 종목은 이전 값 유지."""
     import time
@@ -880,8 +961,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "calendar":  # 일정(경제지표 결과·실적 일정)만 갱신
         update_calendar(load("cta.json", {"tickers": {}}))
         sys.exit(0)
-    if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds"):  # 내부자 거래 / 13F만 갱신
-        {"insiders": update_insiders, "funds": update_funds}[sys.argv[1]](load("cta.json", {"tickers": {}}))
+    if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds", "congress"):  # 내부자 거래 / 13F / 의원 거래만 갱신
+        {"insiders": update_insiders, "funds": update_funds, "congress": update_congress}[sys.argv[1]](load("cta.json", {"tickers": {}}))
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신
         update_targets(load("cta.json", {"tickers": {}}))
@@ -900,6 +981,7 @@ if __name__ == "__main__":
     update_targets(cta)
     update_insiders(cta)
     update_funds(cta)
+    update_congress(cta)
     update_news(cta)
     update_briefing("auto")
     update_calendar(cta)

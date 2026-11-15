@@ -629,6 +629,10 @@ try:
 except (OSError, ValueError):
     _INS = {}
 try:
+    _CG = json.load(open(os.path.join(ROOT, "data", "congress.json"), encoding="utf-8")).get("t", {})
+except (OSError, ValueError):
+    _CG = {}
+try:
     _F13 = json.load(open(os.path.join(ROOT, "data", "funds13f.json"), encoding="utf-8")).get("f", {})
 except (OSError, ValueError):
     _F13 = {}
@@ -673,6 +677,17 @@ def smart_box(tk):
         fr.sort(key=lambda x: -x[0]); per = max(f["period"] for f in _F13.values())
         out += (f'<details class="smd"><summary>🏦 네임드 펀드 13F 매매 <span>{len(fr)}개 펀드 · 펀드별 가장 최근 공시 분기 기준</span></summary><div class="tw"><table><tr><th>펀드</th><th>기준</th><th>행동</th><th class="r">보유 주식</th><th class="r">포트폴리오 비중</th><th class="r">평가금액</th><th class="r">추정 평단(매도가)</th></tr>' + "".join(x[1] for x in fr) + '</table></div>'
                 '<div class="nt">13F는 분기 말 기준 보유 내역이라 정확한 매매일·체결가는 알 수 없습니다. 비중은 해당 펀드의 13F 보고 포트폴리오(미국 상장 롱 포지션) 대비이며 전체 운용자산(시드)과는 다릅니다. 추정 평단은 변동이 생긴 분기의 거래량가중 평균가로, 실제 체결가와 다를 수 있는 추정치입니다. 공시는 분기 종료 후 최대 45일 뒤에 나옵니다.</div></details>')
+    cg = _CG.get(tk) or []
+    if cg:
+        _T = {"P": ("매수", "up"), "S": ("매도", "down"), "SP": ("일부 매도", "down"), "E": ("교환", "mu")}
+        tr = ""
+        for x in cg[:12]:
+            lb, cl = _T.get(x["ty"], ("-", "mu"))
+            tr += (f'<tr><td>{x["d"]}</td><td>{x["m"]}</td><td><span class="{cl}">{lb}</span></td><td>{x["o"]}</td><td class="r">{x["amt"]}</td><td>{x["n"]}</td>'
+                   f'<td><a href="https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{x["yr"]}/{x["doc"]}.pdf" target="_blank" rel="noopener">원문</a></td></tr>')
+        names = sorted({x["m"] for x in cg})
+        out += (f'<details class="smd"><summary>🏛 의원 주식 거래 (STOCK Act) <span>{len(cg)}건 · {", ".join(names[:3])}{" 외" if len(names) > 3 else ""}</span></summary><div class="tw"><table><tr><th>거래일</th><th>의원</th><th>구분</th><th>명의</th><th class="r">금액 구간</th><th>공시 통지일</th><th></th></tr>{tr}</table></div>'
+                '<div class="nt">출처: 미 하원 사무처(House Clerk) 정기 거래 보고서. 이름이 알려진 하원의원 일부만 추적하며 상원의원은 포함하지 않습니다. 정확한 금액이 아니라 신고 구간으로만 공개되고, 거래 후 최대 45일 뒤에 공시되므로 실시간 정보가 아닙니다. 명의는 본인·배우자·자녀·공동입니다.</div></details>')
     return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 · 네임드 펀드 매수·매도 기록</span></div>' + out + '</div>' if out else ""
 SM_CSS = """
 .smd{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.smd summary{cursor:pointer;font-size:13.5px;font-weight:700}.smd summary span{font-weight:500;font-size:12px;color:var(--muted);margin-left:8px}
