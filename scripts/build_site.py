@@ -744,9 +744,11 @@ def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩
         except OSError: continue
         for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", h, re.S):
             c = [re.sub(r"<[^>]+>", "", x).strip() for x in re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", tr, re.S)]
-            if len(c) >= 7 and c[0] == tk and re.search(r"배|적자|–", c[3]):
-                m = re.match(r"([0-9]+\.[0-9]+)", c[4])
-                return c[3].split(" (")[0].replace("약 ", ""), (c[6].split(" ")[0] if re.match(r"[+-]", c[6]) else "-"), float(m.group(1)) if m else None, ("의미 제한" in c[4])
+            if len(c) >= 6 and c[0] == tk:
+                o = 1 if len(c) >= 7 else 0  # 구 양식(시가총액 열 포함)은 한 칸 밀려 있음
+                if not re.search(r"배|적자|–", c[2 + o]): continue
+                m = re.match(r"([0-9]+\.[0-9]+)", c[3 + o])
+                return c[2 + o].split(" (")[0].replace("약 ", ""), (c[5 + o].split(" ")[0] if re.match(r"[+-]", c[5 + o]) else "-"), float(m.group(1)) if m else None, ("의미 제한" in c[3 + o])
     return None
 
 # 일회성 비용·비교 기저 왜곡으로 트레이딩뷰 PEG가 없거나 낮게 나온 종목의 조정 EPS 기준 값. 모두 해당 기업 보고서 PEG 심층 표의 수치.
