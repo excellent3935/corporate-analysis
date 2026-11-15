@@ -325,6 +325,123 @@ def translate_items(cur, prev):
     print("번역", sum(1 for x in todo.values() if x.get("tk")), "/", len(todo), "건")
 
 
+# ---------------- 일정: 미국 경제지표 + 등록 기업 실적 발표 (Nasdaq 캘린더) ----------------
+NQ_H = dict(UA, **{"Accept": "application/json, text/plain, */*", "Origin": "https://www.nasdaq.com", "Referer": "https://www.nasdaq.com/"})
+ECON_DROP = __import__("re").compile(r"auction|bill\b|note\b|bond\b|speaks|refinery|distillate|gasoline|heating oil|cushing|crude oil imports|crude runs|production\b", __import__("re").I)
+ECON_KO = [  # (정규식, 한글 이름, 중요도) — 위에서부터 먼저 맞는 항목을 쓴다
+    (r"gdpnow", "애틀랜타 연은 GDPNow", 1), (r"dallas fed", "댈러스 연은 PCE", 1), (r"gdp price", "GDP 물가지수", 2), (r"gdp sales", "GDP 최종판매", 2),
+    (r"core retail", "근원 소매판매", 3), (r"retail sales ex", "소매판매(휘발유·자동차 제외)", 2), (r"core durable", "근원 내구재 주문", 2), (r"durables ex", "내구재 주문(국방 제외)", 2),
+    (r"s&p global composite", "S&P 글로벌 종합 PMI", 2), (r"s&p global manufacturing", "S&P 글로벌 제조업 PMI", 2), (r"s&p global services", "S&P 글로벌 서비스업 PMI", 2),
+    (r"core cpi", "근원 CPI(소비자물가)", 3), (r"\bcpi\b|consumer price", "CPI(소비자물가)", 3),
+    (r"core ppi", "근원 PPI(생산자물가)", 3), (r"\bppi\b|producer price", "PPI(생산자물가)", 3),
+    (r"non[- ]?farm", "비농업 고용자 수", 3), (r"unemployment rate", "실업률", 3),
+    (r"import price", "수입물가지수", 3), (r"export price", "수출물가지수", 2),
+    (r"core pce", "근원 PCE 물가", 3), (r"pce", "PCE 물가", 3), (r"gdp", "GDP", 3), (r"retail sales", "소매판매", 3),
+    (r"interest rate decision|fed funds", "FOMC 금리 결정", 3), (r"fomc.*minutes|minutes", "FOMC 의사록", 3),
+    (r"initial jobless", "신규 실업수당 청구건수", 2), (r"continuing jobless", "연속 실업수당 청구건수", 1), (r"jobless claims 4", "실업수당 4주 평균", 1),
+    (r"ism.*manufactur", "ISM 제조업지수", 2), (r"ism.*service|ism non", "ISM 서비스업지수", 2), (r"pmi", "PMI", 2),
+    (r"jolts|job openings", "JOLTS 구인건수", 2), (r"adp", "ADP 민간고용", 2), (r"average hourly earnings", "평균 시간당 임금", 2),
+    (r"consumer confidence", "소비자신뢰지수", 2), (r"michigan|consumer sentiment", "미시간대 소비자심리", 2),
+    (r"durable goods", "내구재 주문", 2), (r"housing starts", "주택착공", 2), (r"building permits", "건축허가", 2),
+    (r"existing home", "기존주택 매매", 2), (r"new home", "신규주택 매매", 2), (r"industrial production", "산업생산", 2),
+    (r"trade balance", "무역수지", 2), (r"philadelphia", "필라델피아 연은 제조업지수", 2), (r"empire state", "뉴욕 연은 제조업지수", 2),
+    (r"personal (income|spending)", "개인소득·지출", 2), (r"productivity", "생산성", 1), (r"unit labor", "단위노동비용", 1),
+    (r"crude oil inventor", "원유 재고(EIA)", 1), (r"inflation expectations", "기대 인플레이션", 2), (r"capacity utilization", "설비가동률", 1),
+    (r"factory orders", "공장 주문", 1), (r"leading (index|indicators)", "경기선행지수", 1), (r"business inventories", "기업 재고", 1),
+]
+
+
+def _clean(v):
+    v = (v or "").replace("&nbsp;", " ").strip()
+    return v
+
+
+def update_calendar(cta):
+    """data/calendar.json: 미국 경제지표(예상·이전·실제)와 등록 기업 실적 발표 일정. 날짜별로 실패하면 이전 값을 유지한다."""
+    import re
+    import time
+    from zoneinfo import ZoneInfo
+    ET = ZoneInfo("America/New_York")
+    old = load("calendar.json", {"econ": [], "earn": []})
+    today = dt.datetime.now(ET).date()
+    tks = {t for t in cta["tickers"] if not t.isdigit()}
+    kocache = {e["name"]: e["ko"] for e in old.get("econ", []) if e.get("ko")}
+
+    def nq(path, day):
+        for _ in range(2):
+            try:
+                r = requests.get("https://api.nasdaq.com/api/calendar/" + path, headers=NQ_H, params={"date": day}, timeout=20)
+                if r.ok:
+                    return r.json()["data"]
+            except Exception:
+                pass
+            time.sleep(1)
+        return None
+
+    econ, earn, ok_e, ok_n = [], [], 0, 0
+    old_e = {}
+    for e in old.get("econ", []):
+        old_e.setdefault(e["day"], []).append(e)
+    old_n = {}
+    for e in old.get("earn", []):
+        old_n.setdefault(e["day"], []).append(e)
+    for off in range(-3, 15):  # 경제지표: 3일 전 ~ 14일 후
+        d = today + dt.timedelta(days=off)
+        if d.weekday() > 4:
+            continue
+        ds = d.isoformat()
+        data = nq("economicevents", ds)
+        if data is None or "rows" not in data:
+            econ += old_e.get(ds, [])
+            continue
+        ok_e += 1
+        for x in data.get("rows") or []:
+            if x.get("country") != "United States" or ECON_DROP.search(x.get("eventName", "")):
+                continue
+            nm = x["eventName"].strip()
+            m = re.match(r"(\d{1,2}):(\d{2})", x.get("gmt", ""))
+            tm = dt.datetime(d.year, d.month, d.day, int(m.group(1)), int(m.group(2)), tzinfo=ET) if m else dt.datetime(d.year, d.month, d.day, 0, 0, tzinfo=ET)
+            ko, imp = None, 1
+            for pat, k, w in ECON_KO:
+                if re.search(pat, nm, re.I):
+                    ko, imp = k, w
+                    break
+            suf = re.search(r"\((MoM|YoY|QoQ|Q/Q|M/M|Y/Y)\)", nm, re.I)
+            if ko and suf:
+                ko += " (" + {"mom": "MoM", "m/m": "MoM", "yoy": "YoY", "y/y": "YoY", "qoq": "QoQ", "q/q": "QoQ"}[suf.group(1).lower()] + ")"
+            if any(z["ts"] == tm.astimezone(dt.timezone.utc).isoformat(timespec="minutes") and z["name"] == nm and (z["a"], z["c"], z["p"]) == (_clean(x.get("actual")), _clean(x.get("consensus")), _clean(x.get("previous"))) for z in econ):
+                continue  # 완전히 같은 중복 행 제거
+            econ.append({"day": ds, "ts": tm.astimezone(dt.timezone.utc).isoformat(timespec="minutes"), "allday": not m, "name": nm, "ko": ko or kocache.get(nm), "imp": imp,
+                         "a": _clean(x.get("actual")), "c": _clean(x.get("consensus")), "p": _clean(x.get("previous"))})
+        time.sleep(0.2)
+    for off in range(-7, 46):  # 실적: 7일 전 ~ 45일 후
+        d = today + dt.timedelta(days=off)
+        if d.weekday() > 4:
+            continue
+        ds = d.isoformat()
+        data = nq("earnings", ds)
+        if data is None:
+            earn += old_n.get(ds, [])
+            continue
+        ok_n += 1
+        for x in data.get("rows") or []:
+            if x.get("symbol") in tks:
+                tmx = x.get("time", "")
+                earn.append({"day": ds, "tk": x["symbol"], "time": "pre" if "pre" in tmx else ("post" if "after" in tmx else "na"), "fq": x.get("fiscalQuarterEnding", ""),
+                             "est": _clean(x.get("epsForecast")), "n": _clean(x.get("noOfEsts")), "ly": _clean(x.get("lastYearEPS")), "eps": _clean(x.get("eps")), "sur": _clean(x.get("surprise"))})
+        time.sleep(0.2)
+    if not ok_e and not ok_n:
+        print("일정 수집 실패 — 이전 데이터 유지")
+        return
+    for e in econ:  # 영어 이름 번역(캐시)
+        if not e["ko"]:
+            e["ko"] = translate_ko(e["name"]) or ""
+            kocache[e["name"]] = e["ko"]
+    econ.sort(key=lambda e: (e["ts"], -e["imp"]))
+    save("calendar.json", {"asof": dt.datetime.now(KST).isoformat(timespec="minutes"), "econ": econ, "earn": earn})
+    print("일정 경제지표", len(econ), "건 / 실적", len(earn), "건 (성공 일수", ok_e, ok_n, ")")
+
+
 # ---------------- 장전·장후 뉴스 브리핑 (규칙 기반 선별 + 한국어 번역 요약) ----------------
 _HAN = __import__("re").compile("[가-힣]")
 KW = [  # (정규식, 분류, 가중치)
@@ -480,6 +597,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "news":  # 뉴스만 빠르게 갱신 (몇 시간마다)
         update_news(load("cta.json", {"tickers": {}}))
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "calendar":  # 일정(경제지표 결과·실적 일정)만 갱신
+        update_calendar(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "briefing":  # 최신 뉴스 수집 후 브리핑 생성: briefing [auto|pre|post]
         mode = sys.argv[2] if len(sys.argv) > 2 else "auto"
         update_news(load("cta.json", {"tickers": {}}))
@@ -493,6 +613,7 @@ if __name__ == "__main__":
     update_mcap(cta)
     update_news(cta)
     update_briefing("auto")
+    update_calendar(cta)
     last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
     m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
     m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"

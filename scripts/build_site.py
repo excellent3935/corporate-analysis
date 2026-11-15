@@ -536,8 +536,7 @@ html[data-theme=dark] .pill.on,html[data-theme=dark] .ivb.on,html[data-theme=dar
 @media(max-width:560px){.pills{flex-wrap:nowrap}.bsw input{max-width:none}}
 .stabs{display:flex;gap:4px;margin:2px 0 12px;border-bottom:1px solid var(--line)}.stab{font:inherit;font-size:13.5px;font-weight:600;padding:8px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}.stab:before{content:"- ";opacity:.5}.stab.on{color:var(--ink);border-bottom-color:var(--ink)}
 #pegboard td.rk,#pegboard th.rk{width:34px;text-align:center;color:var(--muted);font-size:12px}#pegboard td.rm{font-size:11.5px;color:var(--muted);line-height:1.4;min-width:150px}
-#pegboard .mnote{display:none}
-@media(max-width:640px){#pegboard .xd{display:none}#pegboard .mnote{display:block;font-size:11px;color:var(--muted);line-height:1.4;margin:4px 0 0 31px;white-space:normal;max-width:210px}#pegboard .mnote:empty{display:none}.stab{padding:8px 12px;font-size:13px}}
+@media(max-width:640px){#pegboard{overflow-x:auto;-webkit-overflow-scrolling:touch}#pegboard table{width:max-content;min-width:100%}#pegboard td.rm,#pegboard th:last-child{width:190px;min-width:190px;max-width:190px;white-space:normal}#pegboard th:nth-child(2),#pegboard td:nth-child(2){width:128px;min-width:128px;max-width:128px;white-space:normal;position:sticky;left:0;z-index:2;background:var(--card);box-shadow:1px 0 0 var(--line)}.stab{padding:8px 12px;font-size:13px}}
 .vis{text-align:center;font-size:11px;color:var(--muted);opacity:.7;padding:18px 0 22px;letter-spacing:.02em}
 .cnst{text-align:center;font-size:11.5px;color:var(--muted);margin:-2px 0 6px}.cnst .dn{display:inline-block;width:7px;height:7px;border-radius:50%;background:#dc2626;margin-right:6px}.cnst .live{display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:6px;animation:hmp 1.6s infinite}
 """
@@ -704,7 +703,7 @@ def peg_board():
         if adj_note: rem = (adj_note + ". " + rem).rstrip(". ") if rem and peg is not None else (adj_note if peg is not None or ad.get("mode") != "none" else adj_note)
         star = ""
         live = f" data-q='{tk}'" if tk not in ("005930", "000660") else ""
-        rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a><div class="mnote">{rem}</div></td>'
+        rows.append((peg if peg is not None else 1e9, f'<tr{live}><td class="rk"></td><td><a class="bn" href="{r[0]}"><span class="bl0">{ICON[tk]}</span><span><b>{r[3].replace(" 기업분석","")}</b><br><span class="small">{tk} · {r[6]}</span></span></a></td>'
                      f'<td class="r">{px}<br><span class="{c}">{ch}</span></td><td class="r xd">{per}</td><td class="r xd">{gr}</td><td class="r"><b>{v}</b></td><td>{tg}</td><td class="rm xd">{rem}</td></tr>'))
     rows.sort(key=lambda x: x[0])
     return ('<div class="panel cmp board" id="pegboard"><table><thead><tr><th class="rk">#</th><th>기업</th><th class="r">종가</th><th class="r xd">PER(TTM)</th><th class="r xd">EPS 성장(YoY)</th><th class="r">PEG</th><th>판정</th><th class="xd">비고</th></tr></thead><tbody>'
@@ -778,15 +777,26 @@ if(bs)bs.addEventListener('click',function(e){e.stopPropagation();tog(sp,mp,mq)}
 document.addEventListener('click',function(e){[sp,mp].forEach(function(p){if(p&&p.classList.contains('open')&&!p.contains(e.target))p.classList.remove('open')})});
 document.querySelectorAll('.mp a').forEach(function(a){a.addEventListener('click',function(){[sp,mp].forEach(function(p){p&&p.classList.remove('open')})})});})();</script>"""
 
+CAL_CSS = """
+.cltabs{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 12px}.cltabs .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+.cltb{width:100%;border-collapse:collapse;font-size:14px}.cltb th{text-align:left;padding:8px 9px;border-bottom:2px solid var(--navy);font-weight:600;white-space:nowrap;font-size:13px}.cltb td{padding:9px;border-bottom:1px solid var(--line);vertical-align:top}.cltb .r{text-align:right;white-space:nowrap}.cltb tr.dh td{background:var(--soft);font-weight:700;font-size:13px;padding:7px 9px;border-bottom:1px solid var(--line)}.cltb tr.dh.td td{background:var(--navy);color:var(--card)}
+.cltb .en{display:block;font-size:11.5px;color:var(--muted);margin-top:1px}.cltb .st{color:#d97706;font-size:12px;letter-spacing:-1px}.cltb td.t{white-space:nowrap;color:var(--ink2);font-variant-numeric:tabular-nums}.cltb .pend{color:var(--muted);font-size:12px}
+.cltb .bg{display:inline-block;font-size:11.5px;font-weight:700;border-radius:3px;padding:1px 7px;white-space:nowrap}.cltb .bg.up{background:rgba(34,197,94,.14);color:#15803d}.cltb .bg.dn{background:rgba(239,68,68,.14);color:#b91c1c}.cltb .bg.eq{background:var(--soft);color:var(--ink2)}
+html[data-theme=dark] .cltb .bg.up{color:#4ade80}html[data-theme=dark] .cltb .bg.dn{color:#f87171}.cltb a.cn{text-decoration:none;color:var(--ink);font-weight:600}.cltb a.cn:hover{text-decoration:underline}
+.clwrap{overflow-x:auto}.clempty{padding:28px 0;text-align:center;color:var(--muted);font-size:14px}
+"""
+CSS += CAL_CSS
+
 def gside(on, cur):
     it = "".join(f'<a class="{"on" if r[0] == cur else ""}" href="{r[0]}">{r[3].replace(" 기업분석", "")}</a>' for r in REPORTS)
     c = lambda k: " on" if on == k else ""
     return ('<aside class="side gs">'
             '<div class="gsq"><input id="sq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="기업 검색"></div><div class="sres" id="sr"></div>'
             f'<a class="si{" on" if on == "home" else ""}" data-k="home" href="index.html">🏠 홈</a>'
-            '<a class="si" data-k="m" href="index.html#market">📈 시장 지표</a>'
+            '<a class="si" data-k="m" href="index.html#market">📈 지수선물</a>'
             '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
             f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
+            f'<a class="si{c("calendar")}" href="calendar.html">📅 일정</a>'
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
             f'<a class="si{c("briefing")}" href="briefing.html">🗞 브리핑</a></aside>')
 
@@ -796,12 +806,12 @@ def mpanels(on):
     c = lambda k: " on" if on == k else ""
     return ('<div class="mp" id="spn"><div class="mq"><input id="mq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="기업 검색"></div><div class="sres" id="mr"></div></div>'
             '<div class="mp" id="mpn">'
-            f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 시장 지표</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
-            f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
+            f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 지수선물</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
+            f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
 
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
 {mpanels(on)}
@@ -906,6 +916,44 @@ br_inner = (f'<div class="readwrap">{side("briefing.html")}<div class="read"><di
     '<div class="nwnote" id="brn"></div><div class="nwnote">핵심 기사는 사람이 고르지 않고 규칙으로 자동 선별합니다. 종목 시가총액, 실적·인수합병·규제·경영진·애널리스트·급등락 같은 키워드, 출처 신뢰도, 여러 종목에 걸친 기사 여부로 점수를 매기고, 투자 권유성 기사와 중복 기사는 낮추거나 제외합니다. 한국어 문장은 번역이므로 정확한 내용은 원문을 확인하세요. 투자 조언이 아닙니다.</div>'
     '</div></div>' + BR_JS.replace("__DATA__", _bd))
 open(f"{OUT}/briefing.html", "w", encoding="utf-8").write(shell("뉴스 브리핑 — Corporate Analysis", br_inner, "briefing"))
+
+# --------------- calendar page ---------------
+try:
+    _CAL = json.load(open(os.path.join(ROOT, "data", "calendar.json"), encoding="utf-8"))
+except (OSError, ValueError):
+    _CAL = {"asof": "", "econ": [], "earn": []}
+_cd = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "asof": _CAL.get("asof", ""), "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
+CAL_JS = """<script>(function(){var D=__DATA__,T='econ',I=2,E=document.getElementById('cle'),H=document.getElementById('clh'),ER=false;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var KD=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Seoul'}),KT=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false}),WD=['일','월','화','수','목','금','토'];
+function kday(d){return KD.format(d)}function lab(k){var p=k.split('-');var w=new Date(k+'T12:00:00+09:00').getDay();return +p[1]+'월 '+ +p[2]+'일 ('+WD[w]+')'}
+function num(v){if(v==null)return NaN;var s=String(v).replace(/[,$%\\s]/g,''),m=1,x=/([KMBT])$/i.exec(s);if(x){m={K:1e3,M:1e6,B:1e9,T:1e12}[x[1].toUpperCase()];s=s.slice(0,-1)}var n=parseFloat(s);return isNaN(n)?NaN:n*m}
+function cmp(a,c){var x=num(a),y=num(c);if(isNaN(x)||isNaN(y))return'';var d=x-y;return Math.abs(d)<1e-9?'<span class="bg eq">예상 부합</span>':d>0?'<span class="bg up">예상 상회</span>':'<span class="bg dn">예상 하회</span>'}
+function econ(){var now=Date.now(),td=kday(new Date()),rows=D.econ.filter(function(e){return e.imp>=I});if(!rows.length)return'<div class="clempty">표시할 지표가 없습니다. 아직 일정 데이터가 수집되지 않았을 수 있습니다.</div>';
+var h='<div class="clwrap"><table class="cltb"><thead><tr><th>시간(KST)</th><th>지표</th><th class="r">예상</th><th class="r">이전</th><th class="r">실제</th><th>결과</th></tr></thead><tbody>',last='';
+rows.forEach(function(e){var dt=new Date(e.ts),k=kday(dt);if(k!==last){last=k;h+='<tr class="dh'+(k===td?' td':'')+'"><td colspan="6">'+lab(k)+(k===td?' · 오늘':'')+'</td></tr>'}
+var done=e.a!=='',past=dt.getTime()<now;h+='<tr><td class="t">'+(e.allday?'종일':KT.format(dt))+'</td><td><span class="st">'+'★'.repeat(e.imp)+'</span> '+esc(e.ko||e.name)+(e.ko&&e.ko!==e.name?'<span class="en">'+esc(e.name)+'</span>':'')+'</td><td class="r">'+esc(e.c||'-')+'</td><td class="r">'+esc(e.p||'-')+'</td><td class="r"><b>'+(done?esc(e.a):'<span class="pend">'+(past?'집계 대기':'-')+'</span>')+'</b></td><td>'+(done?cmp(e.a,e.c):'')+'</td></tr>'});
+return h+'</tbody></table></div>'}
+var TM={pre:'장 시작 전',post:'장 마감 후',na:'시간 미정'};
+function earn(){var td=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/New_York'}).format(new Date()),rows=D.earn.filter(function(e){return ER?e.day<td:e.day>=td});
+if(!rows.length)return'<div class="clempty">'+(ER?'최근 발표한 등록 기업이 없습니다.':'예정된 등록 기업 실적 발표가 없습니다.')+'</div>';rows.sort(function(a,b){return ER?(a.day<b.day?1:a.day>b.day?-1:0):(a.day<b.day?-1:a.day>b.day?1:0)});
+var h='<div class="clwrap"><table class="cltb"><thead><tr><th>기업</th><th>분기</th><th>시간</th><th class="r">예상 EPS</th><th class="r">전년 동기</th><th class="r">애널리스트</th>'+(ER?'<th class="r">실제 EPS</th><th>결과</th>':'')+'</tr></thead><tbody>',last='';
+rows.forEach(function(e){if(e.day!==last){last=e.day;var w=new Date(e.day+'T12:00:00Z').getUTCDay();h+='<tr class="dh'+(e.day===td?' td':'')+'"><td colspan="'+(ER?8:6)+'">'+(+e.day.slice(5,7))+'월 '+(+e.day.slice(8))+'일 ('+WD[w]+', 미국 현지)'+(e.day===td?' · 오늘':'')+'</td></tr>'}
+var sr=e.sur!==''&&!isNaN(parseFloat(e.sur))?parseFloat(e.sur):null,res=ER&&e.eps?(sr==null?cmp(e.eps,e.est):(sr>0?'<span class="bg up">상회 +'+sr.toFixed(1)+'%</span>':sr<0?'<span class="bg dn">하회 '+sr.toFixed(1)+'%</span>':'<span class="bg eq">부합</span>')):'';
+h+='<tr><td><a class="cn" href="'+esc(D.lk[e.tk]||'#')+'">'+esc(D.nm[e.tk]||e.tk)+'</a> <span class="en" style="display:inline">'+esc(e.tk)+'</span></td><td>'+esc(e.fq||'-')+'</td><td>'+TM[e.time]+'</td><td class="r">'+esc(e.est||'-')+'</td><td class="r">'+esc(e.ly||'-')+'</td><td class="r">'+esc(e.n||'-')+'</td>'+(ER?'<td class="r"><b>'+esc(e.eps||'-')+'</b></td><td>'+res+'</td>':'')+'</tr>'});
+return h+'</tbody></table></div>'}
+function draw(){document.querySelectorAll('[data-t]').forEach(function(b){b.classList.toggle('on',b.dataset.t===T)});document.querySelectorAll('[data-i]').forEach(function(b){b.classList.toggle('on',+b.dataset.i===I)});document.querySelectorAll('[data-r]').forEach(function(b){b.classList.toggle('on',(b.dataset.r==='1')===ER)});
+document.getElementById('clie').style.display=T==='econ'?'contents':'none';document.getElementById('clne').style.display=T==='earn'?'flex':'none';E.innerHTML=T==='econ'?econ():earn()}
+document.querySelectorAll('[data-t]').forEach(function(b){b.addEventListener('click',function(){T=b.dataset.t;draw()})});document.querySelectorAll('[data-i]').forEach(function(b){b.addEventListener('click',function(){I=+b.dataset.i;draw()})});document.querySelectorAll('[data-r]').forEach(function(b){b.addEventListener('click',function(){ER=b.dataset.r==='1';draw()})});
+if(D.asof)H.textContent='마지막 갱신 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});draw();})();</script>"""
+cal_inner = (f'<div class="readwrap"><div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">일정</div><div class="a">미국 경제지표와 등록 기업 실적 발표 · <span id="clh"></span></div></div></div>'
+    '<div class="cltabs"><button class="pill on" data-t="econ" type="button">경제지표</button><button class="pill" data-t="earn" type="button">기업 실적</button>'
+    '<span id="clie" style="display:contents"><span class="sp"></span><button class="pill" data-i="3" type="button">핵심 ★★★</button><button class="pill on" data-i="2" type="button">주요 ★★ 이상</button><button class="pill" data-i="1" type="button">전체</button></span>'
+    '<span id="clne" style="display:none;margin-left:auto;gap:8px"><button class="pill on" data-r="0" type="button">예정</button><button class="pill" data-r="1" type="button">최근 발표</button></span></div>'
+    '<div id="cle"></div>'
+    '<div class="nwnote">시간은 한국시간(KST)입니다. 경제지표는 미국 발표 기준이며 예상치는 시장 컨센서스, 실제치는 발표 후 자동 반영됩니다(지표 발표 직후와 장 마감 후 갱신). 결과 배지는 숫자 크기만 비교한 것이며 호재·악재 판단이 아닙니다. 기업 실적은 이 사이트에 등록된 미국 상장 기업만 보여주고, 발표일은 미국 현지 날짜입니다. 일정은 회사 사정으로 바뀔 수 있습니다. 데이터 출처: Nasdaq.</div>'
+    '</div></div>' + CAL_JS.replace("__DATA__", _cd))
+open(f"{OUT}/calendar.html", "w", encoding="utf-8").write(shell("일정 — Corporate Analysis", cal_inner, "calendar"))
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
@@ -1078,5 +1126,5 @@ tb.forEach(b=>b.addEventListener('click',()=>set(b.dataset.t)));let t0='cta';try
 var BF='all';function bfil(){{var q=(document.getElementById('bsq').value||'').trim().toLowerCase(),n=0;document.querySelectorAll('.book').forEach(function(b){{var ok=(BF==='all'||b.dataset.tag===BF)&&(!q||(b.dataset.s||'').indexOf(q)>=0);b.style.display=ok?'':'none';if(ok)n++;}});var e=document.getElementById('bsn');if(e)e.textContent=(q||BF!=='all')?n+'개':'';}}
 document.querySelectorAll('.pill[data-f]').forEach(p=>p.addEventListener('click',()=>{{document.querySelectorAll('.pill[data-f]').forEach(x=>x.classList.toggle('on',x===p));BF=p.dataset.f;bfil();}}));
 document.getElementById('bsq').addEventListener('input',bfil);</script>"""
-open(f"{OUT}/index.html", "w", encoding="utf-8").write(shell("Corporate Analysis — 시장 지표 · 기업분석", home, "home"))
+open(f"{OUT}/index.html", "w", encoding="utf-8").write(shell("Corporate Analysis — 지수선물 · 기업분석", home, "home"))
 print("ok", sorted(os.listdir(OUT)))
