@@ -187,6 +187,22 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통 · 시총 $996B", "https://corporate.walmart.com"),
  ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통 · 시총 $467B", "https://www.costco.com"),
  ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "양자", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅 · 시총 $14.0B", "https://ionq.com"),
+ ("ibm.html", "ibm", [CONTENT + "/ibm/body.html"], "IBM 기업분석", "IBM", "International Business Machines Corporation", "소프트웨어", "현금 창출 · 조정 PEG 1.65 · CTA +0.50", "#eef2ff", "IT 서비스·소프트웨어 · 시총 $234B", "https://www.ibm.com"),
+ ("unusual-machines.html", "umac", [CONTENT + "/umac/body.html"], "Unusual Machines 기업분석", "UMAC", "Unusual Machines, Inc.", "우주항공", "미국산 드론 부품 · 매출 +551% · CTA -0.50", "#f0fdf4", "드론 부품 · 시총 $6억", "https://unusualmachines.com"),
+ ("joby.html", "joby", [CONTENT + "/joby/body.html"], "Joby Aviation 기업분석", "JOBY", "Joby Aviation, Inc.", "우주항공", "에어택시 · 현금 $22억 · CTA -0.75", "#f0f9ff", "전기 에어택시 · 시총 $52억", "https://www.jobyaviation.com"),
+ ("archer.html", "achr", [CONTENT + "/achr/body.html"], "Archer Aviation 기업분석", "ACHR", "Archer Aviation Inc.", "우주항공", "에어택시·방산 · 현금 $13.5억 · CTA -1.00", "#f5f3ff", "전기 에어택시 · 시총 $32억", "https://archer.com"),
+ ("ondas.html", "onds", [CONTENT + "/onds/body.html"], "Ondas 기업분석", "ONDS", "Ondas Inc.", "우주항공", "자율 드론 방산 · 매출 +100% · CTA -1.00", "#fff7ed", "자율 드론·방산 · 시총 $30억", "https://www.ondas.com"),
+ ("ge-vernova.html", "gev", [CONTENT + "/gev/body.html"], "GE Vernova 기업분석", "GEV", "GE Vernova Inc.", "전력·에너지", "수주잔고 $1,970억 · PER 21배 · CTA -0.75", "#ecfdf5", "발전 설비 · 시총 $213B", "https://www.gevernova.com"),
+ ("constellation.html", "ceg", [CONTENT + "/ceg/body.html"], "Constellation Energy 기업분석", "CEG", "Constellation Energy Corporation", "전력·에너지", "원전·전력 · 조정 PEG 0.68 · CTA +0.25", "#f7fee7", "전력 · 시총 $99B", "https://www.constellationenergy.com"),
+ ("bloom-energy.html", "be", [CONTENT + "/be/body.html"], "Bloom Energy 기업분석", "BE", "Bloom Energy Corporation", "전력·에너지", "온사이트 전력 · 매출 +138% · CTA -0.50", "#fef2f2", "연료전지 · 시총 $57B", "https://www.bloomenergy.com"),
+ ("vistra.html", "vst", [CONTENT + "/vst/body.html"], "Vistra 기업분석", "VST", "Vistra Corp.", "전력·에너지", "전력 · PER 18배 · CTA -1.00", "#eef2ff", "전력 · 시총 $45B", "https://vistracorp.com"),
+ ("coinbase.html", "coin", [CONTENT + "/coin/body.html"], "Coinbase 기업분석", "COIN", "Coinbase Global, Inc.", "코인", "3Q 흑자는 평가이익 · CTA -1.00", "#f0f9ff", "가상자산 거래소 · 시총 $34B", "https://www.coinbase.com"),
+ ("circle.html", "crcl", [CONTENT + "/crcl/body.html"], "Circle 기업분석", "CRCL", "Circle Internet Group, Inc.", "코인", "스테이블코인 · 준비금 수익 감소 · CTA -1.00", "#f0fdf4", "스테이블코인 · 시총 $16B", "https://www.circle.com"),
+ ("robinhood.html", "hood", [CONTENT + "/hood/body.html"], "Robinhood 기업분석", "HOOD", "Robinhood Markets, Inc.", "금융", "온라인 증권 · 매출 기록 · CTA -0.50", "#ecfdf5", "온라인 증권 · 시총 $70B", "https://robinhood.com"),
+ ("jnj.html", "jnj", [CONTENT + "/jnj/body.html"], "Johnson & Johnson 기업분석", "JNJ", "Johnson & Johnson", "헬스케어", "제약·의료기기 · 조정 PEG 10.3 · CTA +1.00", "#fff7ed", "제약·의료기기 · 시총 $688B", "https://www.jnj.com"),
+ ("illumina.html", "ilmn", [CONTENT + "/ilmn/body.html"], "Illumina 기업분석", "ILMN", "Illumina, Inc.", "헬스케어", "시퀀싱 · 조정 PEG 2.19 · CTA +0.25", "#f5f3ff", "유전체 시퀀싱 · 시총 $31B", "https://www.illumina.com"),
+ ("abbvie.html", "abbv", [CONTENT + "/abbv/body.html"], "AbbVie 기업분석", "ABBV", "AbbVie Inc.", "헬스케어", "제약 · 조정 PEG 0.64 · CTA +1.00", "#f7fee7", "제약 · 시총 $522B", "https://www.abbvie.com"),
+ ("boeing.html", "ba", [CONTENT + "/ba/body.html"], "Boeing 기업분석", "BA", "The Boeing Company", "우주항공", "항공기 · 손실 축소 · CTA -1.00", "#fef2f2", "항공우주 · 시총 $136B", "https://www.boeing.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -194,7 +210,7 @@ def _price(tk):
     ch = e.get("chg", 0)
     return (fmt(e["close"], e.get("cur", "$")), f"{ch:+.2f}%", "up" if ch > 0 else ("down" if ch < 0 else ""))
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE"}
+EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
@@ -203,7 +219,7 @@ LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microso
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
         "LLY": "eli-lilly", "JPM": "jpmorgan-chase", "UNH": "unitedhealth", "KO": "coca-cola", "WMT": "walmart", "COST": "costco-wholesale", "IONQ": "ionq",
         "TXN": "texas-instruments", "ASTS": "ast-spacemobile", "RKLB": "rocket-lab", "NOW": "servicenow", "CRM": "salesforce", "RDDT": "reddit", "SMCI": "super-micro-computer",
-        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -606,6 +622,22 @@ ADJ_PEG = {
     "AAPL": {"mode": "gain", "peg": 2.2, "per": "38.9배", "gr": "+18%", "why": "관세 환급 제외"},
     "ORCL": {"mode": "gain", "peg": 0.62, "per": "14.3배", "gr": "+23%", "why": "암페어 이익 제외 선행 EPS"},
     "NVDA": {"mode": "gain", "peg": 0.26, "per": "약 27.6배", "gr": "+106%", "why": "지분 평가이익 제외 영업이익"},
+    "IBM": {"mode": "main", "peg": 1.65, "per": "21.1배", "gr": "+12%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표)"},
+    "JNJ": {"mode": "main", "peg": 10.3, "per": "26.8배", "gr": "+3%", "note": "조정 EPS 기준 PEG, 조정 EPS 성장이 낮아 크게 초과"},
+    "ABBV": {"mode": "main", "peg": 0.64, "per": "23.0배", "gr": "+36%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표)"},
+    "CEG": {"mode": "main", "peg": 0.68, "per": "22.2배", "gr": "+33%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표)"},
+    "ILMN": {"mode": "main", "peg": 2.19, "per": "39.4배", "gr": "+18%", "note": "조정 EPS 기준 PEG, 가이던스 성장 기준으로는 약 3.2"},
+    "BE": {"mode": "main", "peg": 0.28, "per": "73.6배", "gr": "+268%(기저 효과)", "note": "조정 EPS 기준이나 직전 4분기 조정 EPS가 낮아 성장률이 부풀려진 기저 효과, 의미 제한적"},
+    "VST": {"mode": "none", "note": "기저 효과로 EPS 성장률이 왜곡돼 산출 불가(보고서 PEG 심층 표 참고)"},
+    "GEV": {"mode": "none", "note": "EPS 성장률이 왜곡돼 산출 불가(보고서 PEG 심층 표 참고)"},
+    "COIN": {"mode": "none", "note": "TTM EPS 적자, 조정 EPS 미발표로 산출 불가"},
+    "HOOD": {"mode": "none", "note": "TTM EPS가 감소해 산출 불가"},
+    "CRCL": {"mode": "none", "note": "성장률 비교 기준이 왜곡돼 산출 불가(보고서 PEG 심층 표 참고)"},
+    "BA": {"mode": "none", "note": "TTM EPS 변동이 커 산출 불가(보고서 PEG 심층 표 참고)"},
+    "JOBY": {"mode": "none", "note": "적자라 산출 불가"},
+    "ACHR": {"mode": "none", "note": "적자라 산출 불가"},
+    "ONDS": {"mode": "none", "note": "TTM EPS가 1Q26 영업외 이익 때문에 흑자로 왜곡돼 산출 불가"},
+    "UMAC": {"mode": "none", "note": "적자라 산출 불가"},
 }
 
 def peg_board():
@@ -653,7 +685,7 @@ KO_ALIAS = {"MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이�
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
-    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐"}
+    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉"}
 
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
