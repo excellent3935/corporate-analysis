@@ -36,7 +36,7 @@ STOCKS = {  # 사이트 티커: 야후 심볼
     "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR", "META": "META", "CRWV": "CRWV",
     "TSLA": "TSLA", "SPCX": "SPCX", "DELL": "DELL", "SNDK": "SNDK", "CRWD": "CRWD", "NBIS": "NBIS",
     "LLY": "LLY", "JPM": "JPM", "UNH": "UNH", "KO": "KO", "WMT": "WMT", "COST": "COST", "IONQ": "IONQ",
-    "TXN": "TXN", "ASTS": "ASTS", "RKLB": "RKLB", "NOW": "NOW", "CRM": "CRM", "RDDT": "RDDT", "SMCI": "SMCI", "IREN": "IREN", "WDC": "WDC", "VRT": "VRT", "COHR": "COHR", "MSTR": "MSTR", "IBM": "IBM", "UMAC": "UMAC", "JOBY": "JOBY", "ACHR": "ACHR", "ONDS": "ONDS", "GEV": "GEV", "CEG": "CEG", "BE": "BE", "VST": "VST", "COIN": "COIN", "CRCL": "CRCL", "HOOD": "HOOD", "JNJ": "JNJ", "ILMN": "ILMN", "ABBV": "ABBV", "BA": "BA",
+    "TXN": "TXN", "ASTS": "ASTS", "RKLB": "RKLB", "NOW": "NOW", "CRM": "CRM", "RDDT": "RDDT", "SMCI": "SMCI", "IREN": "IREN", "WDC": "WDC", "VRT": "VRT", "COHR": "COHR", "MSTR": "MSTR", "IBM": "IBM", "UMAC": "UMAC", "JOBY": "JOBY", "ACHR": "ACHR", "ONDS": "ONDS", "GEV": "GEV", "CEG": "CEG", "BE": "BE", "VST": "VST", "COIN": "COIN", "CRCL": "CRCL", "HOOD": "HOOD", "JNJ": "JNJ", "ILMN": "ILMN", "ABBV": "ABBV", "BA": "BA", "GE": "GE", "RTX": "RTX", "LMT": "LMT", "AXON": "AXON", "BAC": "BAC", "WFC": "WFC", "V": "V", "MA": "MA", "MP": "MP", "LRCX": "LRCX", "AMAT": "AMAT", "KLAC": "KLAC", "TER": "TER"
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),

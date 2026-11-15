@@ -203,6 +203,19 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("illumina.html", "ilmn", [CONTENT + "/ilmn/body.html"], "Illumina 기업분석", "ILMN", "Illumina, Inc.", "헬스케어", "시퀀싱 · 조정 PEG 2.19 · CTA +0.25", "#f5f3ff", "유전체 시퀀싱 · 시총 $31B", "https://www.illumina.com"),
  ("abbvie.html", "abbv", [CONTENT + "/abbv/body.html"], "AbbVie 기업분석", "ABBV", "AbbVie Inc.", "헬스케어", "제약 · 조정 PEG 0.64 · CTA +1.00", "#f7fee7", "제약 · 시총 $522B", "https://www.abbvie.com"),
  ("boeing.html", "ba", [CONTENT + "/ba/body.html"], "Boeing 기업분석", "BA", "The Boeing Company", "방산", "항공기 · 손실 축소 · CTA -1.00", "#fef2f2", "항공우주 · 시총 $136B", "https://www.boeing.com"),
+ ("ge.html", "ge", [CONTENT + "/ge/body.html"], "GE Aerospace 기업분석", "GE", "GE Aerospace", "방산", "조정 PER 43.1배 · 조정 PEG 1.68 · CTA +0.25", "#eff6ff", "항공 엔진 · 시총 $342.9B", "https://www.geaerospace.com"),
+ ("rtx.html", "rtx", [CONTENT + "/rtx/body.html"], "RTX 기업분석", "RTX", "RTX Corporation", "방산", "조정 PER 26.5배 · 조정 PEG 1.37 · CTA +0.50", "#f0f9ff", "항공우주·방산 · 시총 $268B", "https://www.rtx.com"),
+ ("lockheed.html", "lmt", [CONTENT + "/lmt/body.html"], "Lockheed Martin 기업분석", "LMT", "Lockheed Martin Corporation", "방산", "PER 21.2배 · PEG 산출 불가 · CTA +0.75", "#eef2ff", "방산 · 시총 $137.7B", "https://www.lockheedmartin.com"),
+ ("axon.html", "axon", [CONTENT + "/axon/body.html"], "Axon Enterprise 기업분석", "AXON", "Axon Enterprise, Inc.", "방산", "S&S +43% · 조정 PEG 5.0 · CTA -1.00", "#fefce8", "공공안전 · 시총 $25.7B", "https://www.axon.com"),
+ ("bofa.html", "bac", [CONTENT + "/bac/body.html"], "Bank of America 기업분석", "BAC", "Bank of America Corporation", "금융", "PEG 0.85 · 일회성 제외 0.60 · CTA -0.75", "#fef2f2", "은행 · 시총 $352B", "https://www.bankofamerica.com"),
+ ("wellsfargo.html", "wfc", [CONTENT + "/wfc/body.html"], "Wells Fargo 기업분석", "WFC", "Wells Fargo & Company", "금융", "PER 12.1배 · PEG 0.72 · CTA +0.50", "#fff7ed", "은행 · 시총 $258B", "https://www.wellsfargo.com"),
+ ("visa.html", "v", [CONTENT + "/v/body.html"], "Visa 기업분석", "V", "Visa Inc.", "금융", "조정 PER 32.1배 · 조정 PEG 2.03 · CTA +1.00", "#eff6ff", "결제 · 시총 $789.5B", "https://www.visa.com"),
+ ("mastercard.html", "ma", [CONTENT + "/ma/body.html"], "Mastercard 기업분석", "MA", "Mastercard Incorporated", "금융", "조정 PER 33.5배 · 조정 PEG 1.48 · CTA +1.00", "#fff1f2", "결제 · 시총 $576B", "https://www.mastercard.com"),
+ ("mpmaterials.html", "mp", [CONTENT + "/mp/body.html"], "MP Materials 기업분석", "MP", "MP Materials Corp.", "희토류", "매출 +176% · 일회성 포함 · CTA -1.00", "#f5f3ff", "희토류·자석 · 시총 $6.9B", "https://mpmaterials.com"),
+ ("lam.html", "lrcx", [CONTENT + "/lrcx/body.html"], "Lam Research 기업분석", "LRCX", "Lam Research Corporation", "반도체", "FQ 매출 +54% · PEG 0.70 · CTA -0.75", "#ecfdf5", "반도체 장비 · 시총 $282.2B", "https://www.lamresearch.com"),
+ ("appliedmaterials.html", "amat", [CONTENT + "/amat/body.html"], "Applied Materials 기업분석", "AMAT", "Applied Materials, Inc.", "반도체", "FQ4 매출 +53% · 조정 PEG 0.78 · CTA -0.75", "#f0fdf4", "반도체 장비 · 시총 $294B", "https://www.appliedmaterials.com"),
+ ("kla.html", "klac", [CONTENT + "/klac/body.html"], "KLA 기업분석", "KLAC", "KLA Corporation", "반도체", "FQ1 매출 +29% · 조정 PEG 2.09 · CTA -0.75", "#eef2ff", "반도체 장비 · 시총 $198.5B", "https://www.kla.com"),
+ ("teradyne.html", "ter", [CONTENT + "/ter/body.html"], "Teradyne 기업분석", "TER", "Teradyne, Inc.", "반도체", "3Q 매출 +70% · 두 분기 정체 · CTA -0.75", "#fdf4ff", "반도체 테스트 · 시총 $39B", "https://www.teradyne.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -217,7 +230,7 @@ except (OSError, ValueError):
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX"}
+EXCH = {"NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
 LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
@@ -226,7 +239,7 @@ LOGO = {"NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microso
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
         "LLY": "eli-lilly", "JPM": "jpmorgan-chase", "UNH": "unitedhealth", "KO": "coca-cola", "WMT": "walmart", "COST": "costco-wholesale", "IONQ": "ionq",
         "TXN": "texas-instruments", "ASTS": "ast-spacemobile", "RKLB": "rocket-lab", "NOW": "servicenow", "CRM": "salesforce", "RDDT": "reddit", "SMCI": "super-micro-computer",
-        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+        "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing", "GE": "ge-aerospace", "RTX": "raytheon", "LMT": "lockheed-martin", "AXON": "axon-enterprise", "BAC": "bank-of-america", "WFC": "wells-fargo", "V": "visa", "MA": "mastercard", "MP": "mp-materials", "LRCX": "lam-research", "AMAT": "applied-materials", "KLAC": "kla-tencor", "TER": "teradyne"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -615,6 +628,16 @@ def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩
 # 일회성 비용·비교 기저 왜곡으로 트레이딩뷰 PEG가 없거나 낮게 나온 종목의 조정 EPS 기준 값. 모두 해당 기업 보고서 PEG 심층 표의 수치.
 #  main: 조정 EPS 기준 PEG를 PEG 칸에 넣는다 / side: PEG 칸은 그대로 두고 비고에 일회성 비용 제외 PEG를 적는다 / none: 조정해도 산출 불가
 ADJ_PEG = {
+    "GE": {"mode": "main", "peg": 1.68, "per": "43.1배", "gr": "+25.6%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). 트레이딩뷰는 PEG 미제공"},
+    "RTX": {"mode": "main", "peg": 1.37, "per": "26.5배", "gr": "+19.3%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표)"},
+    "LMT": {"mode": "none", "note": "TTM EPS 변동(4Q24·2Q25 저점)으로 기저 효과가 커 산출 불가(보고서 PEG 심층 표 참고)"},
+    "AXON": {"mode": "main", "peg": 5.0, "per": "42.9배", "gr": "+8.6%", "note": "조정 EPS 기준 PEG. GAAP EPS는 감소해 트레이딩뷰 PEG 산출 불가"},
+    "BAC": {"mode": "side", "note": "일회성 비용 제외(조정 EPS) PEG 약 0.60. GAAP 기준 약 0.85"},
+    "V": {"mode": "main", "peg": 2.03, "per": "32.1배", "gr": "+15.8%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). 트레이딩뷰는 PEG 미제공"},
+    "MA": {"mode": "main", "peg": 1.48, "per": "33.5배", "gr": "+22.6%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). 트레이딩뷰는 PEG 미제공"},
+    "AMAT": {"mode": "main", "peg": 0.78, "per": "28.7배", "gr": "+36.9%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). GAAP 기준 0.65"},
+    "KLAC": {"mode": "main", "peg": 2.09, "per": "37.2배", "gr": "+17.8%", "note": "조정 EPS 기준 PEG. GAAP 성장률은 FQ2'25 낮은 GAAP EPS 기저로 부풀려져(GAAP 기준 1.49)"},
+    "TER": {"mode": "none", "note": "AI 수요로 EPS가 한 번에 3배 가까이 뛴 기저 효과(계산상 0.13)여서 판정에서 제외"},
     "MRVL": {"mode": "main", "peg": 0.64, "per": "약 32배", "gr": "+50%(가정)", "note": "조정 EPS 기준: 비GAAP 선행 EPS(FY27Q3 가이던스×4) 추정, 성장률 +50% 가정. 트레이딩뷰 PEG는 $1.9B 매각 이익 때문에 산출 불가"},
     "SNDK": {"mode": "main", "peg": 0.02, "per": "3.7배", "gr": "+199%(추정)", "note": "조정 EPS 기준: 비GAAP 2Q 가이던스 연환산 추정. 트레이딩뷰 PEG는 1년 전 적자 기저로 산출 불가"},
     "META": {"mode": "side", "note": "조정 EPS: 소송 비용(일회성) 제외 영업이익 기준 PEG 약 1.7 (소송 비용 포함 시 이익 -3%로 산출 불가)"},
@@ -692,7 +715,7 @@ KO_ALIAS = {"MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이�
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
-    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉"}
+    "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉", "GE": "지이 에어로스페이스 항공엔진 ge", "RTX": "레이시온 알티엑스 방산", "LMT": "록히드마틴 방산", "AXON": "액슨 테이저", "BAC": "뱅크오브아메리카 뱅오아 은행", "WFC": "웰스파고 은행", "V": "비자 카드 결제", "MA": "마스터카드 결제", "MP": "엠피 머티리얼즈 희토류", "LRCX": "램리서치 반도체장비", "AMAT": "어플라이드 머티어리얼즈 어플라이드머티리얼즈 반도체장비", "KLAC": "케이엘에이 kla 반도체장비", "TER": "테라다인 반도체 테스트"}
 
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
