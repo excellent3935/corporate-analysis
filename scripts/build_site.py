@@ -964,7 +964,8 @@ function num(v){if(v==null)return NaN;var s=String(v).replace(/[,$%\\s()]/g,''),
 function cmp(a,c){var x=num(a),y=num(c);if(isNaN(x)||isNaN(y))return'';var d=x-y;return Math.abs(d)<1e-9?'<span class="bg eq">예상 부합</span>':d>0?'<span class="bg up">예상 상회</span>':'<span class="bg dn">예상 하회</span>'}
 var EV=[];D.econ.forEach(function(e){var ts=new Date(e.ts).getTime();EV.push({k:'econ',ts:ts,day:KD.format(ts),t:e.allday?'종일':KT.format(ts),et:e.allday?'':ET.format(ts),title:e.ko||e.name,en:e.name,imp:e.imp,a:e.a,c:e.c,p:e.p,done:e.a!==''})});
 D.earn.forEach(function(e){var ts=e.time==='post'?etMs(e.day,16,0):etMs(e.day,9,30);var neg=/^\\(/.test(e.est||'');EV.push({k:'earn',ts:ts,day:KD.format(ts),t:e.time==='na'?'미정':KT.format(ts),pp:e.time,tk:e.tk,title:D.nm[e.tk]||e.tk,when:e.time==='pre'?'미국 장 시작 전 발표 (개장 '+KT.format(etMs(e.day,9,30))+' KST 이전)':e.time==='post'?'미국 장 마감 후 발표 ('+KT.format(etMs(e.day,16,0))+' KST 이후)':'발표 시간 미정',us:e.day,fq:e.fq,est:e.est,ly:e.ly,n:e.n,eps:e.eps,sur:e.sur,done:e.eps!==''})});
-EV.sort(function(a,b){return a.ts-b.ts||(b.imp||0)-(a.imp||0)});
+function cp(e){return e.tk?(D.cap[e.tk]||0):0}
+EV.sort(function(a,b){return a.ts-b.ts||(b.imp||0)-(a.imp||0)||cp(b)-cp(a)});
 var BYD={};EV.forEach(function(e){(BYD[e.day]=BYD[e.day]||[]).push(e)});
 var TODAY=KD.format(new Date()),MINK=EV.length?EV[0].day:TODAY,MAXK=EV.length?EV[EV.length-1].day:TODAY;
 function evs(day){return(BYD[day]||[]).filter(function(e){return e.k===S.tab&&(S.tab!=='econ'||e.imp>=S.I)})}
@@ -992,7 +993,7 @@ B.innerHTML='<div class="cdh">'+range()+' · 날짜를 누르면 상세가 열�
 draw();"""
 def cal_page():
     nm, js, ttl = "calendar.html", CALA_JS, "일정"
-    data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
+    data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "nm": _nm, "lk": _lk, "cap": _CAP}, ensure_ascii=False).replace("</", "<\\/")
     inner = (f'<div class="calw"><div class="cph"><span class="t">{ttl}</span><span class="a">미국 경제지표와 등록 기업 실적 · 시간은 한국시간(KST)</span></div><div class="chd" id="chd"></div><div id="cbody"></div>'
              '<div class="nwnote">실적 시각 표기: 미국 장 시작 전 발표는 개장 시각(KST) 기준 "전", 장 마감 후 발표는 마감 시각(KST) 기준 "후"로 표시하며 실제 발표 시각과 다를 수 있습니다(시간 미정은 "미정"). 경제지표는 발표 시각을 한국시간으로 환산했습니다. 데이터 출처: Nasdaq. 실적은 이 사이트에 등록된 미국 상장 기업만 보여줍니다.</div></div>'
              '<div class="cdm" id="cdm"><div class="cdb" id="cdb"></div></div>'
