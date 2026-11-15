@@ -235,6 +235,39 @@ def update_mcap(cta):
     print("시가총액", len(usd), "개")
 
 
+def update_targets(cta):
+    """애널리스트 목표가(평균·중앙값·최고·최저, 의견 수)를 야후에서 받아 data/targets.json에 저장. 실패하거나 값이 없는 종목은 이전 값을 유지한다."""
+    old = load("targets.json", {"t": {}})
+    out = dict(old.get("t", {}))
+    today = dt.datetime.now(KST).strftime("%Y-%m-%d")
+    got = 0
+    for tk, sym in STOCKS.items():
+        try:
+            t = yf.Ticker(sym)
+            pt = t.analyst_price_targets or {}
+            mean = pt.get("mean")
+            if not mean:
+                continue
+            e = {"mean": round(float(mean), 2), "d": today}
+            for k in ("median", "high", "low"):
+                if pt.get(k):
+                    e[k] = round(float(pt[k]), 2)
+            try:
+                inf = t.info or {}
+                if inf.get("numberOfAnalystOpinions"):
+                    e["n"] = int(inf["numberOfAnalystOpinions"])
+                if inf.get("recommendationKey") and inf["recommendationKey"] != "none":
+                    e["rec"] = inf["recommendationKey"]
+            except Exception:
+                pass
+            out[tk] = e
+            got += 1
+        except Exception:
+            traceback.print_exc()
+    save("targets.json", {"asof": today, "t": out})
+    print("목표가", got, "개 갱신 /", len(out), "개 보유")
+
+
 def update_news(cta):
     """종목별 최신 뉴스를 data/news.json에 저장 — 야후 파이낸스 종목 RSS(영문), 한국 종목은 구글뉴스 한국어 RSS를 추가로 사용. 실패한 종목은 이전 값 유지."""
     import time
@@ -604,6 +637,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "calendar":  # 일정(경제지표 결과·실적 일정)만 갱신
         update_calendar(load("cta.json", {"tickers": {}}))
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신
+        update_targets(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "briefing":  # 최신 뉴스 수집 후 브리핑 생성: briefing [auto|pre|post]
         mode = sys.argv[2] if len(sys.argv) > 2 else "auto"
         update_news(load("cta.json", {"tickers": {}}))
@@ -615,6 +651,7 @@ if __name__ == "__main__":
     update_fg(m)
     update_cta(cta)
     update_mcap(cta)
+    update_targets(cta)
     update_news(cta)
     update_briefing("auto")
     update_calendar(cta)

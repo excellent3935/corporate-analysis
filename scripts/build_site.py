@@ -583,6 +583,34 @@ def score_tag(sc):
     if sc > -0.5: return f'<span class="tag y">중립 {sc:+.2f}</span>'
     return f'<span class="tag b">매도 {sc:+.2f}</span>'
 
+try:
+    _TG = json.load(open(os.path.join(ROOT, "data", "targets.json"), encoding="utf-8")).get("t", {})
+except (OSError, ValueError):
+    _TG = {}
+_REC = {"strong_buy": "강력 매수", "buy": "매수", "hold": "중립", "underperform": "비중 축소", "sell": "매도"}
+def target_box(tk):
+    t = _TG.get(tk); e = CTA.get(tk, {})
+    if not t or not e.get("close"): return ""
+    cur = e.get("cur", "$"); F = lambda v: fmt(v, cur)
+    up = (t["mean"] / e["close"] - 1) * 100
+    cells = [("평균 목표가", F(t["mean"]), f'<span class="{"up" if up > 0 else "down"}">현재가 대비 {up:+.1f}%</span>')]
+    for k, lb in (("high", "최고"), ("median", "중앙값"), ("low", "최저")):
+        if t.get(k): cells.append((lb, F(t[k]), f'{(t[k] / e["close"] - 1) * 100:+.1f}%'))
+    meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), f'{t.get("d", "")} 기준') if x)
+    return ('<div class="tgbox"><div class="hd"><b>애널리스트 목표가</b><span>' + meta + '</span></div><div class="cs">'
+            + "".join(f'<div><small>{a}</small><b>{b}</b><em>{c}</em></div>' for a, b, c in cells)
+            + '</div><div class="nt">출처: Yahoo Finance 컨센서스 · 상승여력은 최근 종가 기준이며 매일 자동 갱신됩니다.</div></div>')
+TG_CSS = """
+.tgbox{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;margin:0 0 16px}
+.tgbox .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}.tgbox .hd b{font-size:14px}.tgbox .hd span{font-size:12px;color:var(--muted)}
+.tgbox .cs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.tgbox .cs div{display:flex;flex-direction:column;gap:2px}
+.tgbox .cs small{font-size:11.5px;color:var(--muted)}.tgbox .cs b{font-size:18px;font-weight:800}.tgbox .cs em{font-style:normal;font-size:12px;color:var(--muted)}
+.tgbox .cs em .up{color:var(--up);font-weight:700}.tgbox .cs em .down{color:var(--down);font-weight:700}
+.tgbox .nt{font-size:11.5px;color:var(--muted);margin-top:8px}
+@media(max-width:640px){.tgbox .cs{grid-template-columns:repeat(2,1fr)}}
+"""
+CSS += TG_CSS
+
 def cta_box(tk):
     e = CTA.get(tk, {}); sig, sc = signals(e)
     if sig is None:
@@ -883,7 +911,7 @@ for i, r in enumerate(REPORTS):
 <div class="prembox"><div class="ic">{ICON[tk]}</div><div><div class="k">REPORT · {tag}</div>{sub} — 8개 분기 공시·컨퍼런스콜과 트레이딩뷰 데이터를 바탕으로 정리했습니다.</div></div>
 {tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (이동평균선 20·50·200) · 한국 종목은 트레이딩뷰 위젯 미지원으로 직접 계산" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
-{cta_box(tk)}{body}{endnav}</div></div>"""
+{target_box(tk)}{cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports", f))
 
 # --------------- news page ---------------
