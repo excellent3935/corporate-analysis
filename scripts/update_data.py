@@ -235,14 +235,73 @@ def update_mcap(cta):
     print("시가총액", len(usd), "개")
 
 
+def update_news(cta):
+    """종목별 최신 뉴스를 data/news.json에 저장 — 야후 파이낸스 종목 RSS(영문), 한국 종목은 구글뉴스 한국어 RSS를 추가로 사용. 실패한 종목은 이전 값 유지."""
+    import time
+    import email.utils
+    import html as _h
+    import re as _re
+    import xml.etree.ElementTree as ET
+    old = load("news.json", {"items": {}})
+    out = dict(old.get("items", {}))
+
+    def parse(xml, src_default, cut=12):
+        res = []
+        for it in ET.fromstring(xml).iter("item"):
+            t = (it.findtext("title") or "").strip()
+            l = (it.findtext("link") or "").strip()
+            if not t or not l:
+                continue
+            try:
+                d = email.utils.parsedate_to_datetime(it.findtext("pubDate")).astimezone(dt.timezone.utc).isoformat(timespec="minutes")
+            except Exception:
+                continue
+            ds = _re.sub(r"<[^>]+>", " ", _h.unescape(it.findtext("description") or ""))
+            ds = _re.sub(r"\s+", " ", ds).strip()
+            src = it.findtext("source") or src_default
+            res.append({"t": _h.unescape(t), "l": l, "d": d, "s": ds[:220], "src": src})
+            if len(res) >= cut:
+                break
+        return res
+
+    ok = 0
+    for tk in cta["tickers"]:
+        try:
+            items = []
+            sym = tk + ".KS" if tk.isdigit() else tk
+            r = requests.get("https://feeds.finance.yahoo.com/rss/2.0/headline", headers=UA, timeout=20, params={"s": sym, "region": "US", "lang": "en-US"})
+            r.raise_for_status()
+            items += parse(r.content, "Yahoo Finance")
+            if tk.isdigit():  # 한국 종목: 한국어 기사 추가
+                q = {"005930": "삼성전자", "000660": "SK하이닉스"}.get(tk, tk)
+                r = requests.get("https://news.google.com/rss/search", headers=UA, timeout=20, params={"q": q + " 주가", "hl": "ko", "gl": "KR", "ceid": "KR:ko"})
+                r.raise_for_status()
+                items += parse(r.content, "Google News", 12)
+            if items:
+                out[tk] = items
+                ok += 1
+        except Exception:
+            traceback.print_exc()
+        time.sleep(0.3)
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)).isoformat(timespec="minutes")
+    for tk in list(out):  # 30일 지난 기사 제거
+        out[tk] = [x for x in out[tk] if x["d"] >= cutoff]
+    save("news.json", {"asof": dt.datetime.now(KST).isoformat(timespec="minutes"), "items": out})
+    print("뉴스", ok, "개 종목 갱신")
+
+
 if __name__ == "__main__":
     now = dt.datetime.now(KST)
+    if len(sys.argv) > 1 and sys.argv[1] == "news":  # 뉴스만 빠르게 갱신 (몇 시간마다)
+        update_news(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
     m = load("market.json", {"series": {}, "snap": {}, "fg": {}})
     cta = load("cta.json", {"tickers": {}})
     update_market(m)
     update_fg(m)
     update_cta(cta)
     update_mcap(cta)
+    update_news(cta)
     last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
     m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
     m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"

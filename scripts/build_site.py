@@ -710,9 +710,17 @@ def peg_board():
 def fg_label(v):
     return "극단적 공포" if v < 25 else ("공포" if v < 45 else ("중립" if v <= 55 else ("탐욕" if v < 75 else "극단적 탐욕")))
 
+NEWS_CSS = """
+.nwbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 14px}.nwbar input,.nwbar select{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}.nwbar input{flex:1;min-width:140px}.nwbar .cnt{font-size:12px;color:var(--muted);margin-left:auto}
+.nwl{list-style:none;margin:0;padding:0}.nwl li{border-bottom:1px solid var(--line);padding:13px 2px}.nwl a.t{font-size:15px;font-weight:600;color:var(--ink);text-decoration:none;line-height:1.45}.nwl a.t:hover{text-decoration:underline}
+.nwl .s{font-size:13px;color:var(--muted);margin:4px 0 6px;line-height:1.5}.nwl .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}.nwl .tk{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11.5px;color:var(--ink2);text-decoration:none;background:var(--card)}
+.nwmore{display:block;margin:16px auto 0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 22px;font:inherit;font-size:13px;cursor:pointer}.nwempty{padding:30px 0;color:var(--muted);font-size:14px;text-align:center}.nwnote{font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6}
+"""
+CSS += NEWS_CSS
+
 def shell(title, inner, on="home"):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
 {inner}<div class="vis" id="vis" aria-live="off"></div><script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
@@ -739,7 +747,7 @@ def cover(r):  # 작은 정사각 타일
 # --------------- read pages ---------------
 def side(active):
     items = "".join(f'<a class="{"on" if r[0] == active else ""}" href="{r[0]}">{r[3]}</a>' for r in REPORTS)
-    return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a>'
+    return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a><a class="{"on" if active=="news.html" else ""}" href="news.html">📰 뉴스</a>'
             f'<div class="prem"><div class="t" style="color:var(--muted)">REPORTS</div>{items}</div>'
             f'<div class="h">자료 기준</div><div style="font-size:12px;color:var(--muted);padding:0 8px">각 사 IR 실적 발표문·컨퍼런스콜·10-K, 트레이딩뷰(11/6 종가). 작도 없는 기본 차트만 사용.</div></aside>')
 
@@ -757,6 +765,39 @@ for i, r in enumerate(REPORTS):
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
 {cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports"))
+
+# --------------- news page ---------------
+try:
+    _NEWS = json.load(open(os.path.join(ROOT, "data", "news.json"), encoding="utf-8"))
+except (OSError, ValueError):
+    _NEWS = {"asof": "", "items": {}}
+_byl = {}
+for _tk, _its in _NEWS.get("items", {}).items():
+    for _x in _its:
+        _e = _byl.setdefault(_x["l"].split("?")[0], dict(_x, k=[]))
+        if _tk not in _e["k"]: _e["k"].append(_tk)
+_NL = sorted(_byl.values(), key=lambda x: x["d"], reverse=True)
+_nm = {r[4]: r[3].replace(" 기업분석", "") for r in REPORTS}
+_lk = {r[4]: r[0] for r in REPORTS}
+_nd = json.dumps({"n": [[x["t"], x["l"], x["d"], x["s"], x["src"], x["k"]] for x in _NL], "nm": _nm, "lk": _lk, "asof": _NEWS.get("asof", "")}, ensure_ascii=False).replace("</", "<\\/")
+_opts = "".join(f'<option value="{r[4]}">{r[3].replace(" 기업분석", "")} ({r[4]})</option>' for r in REPORTS)
+NEWS_JS = """<script>(function(){var D=__DATA__,L=document.getElementById('nwl'),Q=document.getElementById('nwq'),S=document.getElementById('nws'),C=document.getElementById('nwc'),M=document.getElementById('nwm'),N=30,shown=N,cur=[];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ago(iso){var m=Math.max(0,(Date.now()-new Date(iso).getTime())/60000);if(m<60)return Math.max(1,Math.round(m))+'분 전';if(m<1440)return Math.round(m/60)+'시간 전';if(m<10080)return Math.round(m/1440)+'일 전';return new Date(iso).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric'})}
+function host(u){try{return new URL(u).hostname.replace(/^www\\./,'')}catch(e){return ''}}
+function draw(){var q=(Q.value||'').trim().toLowerCase(),k=S.value;cur=D.n.filter(function(x){return(!k||x[5].indexOf(k)>=0)&&(!q||(x[0]+' '+x[3]+' '+x[5].map(function(t){return t+' '+(D.nm[t]||'')}).join(' ')).toLowerCase().indexOf(q)>=0)});
+C.textContent=cur.length+'건';if(!cur.length){L.innerHTML='<div class="nwempty">표시할 뉴스가 없습니다.</div>';M.style.display='none';return}
+L.innerHTML=cur.slice(0,shown).map(function(x){var tags=x[5].slice(0,6).map(function(t){return'<a class="tk" href="'+(D.lk[t]||'#')+'">'+esc(D.nm[t]||t)+'</a>'}).join('');
+return'<li><a class="t" href="'+esc(x[1])+'" target="_blank" rel="noopener noreferrer">'+esc(x[0])+'</a>'+(x[3]?'<div class="s">'+esc(x[3])+'</div>':'')+'<div class="m">'+tags+'<span>'+esc(x[4]==='Yahoo Finance'?host(x[1]):x[4])+'</span><span>·</span><span title="'+esc(new Date(x[2]).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}))+'">'+ago(x[2])+'</span></div></li>'}).join('');
+M.style.display=cur.length>shown?'':'none'}
+Q.addEventListener('input',function(){shown=N;draw()});S.addEventListener('change',function(){shown=N;draw()});M.addEventListener('click',function(){shown+=N;draw()});draw();
+var a=document.getElementById('nwa');if(a&&D.asof)a.textContent='마지막 수집 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});})();</script>"""
+news_inner = (f'<div class="readwrap">{side("news.html")}<div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">뉴스</div><div class="a">등록된 {len(REPORTS)}개 기업 관련 최신 기사 · <span id="nwa"></span></div></div></div>'
+    f'<div class="nwbar"><select id="nws"><option value="">전체 종목</option>{_opts}</select><input id="nwq" type="search" placeholder="종목·제목 검색"><span class="cnt" id="nwc"></span></div>'
+    f'<ul class="nwl" id="nwl"></ul><button class="nwmore" id="nwm" type="button">더 보기</button>'
+    f'<div class="nwnote">기사는 야후 파이낸스(삼성전자·SK하이닉스는 구글뉴스 한국어 기사 포함)에서 자동 수집한 헤드라인·요약이며, 제목을 누르면 원문 사이트로 이동합니다. 원문은 영어일 수 있고, 최근 30일 기사만 보관합니다. 일부 기사는 종목과 직접 관련이 약할 수 있습니다.</div>'
+    f'</div></div>' + NEWS_JS.replace("__DATA__", _nd))
+open(f"{OUT}/news.html", "w", encoding="utf-8").write(shell("뉴스 — Corporate Analysis", news_inner, "news"))
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
