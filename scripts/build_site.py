@@ -729,12 +729,46 @@ BR_CSS = """
 """
 CSS += BR_CSS
 
-def shell(title, inner, on="home"):
+GS_CSS = """
+.gl{display:grid;grid-template-columns:248px minmax(0,1fr);align-items:start}
+.gl>.gm{min-width:0}.gl .readwrap{display:block;min-height:0;background:transparent}
+.gs.side{top:53px;height:calc(100vh - 53px);padding:16px 12px 24px;display:flex;flex-direction:column;gap:2px}
+.gs a.si,.gs summary{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;padding:9px 10px;border-radius:8px;color:#222;text-decoration:none;cursor:pointer;list-style:none}
+.gs summary::-webkit-details-marker{display:none}.gs summary:after{content:"›";margin-left:auto;font-size:18px;color:var(--muted);transition:transform .15s}.gs details[open]>summary:after{transform:rotate(90deg)}
+.gs a.si.on,.gs a.si:hover,.gs summary:hover{background:#f2f2f3}.gs summary .n{font-size:11px;font-weight:500;color:var(--muted);background:var(--soft,#eee);border-radius:999px;padding:1px 7px}
+.gs .sl{display:flex;flex-direction:column;margin:2px 0 6px 12px;padding-left:8px;border-left:1px solid var(--line);max-height:calc(100vh - 330px);overflow:auto}
+.gs .sl a{font-size:13px;font-weight:400;padding:5px 8px;border-radius:6px;color:#4b5563;text-decoration:none;line-height:1.35}.gs .sl a.on,.gs .sl a:hover{background:#f2f2f3;color:#111}.gs .sl a.all{font-weight:600;color:#111}
+html[data-theme=dark] .gs a.si,html[data-theme=dark] .gs summary,html[data-theme=dark] .gs .sl a.all{color:var(--ink)}html[data-theme=dark] .gs .sl a{color:var(--ink2)}
+html[data-theme=dark] .gs a.si.on,html[data-theme=dark] .gs a.si:hover,html[data-theme=dark] .gs summary:hover,html[data-theme=dark] .gs .sl a.on,html[data-theme=dark] .gs .sl a:hover{background:var(--hover);color:var(--ink)}
+@media(min-width:1001px){.top a.nv{display:none}.top .in{max-width:none;padding-left:18px}.top .thm{margin-left:auto}}
+@media(max-width:1000px){.gl{display:block}.gs.side{display:none}}
+@media(max-width:560px){.top a.nv{padding:5px 5px;font-size:12.5px}.top .thm{width:28px;margin-left:4px}}
+"""
+CSS += GS_CSS
+
+GS_JS = """<script>(function(){var d=document.querySelector('.gs details'),L=document.querySelector('.gs .sl');if(!d)return;try{var v=localStorage.getItem('gsOpen');if(v==='1')d.open=true;else if(v==='0'&&!d.dataset.keep)d.open=false}catch(e){}
+d.addEventListener('toggle',function(){try{localStorage.setItem('gsOpen',d.open?'1':'0')}catch(e){}});
+var a=L&&L.querySelector('a.on');if(a&&d.open)L.scrollTop=Math.max(0,a.offsetTop-L.clientHeight/2);
+var S=[['market','m'],['heatmap','h'],['reports','r']].map(function(x){return[document.getElementById(x[0]),document.querySelector('.gs a[data-k="'+x[1]+'"]')]}),H=document.querySelector('.gs a[data-k="home"]');
+if(S[0][0]&&H){function sp(){var cur=H;S.forEach(function(x){if(x[0]&&x[1]&&x[0].getBoundingClientRect().top<=140)cur=x[1]});[H].concat(S.map(function(x){return x[1]})).forEach(function(l){if(l)l.classList.toggle('on',l===cur)})}addEventListener('scroll',sp,{passive:true});sp()}})();</script>"""
+
+def gside(on, cur):
+    it = "".join(f'<a class="{"on" if r[0] == cur else ""}" href="{r[0]}">{r[3].replace(" 기업분석", "")}</a>' for r in REPORTS)
+    c = lambda k: " on" if on == k else ""
+    return ('<aside class="side gs">'
+            f'<a class="si{" on" if on == "home" else ""}" data-k="home" href="index.html">🏠 홈</a>'
+            '<a class="si" data-k="m" href="index.html#market">📈 시장 지표</a>'
+            '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
+            f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
+            f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
+            f'<a class="si{c("briefing")}" href="briefing.html">🗞 브리핑</a></aside>')
+
+def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
                   [("home", "index.html", "홈"), ("market", "index.html#market", "시장 지표"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button></div></div>
-{inner}<div class="vis" id="vis" aria-live="off"></div><script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
+<div class="gl">{gside(on, cur)}<div class="gm">{inner}</div></div><div class="vis" id="vis" aria-live="off"></div>{GS_JS}<script>(function(){{var B='https://abacus.jasoncameron.dev/',N='ca-excellent3935/',d=new Date().toLocaleDateString('sv-SE',{{timeZone:'Asia/Seoul'}}).replace(/-/g,''),el=document.getElementById('vis'),seen=false;try{{seen=localStorage.getItem('visD')===d}}catch(e){{}}
 function g(k,hit){{return fetch(B+(hit?'hit/':'get/')+N+k).then(function(r){{return r.ok?r.json():{{value:0}}}}).then(function(j){{return j.value||0}}).catch(function(){{return null}})}}
 Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)return;try{{localStorage.setItem('visD',d)}}catch(e){{}}el.textContent='방문 누적 '+v[0].toLocaleString('ko-KR')+' · 오늘 '+(v[1]||0).toLocaleString('ko-KR')}})}})();</script>{THEME_JS}</body></html>"""
 
@@ -757,10 +791,7 @@ def cover(r):  # 작은 정사각 타일
 
 # --------------- read pages ---------------
 def side(active):
-    items = "".join(f'<a class="{"on" if r[0] == active else ""}" href="{r[0]}">{r[3]}</a>' for r in REPORTS)
-    return (f'<aside class="side"><a href="index.html">🏠 홈</a><a href="index.html#market">📈 시장 지표</a><a href="index.html#reports">📚 기업분석</a><a class="{"on" if active=="news.html" else ""}" href="news.html">📰 뉴스</a><a class="{"on" if active=="briefing.html" else ""}" href="briefing.html">🗞 브리핑</a>'
-            f'<div class="prem"><div class="t" style="color:var(--muted)">REPORTS</div>{items}</div>'
-            f'<div class="h">자료 기준</div><div style="font-size:12px;color:var(--muted);padding:0 8px">각 사 IR 실적 발표문·컨퍼런스콜·10-K, 트레이딩뷰(11/6 종가). 작도 없는 기본 차트만 사용.</div></aside>')
+    return ""  # 사이드바는 shell()의 gside()가 모든 페이지에 공통으로 그린다
 
 for i, r in enumerate(REPORTS):
     f, d, src, title, tk, comp, tag, sub, cols, line, url = r
@@ -775,7 +806,7 @@ for i, r in enumerate(REPORTS):
 {tv_chart(tk, folder=d)}<div class="cap">{comp} {"일봉 차트 (이동평균선 20·50·200) · 한국 종목은 트레이딩뷰 위젯 미지원으로 직접 계산" if EXCH.get(tk) == "KRX" else "실시간 차트 (트레이딩뷰 위젯, 이동평균선 20·50·200) · 시세는 거래소별로 실시간 또는 지연"}</div>
 <div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
 {cta_box(tk)}{body}{endnav}</div></div>"""
-    open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports"))
+    open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports", f))
 
 # --------------- news page ---------------
 try:
