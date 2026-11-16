@@ -351,7 +351,7 @@ svg.big{width:100%;height:auto;display:block;margin-top:8px}
 .tag{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 7px;border-radius:4px;margin-right:4px}
 .g{background:#dcf3ec;color:#17785f}.b{background:#fde3e6;color:#b3263a}.y{background:#fdf1d6;color:#9a6a09}.bl{background:#e1e9fa;color:#2f5aa8}
 .tape{max-width:1180px;margin:0 auto;padding:4px 20px 0}
-.ctaw .ivs{margin:6px 0}.ctaw .ivb{padding:5px 12px;font-size:13px}.ctaw .cap{margin-top:4px}.tvlink{display:inline-block;margin-top:8px;font-size:13.5px;font-weight:700;color:#2563eb;text-decoration:none}
+.ctaw .cp{display:none}.ctaw .cp.on{display:block}.ctaw .ctas{width:100%;height:auto;display:block;border-radius:10px}.ctaw .ivs{margin:6px 0}.ctaw .ivb{padding:5px 12px;font-size:13px}.ctaw .cap{margin-top:4px}.tvlink{display:inline-block;margin-top:8px;font-size:13.5px;font-weight:700;color:#2563eb;text-decoration:none}
 .tvbox{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:4px 0 6px}
 .ctabox{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:18px 0}.ctabox .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}.ctabox .hd span{font-size:12px;color:var(--muted)}
 .ctabox .sc{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:8px 0}.ctabox .sc .tag{font-size:15px;padding:4px 10px}.ctabox .mv{font-size:13.5px}.ctabox .tr{margin-left:auto;text-align:right}.ctabox .tr svg{width:200px;height:36px}.ctabox .tr small{display:block;font-size:11px;color:var(--muted)}
@@ -567,7 +567,7 @@ card.querySelectorAll('.ivb').forEach(function(x){x.classList.toggle('on',x.data
 function tv_one(c){c.id=c.id||('f'+Math.random().toString(36).slice(2));var m=c.id;c.dataset.one='1';tv('#'+m);c.removeAttribute('data-one');}
 document.querySelectorAll('.fut').forEach(function(card){var iv='60';try{iv=localStorage.getItem('futIv_'+card.dataset.k)||'60'}catch(e){}
 card.querySelectorAll('.ivb').forEach(function(x){x.addEventListener('click',function(){setIv(card,x.dataset.iv,true)})});setIv(card,iv,false);});
-document.querySelectorAll('.ctaw').forEach(function(w){var c=w.querySelector('.ctw');w.querySelectorAll('.cvb').forEach(function(x){x.addEventListener('click',function(){c.dataset.cfg=x.dataset.k==='W'?c.dataset.cw:c.dataset.cd;w.querySelectorAll('.cvb').forEach(function(y){y.classList.toggle('on',y===x)});c.id=c.id||('c'+Math.random().toString(36).slice(2));tv('#'+c.id);})})});
+document.querySelectorAll('.ctaw').forEach(function(w){w.querySelectorAll('.cvb').forEach(function(x){x.addEventListener('click',function(){w.querySelectorAll('.cvb').forEach(function(y){y.classList.toggle('on',y===x)});w.querySelectorAll('.cp').forEach(function(p){p.classList.toggle('on',p.dataset.k===x.dataset.k)});})})});
 tv();var b=document.querySelector('.thm');if(b)b.addEventListener('click',function(){var t=R.getAttribute('data-theme')==='dark'?'light':'dark';R.setAttribute('data-theme',t);try{localStorage.setItem('theme',t)}catch(e){}tv();});})();</script>"""
 FONT = '<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">'
 
@@ -589,21 +589,77 @@ def tv_chart(tk, h=440, folder=""):
     return (f'<div class="tvbox" style="height:{h}px"><div class="tradingview-widget-container tvw" style="height:100%;width:100%" '
             f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" data-cfg=\'{json.dumps(cfg)}\'></div></div>')
 
+MA_D = ((5, "#ef4444"), (20, "#facc15"), (50, "#22c55e"), (100, "#3b82f6"), (200, "#a855f7"))
+MA_W = ((10, "#ef4444"), (20, "#facc15"), (40, "#22c55e"))
+
+def _px_dates(px, last):
+    """px.d(MMDD 문자열)에 마지막 날짜 기준으로 연도를 붙인다(뒤에서 앞으로, 월이 커지면 전년도)."""
+    import datetime as _dt
+    ds = []; y = int(last[:4]); prev_m = int(px["d"][-1][:2])
+    for md in reversed(px["d"]):
+        m = int(md[:2])
+        if m > prev_m: y -= 1
+        prev_m = m
+        ds.append(_dt.date(y, m, int(md[2:])))
+    return list(reversed(ds))
+
+def _sma(a, n): return [None if i < n - 1 else sum(a[i - n + 1:i + 1]) / n for i in range(len(a))]
+
+def _cta_svg(dates, vals, mas, show, title, w=760, h=400):
+    """직접 그린 CTA 차트: 종가 + 이동평균(고정 색) + 볼린저밴드(20, 2, 흰색). 어두운 배경 고정."""
+    n = len(vals)
+    bm = _sma(vals, 20)
+    bs = [None if i < 19 else (sum((x - bm[i]) ** 2 for x in vals[i - 19:i + 1]) / 20) ** .5 for i in range(n)]
+    up = [None if bm[i] is None else bm[i] + 2 * bs[i] for i in range(n)]
+    lo = [None if bm[i] is None else bm[i] - 2 * bs[i] for i in range(n)]
+    lines = [(k, c, _sma(vals, k)) for k, c in mas]
+    a = max(0, n - show)
+    cut = lambda L: L[a:]
+    v, dd = cut(vals), cut(dates)
+    pool = [x for x in v + cut(up) + cut(lo) if x is not None]
+    for _, _, L in lines: pool += [x for x in cut(L) if x is not None]
+    mn, mx = min(pool), max(pool); rg = (mx - mn) or 1; mn -= rg * .04; mx += rg * .04; rg = mx - mn
+    pl, pr, pt, pb = 10, 62, 34, 24
+    X = lambda i: pl + i * (w - pl - pr) / max(len(v) - 1, 1); Y = lambda x: pt + (mx - x) / rg * (h - pt - pb)
+    path = lambda L: "M" + " L".join(f"{X(i):.1f},{Y(x):.1f}" for i, x in enumerate(cut(L)) if x is not None)
+    g = f'<rect width="{w}" height="{h}" rx="10" fill="#0f172a"/>'
+    for t in range(5):
+        y0 = mn + rg * (t + .5) / 5
+        g += f'<line x1="{pl}" x2="{w-pr}" y1="{Y(y0):.1f}" y2="{Y(y0):.1f}" stroke="#334155" stroke-width=".6"/><text x="{w-pr+6}" y="{Y(y0)+4:.1f}" fill="#94a3b8" font-size="11">{y0:,.{0 if mx > 50 else 2}f}</text>'
+    last_m = None
+    for i, d in enumerate(dd):
+        if d.month != last_m and i > 0: g += f'<text x="{X(i):.1f}" y="{h-7}" fill="#94a3b8" font-size="11" text-anchor="middle">{d.strftime("%y.%m")}</text>'
+        last_m = d.month
+    pts = [(i, u, l) for i, (u, l) in enumerate(zip(cut(up), cut(lo))) if u is not None]
+    band = "M" + " L".join(f"{X(i):.1f},{Y(u):.1f}" for i, u, l in pts) + " L" + " L".join(f"{X(i):.1f},{Y(l):.1f}" for i, u, l in reversed(pts)) + " Z"
+    g += f'<path d="{band}" fill="#ffffff" fill-opacity=".10"/><path d="{path(up)}" fill="none" stroke="#ffffff" stroke-width="1"/><path d="{path(lo)}" fill="none" stroke="#ffffff" stroke-width="1"/>'
+    g += f'<path d="{path(vals)}" fill="none" stroke="#94a3b8" stroke-width="1.3"/>'
+    for k, c, L in lines: g += f'<path d="{path(L)}" fill="none" stroke="{c}" stroke-width="1.6"/>'
+    g += f'<rect x="{w-pr+2}" y="{Y(v[-1])-9:.1f}" width="58" height="18" rx="3" fill="#475569"/><text x="{w-pr+31}" y="{Y(v[-1])+4:.1f}" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">{v[-1]:,.2f}</text>'
+    leg = f'<text x="{pl+2}" y="16" fill="#e2e8f0" font-size="12" font-weight="700">{title}</text>'
+    x0 = pl + 2
+    for k, c, L in lines + [(None, "#ffffff", None)]:
+        lb = "볼린저(20,2)" if k is None else (f"{k}{'일' if len(mas) == 5 else '주'}")
+        leg += f'<rect x="{x0}" y="23" width="14" height="3" fill="{c}"/><text x="{x0+18}" y="28" fill="#cbd5e1" font-size="10.5">{lb}</text>'
+        x0 += 18 + len(lb) * 7 + 12
+    return f'<svg class="ctas" viewBox="0 0 {w} {h}" role="img" aria-label="{title}">{g}{leg}</svg>'
+
 def cta_widget(tk, folder=""):
     if EXCH.get(tk) == "KRX":
         return tv_chart(tk, folder=folder)
-    base = {"autosize": True, "symbol": tv_symbol(tk), "timezone": "Asia/Seoul", "theme": "light", "style": "1", "locale": "kr",
-            "allow_symbol_change": False, "hide_side_toolbar": True, "calendar": False, "hide_top_toolbar": True, "support_host": "https://www.tradingview.com"}
-    ma = lambda n: {"id": "MASimple@tv-basicstudies", "inputs": {"length": n}}
-    bb = {"id": "BB@tv-basicstudies", "inputs": {"length": 20, "stdDev": 2}}
-    cd = dict(base, interval="D", studies=[ma(5), ma(20), ma(50), ma(100), ma(200), bb])
-    cw = dict(base, interval="W", studies=[ma(10), ma(20), ma(40), bb])
-    j = lambda c: json.dumps(c).replace("'", "&#39;")
+    e = CTA.get(tk, {}); px = e.get("px")
+    if not px or len(px["c"]) < 240:
+        return tv_chart(tk, folder=folder)
+    dts = _px_dates(px, e["date"]); cl = px["c"]
+    wk = {}
+    for d, c in zip(dts, cl): wk[d.isocalendar()[:2]] = (d, c)
+    wd = [v[0] for v in wk.values()]; wc = [v[1] for v in wk.values()]
+    sd = _cta_svg(dts, cl, MA_D, 200, f"{tk} 일봉 · SMA 5·20·50·100·200 + 볼린저(20, 2)")
+    sw = _cta_svg(wd, wc, MA_W, max(30, len(wc) - 39), f"{tk} 주봉 · 10·20·40주선 + 볼린저(20, 2)")
     return (f'<div class="ctaw"><div class="ivs"><button class="ivb on cvb" data-k="D">일봉 · SMA 5·20·50·100·200 + 볼린저</button>'
             f'<button class="ivb cvb" data-k="W">주봉 · 10·20·40주선 + 볼린저</button></div>'
-            f'<div class="tvbox" style="height:460px"><div class="tradingview-widget-container tvw ctw" style="height:100%;width:100%" '
-            f'data-src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" data-cfg=\'{j(cd)}\' data-cd=\'{j(cd)}\' data-cw=\'{j(cw)}\'></div></div>'
-            f'<div class="cap">트레이딩뷰 차트 · 범례의 눈 아이콘으로 지표를 껐다 켤 수 있습니다 · 시세는 거래소별로 실시간 또는 지연</div></div>')
+            f'<div class="cp on" data-k="D">{sd}</div><div class="cp" data-k="W">{sw}</div>'
+            f'<div class="cap">종가 기준 직접 그린 차트 · 이동평균선 색: 5일·10주 빨강, 20일·20주 노랑, 50일·40주 초록, 100일 파랑, 200일 보라 · 볼린저밴드 흰색 · 매일 자동 갱신</div></div>')
 
 def tv_tape():
     syms = [{"proName": "FOREXCOM:NSXUSD", "title": "나스닥100"}, {"proName": "FOREXCOM:SPXUSD", "title": "S&P500"}, {"proName": "FOREXCOM:DJI", "title": "다우"},
