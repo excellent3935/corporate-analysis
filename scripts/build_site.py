@@ -258,6 +258,11 @@ except (OSError, ValueError):
     _CAP = {}
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
+def _pbase(tk):
+    """가격 기준일 표기 — 시세는 장 종료 후에만 갱신되므로 실시간으로 오해하지 않게 종가 날짜를 보여 준다."""
+    d = CTA.get(tk, {}).get("date", "")
+    return f"{int(d[5:7])}/{int(d[8:10])} 종가" if len(d) >= 10 else ""
+
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
 EXCH = {"TGT": "NYSE", "HUM": "NYSE", "UBER": "NYSE", "NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
 
@@ -380,7 +385,7 @@ footer{max-width:1180px;margin:0 auto;padding:10px 20px 40px;font-size:12px;colo
 .stock .lg svg{width:30px;height:30px}.stock .lg{width:52px;height:52px;border-radius:12px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-weight:800;color:#555;font-size:13px}
 .stock .n{font-size:18px;font-weight:700}.stock .n small{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:1px;margin-left:6px}
 .stock .s{font-size:13px;color:var(--muted)}.stock .u{font-size:13px;color:var(--red)}
-.stock .p{margin-left:auto;text-align:right;font-weight:800;font-size:18px}.stock .p small{display:block;font-size:12.5px}
+.stock .p{margin-left:auto;text-align:right;font-weight:800;font-size:18px}.stock .p small{display:block;font-size:12.5px}.stock .p .pbase{font-size:11px;font-weight:500;color:var(--muted);margin-top:1px}
 .read .kw{color:var(--red)}
 .read .part{margin:56px 0 8px;padding:18px 0 0;border-top:2px solid #111;font-size:22px;font-weight:700}.read .part span{display:block;font-size:11.5px;letter-spacing:3px;color:#2563eb;margin-bottom:4px}
 .read .meta{font-size:13px;color:var(--muted);background:var(--soft);border-radius:10px;padding:10px 14px;margin:8px 0 18px}
@@ -1073,7 +1078,7 @@ for i, r in enumerate(REPORTS):
     inner = f"""<div class="readwrap">{side(f)}<div class="read">
 <div class="rhead"><a href="index.html#reports">←</a><div><div class="t">{title}</div><div class="a">Corporate Analysis · 2026.11</div></div></div>
 <div class="prembox"><div class="ic">{ICON[tk]}</div><div><div class="k">REPORT · {tag}</div>{sub} — 8개 분기 공시·컨퍼런스콜과 트레이딩뷰 데이터를 바탕으로 정리했습니다.</div></div>
-<div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small></div></div>
+<div class="stock"><div class="lg">{ICON[tk]}</div><div><div class="n">{comp} <small>({tk})</small></div><div class="s">{line}</div><div class="u">{url}</div></div><div class="p">{px}<small class="{c}">{ch}</small><small class="pbase">{_pbase(tk)}</small></div></div>
 {target_box(tk)}{smart_box(tk)}{cta_box(tk)}{body}{endnav}</div></div>"""
     open(f"{OUT}/{f}", "w", encoding="utf-8").write(shell(title, inner, "reports", f))
 
