@@ -1110,6 +1110,76 @@ news_inner = (f'<div class="readwrap">{side("news.html")}<div class="read"><div 
     f'</div></div>' + NEWS_JS.replace("__DATA__", _nd))
 open(f"{OUT}/news.html", "w", encoding="utf-8").write(shell("뉴스 — Corporate Analysis", news_inner, "news"))
 
+# --------------- news detail drafts (in-site translated view + source reference) ---------------
+NDD_CSS = """
+.ndl{list-style:none;margin:0;padding:0}.ndl li{border-bottom:1px solid var(--line);padding:13px 2px;cursor:pointer}.ndl li:hover .t{text-decoration:underline}
+.ndl .t{font-size:15px;font-weight:600;color:var(--ink);line-height:1.45}.ndl .s{font-size:13px;color:var(--muted);margin:4px 0 6px;line-height:1.5}
+.ndl .m{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted)}.ndl .tk,.nda .tk{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:11.5px;color:var(--ink2);background:var(--card);text-decoration:none}
+.ndsum{border:1px solid var(--line);border-left:4px solid var(--blue);background:var(--card);border-radius:10px;padding:13px 16px;margin:14px 0;font-size:15px;line-height:1.65}
+.ndsum b.k{color:var(--blue);margin-right:4px}.ndsum mark{background:rgba(250,204,21,.28);color:inherit;padding:0 2px;border-radius:3px}
+.ndbody{font-size:15px;line-height:1.8;color:var(--ink);margin:6px 0 4px}.ndbody small{display:block;color:var(--muted);font-size:12px;margin-top:6px}
+.ndh{font-size:22px;font-weight:800;line-height:1.4;margin:6px 0 8px}.ndmeta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted)}
+.ndref{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:14px 16px;margin:18px 0 6px}.ndref .h{font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}
+.ndref .o{font-size:13.5px;color:var(--ink2);line-height:1.5;margin-bottom:10px}.ndref a.go{display:inline-block;background:var(--ink);color:var(--bg,#fff);border-radius:8px;padding:8px 16px;font-size:13.5px;font-weight:700;text-decoration:none}
+.ndnote{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:10px}.ndback{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer;margin:4px 0 6px}
+.ndmore{display:block;margin:16px auto 0;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 22px;font:inherit;font-size:13px;cursor:pointer}
+.ndbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:4px 0 12px}.ndbar input,.ndbar select{font:inherit;font-size:13px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:7px 10px}.ndbar input{flex:1;min-width:140px}
+.ndhd{display:none}
+.ndpanel{position:fixed;top:0;right:0;height:100%;width:min(520px,100%);background:var(--bg,#fff);border-left:1px solid var(--line);box-shadow:-8px 0 30px rgba(0,0,0,.18);z-index:60;transform:translateX(105%);transition:transform .22s;display:flex;flex-direction:column}
+.ndpanel.on{transform:none}.ndpanel .ph{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}.ndpanel .ph b{flex:1;font-size:13px;color:var(--muted)}
+.ndpanel .pb{flex:1;overflow:auto;padding:4px 18px 18px}.ndpanel .pf{border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center}.ndpanel .pf a.go{flex:1;text-align:center;background:var(--ink);color:var(--bg,#fff);border-radius:8px;padding:10px;font-weight:700;font-size:13.5px;text-decoration:none}
+.ndpanel .pf button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:9px 12px;font:inherit;cursor:pointer}
+.ndshade{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:55;display:none}.ndshade.on{display:block}
+@media(max-width:640px){.ndpanel{top:auto;bottom:0;height:86%;width:100%;border-left:0;border-top:1px solid var(--line);border-radius:16px 16px 0 0;transform:translateY(105%)}.ndh{font-size:19px}}
+"""
+CSS += NDD_CSS
+NDD_JS = """<script>(function(){var D=__DATA__,MODE='__MODE__',L=document.getElementById('ndl'),Q=document.getElementById('ndq'),S=document.getElementById('nds'),C=document.getElementById('ndc'),M=document.getElementById('ndm'),LIST=document.getElementById('ndlist'),VIEW=document.getElementById('ndview'),N=30,shown=N,cur=[];
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function ago(iso){var m=Math.max(0,(Date.now()-new Date(iso).getTime())/60000);if(m<60)return Math.max(1,Math.round(m))+'분 전';if(m<1440)return Math.round(m/60)+'시간 전';if(m<10080)return Math.round(m/1440)+'일 전';return new Date(iso).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul',month:'long',day:'numeric'})}
+function host(u){try{return new URL(u).hostname.replace(/^www\\./,'')}catch(e){return ''}}
+function hid(u){var h=5381,s=u.split('?')[0];for(var i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))>>>0;return h.toString(36)}
+function hi(t){return esc(t).replace(/(\\$?[0-9][0-9,.]*\\s?(?:%|퍼센트|억|조|만|달러|원|배|명|분기)?)/g,function(m){return/[0-9]/.test(m)&&m.length>1?'<mark>'+m+'</mark>':m})}
+function key(sk){var p=String(sk||'').split(/(?<=[.!?。])\\s+/).filter(Boolean);var s=p[0]||'';return s.length>130?s.slice(0,128)+'…':s}
+function tags(x){return x[5].slice(0,6).map(function(t){return'<a class="tk" href="'+(D.lk[t]||'#')+'">'+esc(D.nm[t]||t)+'</a>'}).join('')}
+function detail(x){var title=x[6]||x[0],body=x[6]?x[7]:x[3],k=key(body||title);
+return'<div class="nda"><div class="ndmeta">'+tags(x)+'<span>·</span><span>'+esc(x[4])+'</span><span>·</span><span>'+new Date(x[2]).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})+' (KST)</span></div>'
++'<div class="ndh">'+esc(title)+'</div>'
++'<div class="ndsum"><b class="k">요약 :</b>'+hi(k)+'</div>'
++'<div class="ndbody">'+esc(body||'원문에서 제공된 본문 발췌가 없습니다.')+'<small>↑ 피드가 제공한 발췌문을 한국어로 번역한 내용입니다. 전체 기사는 아래 원문에서 확인하세요.</small></div>'
++'<div class="ndref"><div class="h">📎 원문 참조</div><div class="o">'+esc(x[0])+'<br><span style="color:var(--muted);font-size:12px">'+esc(x[4])+' · '+esc(host(x[1]))+'</span></div><a class="go" href="'+esc(x[1])+'" target="_blank" rel="noopener noreferrer">원문 사이트에서 읽기 ↗</a></div>'
++'<div class="ndnote">한국어 제목·요약은 기계 번역·자동 추출이며 오역이 있을 수 있습니다. 모든 저작권은 원문 발행처에 있습니다.</div></div>'}
+function draw(){var q=(Q.value||'').trim().toLowerCase(),k=S.value;cur=D.n.filter(function(x){return(!k||x[5].indexOf(k)>=0)&&(!q||(x[0]+' '+x[6]+' '+x[3]+' '+x[7]+' '+x[5].map(function(t){return t+' '+(D.nm[t]||'')}).join(' ')).toLowerCase().indexOf(q)>=0)});
+C.textContent=cur.length+'건';if(!cur.length){L.innerHTML='<div class="nwempty">표시할 뉴스가 없습니다.</div>';M.style.display='none';return}
+L.innerHTML=cur.slice(0,shown).map(function(x,i){var b=x[6]?x[7]:x[3];return'<li data-h="'+hid(x[1])+'"><div class="t">'+esc(x[6]||x[0])+'</div>'+(b?'<div class="s">'+esc(b)+'</div>':'')+'<div class="m">'+tags(x)+'<span>'+esc(x[4])+'</span><span>·</span><span>'+ago(x[2])+'</span></div></li>'}).join('');M.style.display=cur.length>shown?'':'none'}
+function find(h){for(var i=0;i<D.n.length;i++)if(hid(D.n[i][1])===h)return i;return -1}
+var P=document.getElementById('ndpanel'),SH=document.getElementById('ndshade'),PB=P&&P.querySelector('.pb'),PG=P&&P.querySelector('a.go'),idx=-1;
+function open(h,push){var i=find(h);if(i<0)return;idx=i;var x=D.n[i];
+if(MODE==='a'){LIST.style.display='none';VIEW.style.display='';VIEW.innerHTML='<button class="ndback" type="button">← 목록으로</button>'+detail(x);window.scrollTo(0,0);VIEW.querySelector('.ndback').onclick=function(){history.back()}}
+else{PB.innerHTML=detail(x);PG.href=x[1];P.classList.add('on');SH.classList.add('on');PB.scrollTop=0}
+if(push)history.pushState({h:h},'','#'+h)}
+function close(){if(MODE==='a'){VIEW.style.display='none';LIST.style.display='';VIEW.innerHTML=''}else{P.classList.remove('on');SH.classList.remove('on')}}
+L.addEventListener('click',function(e){var li=e.target.closest('li');if(!li||e.target.closest('a'))return;open(li.getAttribute('data-h'),true)});
+window.addEventListener('popstate',function(){var h=location.hash.slice(1);if(h)open(h,false);else close()});
+if(MODE==='b'){SH.onclick=function(){history.back()};P.querySelector('.x').onclick=function(){history.back()};
+P.querySelector('.pv').onclick=function(){if(idx>0)open(hid(D.n[idx-1][1]),false)};P.querySelector('.nx').onclick=function(){if(idx<D.n.length-1)open(hid(D.n[idx+1][1]),false)}}
+Q.addEventListener('input',function(){shown=N;draw()});S.addEventListener('change',function(){shown=N;draw()});M.addEventListener('click',function(){shown+=N;draw()});draw();
+if(location.hash.length>1)open(location.hash.slice(1),false);
+var a=document.getElementById('nwa');if(a&&D.asof)a.textContent='마지막 수집 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});})();</script>"""
+
+def news_draft(kind):
+    nm, ttl = ("news-a.html", "시안 A · 상세 페이지형") if kind == "a" else ("news-b.html", "시안 B · 슬라이드 패널형")
+    lk = ('<div class="ndl-links" style="font-size:12.5px;margin:0 0 10px">시안: <a href="news-a.html"%s>A 상세 페이지형</a> · <a href="news-b.html"%s>B 슬라이드 패널형</a> · <a href="news.html">현재 뉴스 탭</a></div>'
+          % (' style="font-weight:800"' if kind == "a" else "", ' style="font-weight:800"' if kind == "b" else ""))
+    panel = ('<div class="ndshade" id="ndshade"></div><div class="ndpanel" id="ndpanel"><div class="ph"><button class="ndback x" type="button">✕ 닫기</button><b>번역 뉴스</b><button class="ndback pv" type="button">↑ 이전</button><button class="ndback nx" type="button">↓ 다음</button></div>'
+             '<div class="pb"></div><div class="pf"><a class="go" href="#" target="_blank" rel="noopener noreferrer">원문 사이트에서 읽기 ↗</a></div></div>') if kind == "b" else ""
+    inner = (f'<div class="readwrap">{side(nm)}<div class="read"><div class="rhead"><a href="news.html">←</a><div><div class="t">뉴스 · {ttl}</div><div class="a">기사를 누르면 한국어 번역·요약이 이 사이트 안에서 열립니다 · <span id="nwa"></span></div></div></div>{lk}'
+             f'<div id="ndview" style="display:none"></div><div id="ndlist"><div class="ndbar"><select id="nds"><option value="">전체 종목</option>{_opts}</select><input id="ndq" type="search" placeholder="종목·제목 검색"><span class="cnt" id="ndc" style="margin-left:auto;font-size:12px;color:var(--muted)"></span></div>'
+             f'<ul class="ndl" id="ndl"></ul><button class="ndmore" id="ndm" type="button">더 보기</button></div></div></div>{panel}'
+             + NDD_JS.replace("__DATA__", _nd).replace("__MODE__", kind))
+    open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("뉴스 — " + ttl, inner, "news"))
+news_draft("a"); news_draft("b")
+
+
 # --------------- briefing page ---------------
 try:
     _BR = json.load(open(os.path.join(ROOT, "data", "briefing.json"), encoding="utf-8")).get("b", [])
