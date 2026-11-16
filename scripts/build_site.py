@@ -1108,7 +1108,6 @@ news_inner = (f'<div class="readwrap">{side("news.html")}<div class="read"><div 
     f'<ul class="nwl" id="nwl"></ul><button class="nwmore" id="nwm" type="button">더 보기</button>'
     f'<div class="nwnote">기사는 야후 파이낸스(삼성전자·SK하이닉스는 구글뉴스 포함)에서 자동 수집해 한국어로 번역한 제목·요약이며, 제목이나 출처 링크를 누르면 원문 사이트로 이동합니다. 번역은 기계 번역이라 정확한 내용은 원문을 확인하세요. 최근 30일 기사만 보관하고, 일부 기사는 종목과 직접 관련이 약할 수 있습니다.</div>'
     f'</div></div>' + NEWS_JS.replace("__DATA__", _nd))
-open(f"{OUT}/news.html", "w", encoding="utf-8").write(shell("뉴스 — Corporate Analysis", news_inner, "news"))
 
 # --------------- news detail drafts (in-site translated view + source reference) ---------------
 NDD_CSS = """
@@ -1167,17 +1166,16 @@ if(location.hash.length>1)open(location.hash.slice(1),false);
 var a=document.getElementById('nwa');if(a&&D.asof)a.textContent='마지막 수집 '+new Date(D.asof).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false});})();</script>"""
 
 def news_draft(kind):
-    nm, ttl = ("news-a.html", "시안 A · 상세 페이지형") if kind == "a" else ("news-b.html", "시안 B · 슬라이드 패널형")
-    lk = ('<div class="ndl-links" style="font-size:12.5px;margin:0 0 10px">시안: <a href="news-a.html"%s>A 상세 페이지형</a> · <a href="news-b.html"%s>B 슬라이드 패널형</a> · <a href="news.html">현재 뉴스 탭</a></div>'
-          % (' style="font-weight:800"' if kind == "a" else "", ' style="font-weight:800"' if kind == "b" else ""))
+    nm, ttl = "news.html", "뉴스"
+    lk = ""
     panel = ('<div class="ndshade" id="ndshade"></div><div class="ndpanel" id="ndpanel"><div class="ph"><button class="ndback x" type="button">✕ 닫기</button><b>번역 뉴스</b><button class="ndback pv" type="button">↑ 이전</button><button class="ndback nx" type="button">↓ 다음</button></div>'
              '<div class="pb"></div><div class="pf"><a class="go" href="#" target="_blank" rel="noopener noreferrer">원문 사이트에서 읽기 ↗</a></div></div>') if kind == "b" else ""
-    inner = (f'<div class="readwrap">{side(nm)}<div class="read"><div class="rhead"><a href="news.html">←</a><div><div class="t">뉴스 · {ttl}</div><div class="a">기사를 누르면 한국어 번역·요약이 이 사이트 안에서 열립니다 · <span id="nwa"></span></div></div></div>{lk}'
+    inner = (f'<div class="readwrap">{side(nm)}<div class="read"><div class="rhead"><a href="news.html">←</a><div><div class="t">뉴스</div><div class="a">등록된 {len(REPORTS)}개 기업 관련 최신 기사 · <span id="nwa"></span></div></div></div>{lk}'
              f'<div id="ndview" style="display:none"></div><div id="ndlist"><div class="ndbar"><select id="nds"><option value="">전체 종목</option>{_opts}</select><input id="ndq" type="search" placeholder="종목·제목 검색"><span class="cnt" id="ndc" style="margin-left:auto;font-size:12px;color:var(--muted)"></span></div>'
-             f'<ul class="ndl" id="ndl"></ul><button class="ndmore" id="ndm" type="button">더 보기</button></div></div></div>{panel}'
+             f'<ul class="ndl" id="ndl"></ul><button class="ndmore" id="ndm" type="button">더 보기</button><div class="nwnote">기사는 야후 파이낸스(삼성전자·SK하이닉스는 구글뉴스 포함)에서 자동 수집해 한국어로 번역한 제목·요약입니다. 기사를 누르면 번역·요약을 보고, 하단의 원문 링크로 전체 기사를 읽을 수 있습니다. 번역은 기계 번역이라 정확한 내용은 원문을 확인하세요. 최근 30일 기사만 보관하고, 일부 기사는 종목과 직접 관련이 약할 수 있습니다.</div></div></div></div>{panel}'
              + NDD_JS.replace("__DATA__", _nd).replace("__MODE__", kind))
     open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("뉴스 — " + ttl, inner, "news"))
-news_draft("a"); news_draft("b")
+news_draft("a")
 
 
 # --------------- briefing page ---------------
