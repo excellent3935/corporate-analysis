@@ -1428,7 +1428,8 @@ def f13_page():
         lab = x["nm"].title() if x["nm"].isupper() else x["nm"]
         if x.get("tk") and x["tk"] in byk:
             return f'<a href="{byk[x["tk"]][0]}">{lab}</a><span class="s">{x["tk"]}</span>'
-        return f'{lab}<span class="s">{x.get("cls", "")}</span>'
+        d = x.get("dt")
+        return f'{lab}<span class="s">{(d + " · ") if d else ""}{x.get("cls", "")}</span>'
     cards = []
     _lim = (dt.date.today() - dt.timedelta(days=400)).isoformat()  # 마지막 13F가 1년 넘게 지난(제출 중단) 회사는 제외
     order = [r[4] for r in REPORTS if r[4] in C and C[r[4]]["period"] >= _lim]
