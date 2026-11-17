@@ -960,6 +960,20 @@ def update_briefing(mode="auto"):
 
 
 # ---------------- 옵션 지표 (5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립) ----------------
+def _sdiv(spot, straddle, days):
+    """ATM 스트래들 가격으로 역산한 내재변동성(연). 스트래들 ≈ 0.7979·S·σ·√T. 야후의 impliedVolatility 필드는 장외 시간에 0에 가까운 값이 나오는 일이 있어 가격에서 직접 구한다."""
+    if not straddle or straddle <= 0 or not spot:
+        return None
+    return straddle / (0.7979 * spot * (max(days, 1) / 365) ** 0.5)
+
+
+def _sane(x, hv):
+    """HV 대비 말이 되는 범위의 변동성인지(0.35~3배, HV가 없으면 10~300%)."""
+    if not x:
+        return False
+    return (0.35 * hv <= x <= 3 * hv) if hv else (0.1 <= x <= 3.0)
+
+
 def _atm(df_c, df_p, spot):
     """현재가에 가장 가까운 행사가의 (행사가, 콜·풋 평균 IV, 스트래들 가격). 값이 없으면 None."""
     import numpy as np
@@ -1023,10 +1037,16 @@ def _options_for(t, spot, earn_day, earn_time):
             c = t.option_chain(e); cache[e] = (c.calls, c.puts); time.sleep(0.1)
         return cache[e]
 
-    # ① 5거래일 1σ: 만기가 5일 이상 남은 첫 만기의 ATM IV (없으면 HV20)
+    # ① 5거래일 1σ: 만기가 5일 이상 남은 첫 만기의 ATM 스트래들로 구한 IV (비정상이면 야후 IV → 그것도 비정상이면 HV20)
+    hv = out.get("hv20")
     e5 = next((e for e in exps if days[e] >= 5), exps[-1])
     a = _atm(*chain(e5), spot)
-    iv5, src = (a[1], "iv") if a and a[1] else (out.get("hv20"), "hv")
+    iv_s = _sdiv(spot, a[2], days[e5]) if a else None
+    iv_y = a[1] if a else None
+    if _sane(iv_s, hv): iv5, src = iv_s, "iv"
+    elif _sane(iv_y, hv): iv5, src = iv_y, "iv"
+    else: iv5, src = hv, "hv"
+    flat = iv_s if _sane(iv_s, hv) else (hv if not _sane(iv_y, hv) else None)  # 야후 IV가 못 믿을 값이면 감마 계산에 쓸 단일 변동성
     if iv5:
         sg = spot * iv5 * (5 / 252) ** 0.5
         out.update({"iv5": round(iv5, 4), "src": src, "e5": e5, "lo": round(spot - sg, 2), "hi": round(spot + sg, 2), "sg": round(sg, 2), "sgp": round(sg / spot * 100, 2)})
@@ -1039,12 +1059,16 @@ def _options_for(t, spot, earn_day, earn_time):
             a = _atm(*chain(ee), spot)
             if a:
                 r = {"d": earn_day, "t": earn_time, "e": ee, "k": a[0]}
-                if a[1]: r["iv"] = round(a[1], 4)
+                ivx = _sdiv(spot, a[2], days[ee])
+                if _sane(ivx, hv): r["iv"] = round(ivx, 4)
+                elif _sane(a[1], hv): r["iv"] = round(a[1], 4)
                 if a[2] > 0: r["mv"] = round(a[2], 2); r["mvp"] = round(a[2] / spot * 100, 2)
                 eb = next((e for e in exps if (dt.date.fromisoformat(e) - dt.date.fromisoformat(ee)).days >= 14), None)  # 실적 이후 평상시 IV
                 if eb:
                     b = _atm(*chain(eb), spot)
-                    if b and b[1]: r["ivb"] = round(b[1], 4)
+                    ivb = _sdiv(spot, b[2], days[eb]) if b else None
+                    if _sane(ivb, hv): r["ivb"] = round(ivb, 4)
+                    elif b and _sane(b[1], hv): r["ivb"] = round(b[1], 4)
                 out["er"] = r
     # ③ 풋월·콜월·감마 플립: 45일 이내 만기 전체의 미결제약정(OI)
     coi, poi, rows = {}, {}, []
@@ -1055,6 +1079,7 @@ def _options_for(t, spot, earn_day, earn_time):
                 k, oi, iv = float(r["strike"]), float(r.get("openInterest") or 0), float(r.get("impliedVolatility") or 0)
                 if oi > 0 and 0.7 * spot <= k <= 1.3 * spot:
                     book[k] = book.get(k, 0) + oi
+                    if flat: iv = flat
                     if iv > 0.01: rows.append((k, T, iv, oi, sgn))
     if coi or poi:
         lo_p = {k: v for k, v in poi.items() if k <= spot} or poi
@@ -1108,6 +1133,10 @@ if __name__ == "__main__":
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds", "congress"):  # 내부자 거래 / 13F / 의원 거래만 갱신
         {"insiders": update_insiders, "funds": update_funds, "congress": update_congress}[sys.argv[1]](load("cta.json", {"tickers": {}}))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "backtest":  # 5거래일 1σ 백테스트 (HV 방식 커버리지 검증)
+        import backtest_sigma
+        save("backtest_sigma.json", backtest_sigma.run(["NVDA"] + [t for t in STOCKS if t != "NVDA" and not STOCKS[t].endswith(".KS")], STOCKS))
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "options":  # 옵션 지표만 갱신 (매일 아침)
         update_options(load("cta.json", {"tickers": {}}))

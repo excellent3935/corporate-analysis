@@ -1333,6 +1333,7 @@ OPT_CSS = """
 .opleg{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.65;color:var(--muted);margin-bottom:10px}.opleg b{color:var(--text,inherit)}
 .opv{display:none}.opv.on{display:block}.optw{overflow-x:auto}.opt{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}.opt th{text-align:right;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);position:sticky;top:0}.opt th:first-child,.opt td:first-child{text-align:left}
 .opt td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line)}.opt td a{color:inherit;font-weight:700;text-decoration:none}.opt .s{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.opt a.bn{display:flex;align-items:center;gap:10px;text-align:left}.opt .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.opt .bl0 .mono{font-size:9px}.opt .bl0 img{width:100%;height:100%;object-fit:cover}.opq{width:100%;max-width:320px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,transparent);color:inherit;font-size:14px;margin:0 0 10px}.opx{display:none;color:var(--muted);font-size:13px;padding:10px 2px}
 .opt .up{color:var(--up);font-weight:700}.opt .down{color:var(--down);font-weight:700}.opt .mu{color:var(--muted)}
 .rb{position:relative;display:inline-block;width:120px;height:8px;border-radius:4px;background:var(--line);vertical-align:middle}.rb i{position:absolute;top:0;bottom:0;background:#93c5fd;border-radius:4px}.rb u{position:absolute;top:-3px;width:2px;height:14px;background:var(--text,#111);text-decoration:none}
 .tg{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700}.tg.p{background:rgba(22,163,74,.14);color:#16a34a}.tg.n{background:rgba(220,38,38,.14);color:#dc2626}
@@ -1344,7 +1345,9 @@ def options_page():
     except (OSError, ValueError):
         O = {"asof": "", "t": {}}
     T = O.get("t", {})
-    def nm(r): return f'<a href="{r[0]}">{r[3].replace(" 기업분석", "")}</a><span class="s">{r[4]}</span>'
+    def nm(r):
+        sx = (r[4] + " " + r[3].replace(" 기업분석", "") + " " + r[5] + " " + KO_ALIAS.get(r[4], "")).lower().replace('"', "")
+        return f'<a class="bn" href="{r[0]}"><span class="bl0">{ICON[r[4]]}</span><span><b>{r[3].replace(" 기업분석", "")}</b><span class="s">{r[4]}</span></span></a><span class="hs" hidden>{sx}</span>'
     def pct(a, b): return (a / b - 1) * 100
     r1, r2, r3 = [], [], []
     for r in REPORTS:
@@ -1383,8 +1386,8 @@ def options_page():
     seg = "".join(f'<button type="button" class="{"on" if i == 0 else ""}" data-v="{i}">{n}</button>' for i, n in enumerate(names))
     body = "".join(f'<div class="opv{" on" if i == 0 else ""}" data-v="{i}"><div class="opleg">{legs[i]}</div>{v}</div>' for i, v in enumerate((v1, v2, v3)))
     note = ('<div class="opn">데이터: Yahoo Finance 옵션 체인(지연 시세), 매일 아침 갱신. 미결제약정은 전일 기준이며, 감마 플립은 "콜은 딜러가 팔고 풋은 산다"는 통상 가정으로 추정한 값이라 실제 딜러 포지션과 다를 수 있습니다. 옵션이 없는 종목·한국 종목은 표시되지 않습니다. 투자 권유가 아닙니다.</div>')
-    js = ("<script>(function(){var b=document.querySelectorAll('.opseg button'),v=document.querySelectorAll('.opv');b.forEach(function(x){x.onclick=function(){b.forEach(function(y){y.classList.toggle('on',y===x)});v.forEach(function(y){y.classList.toggle('on',y.dataset.v===x.dataset.v)})}})})();</script>")
-    inner = (f'<style>{OPT_CSS}</style><div class="opw"><div class="oph"><span class="t">옵션</span><span class="a">등록 기업 옵션 지표 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div><div class="opseg">{seg}</div>{body}{note}</div>{js}')
+    js = ("<script>(function(){var b=document.querySelectorAll('.opseg button'),v=document.querySelectorAll('.opv');b.forEach(function(x){x.onclick=function(){b.forEach(function(y){y.classList.toggle('on',y===x)});v.forEach(function(y){y.classList.toggle('on',y.dataset.v===x.dataset.v)})}});var q=document.getElementById('opq'),nx=document.getElementById('opx');q.addEventListener('input',function(){var t=q.value.trim().toLowerCase(),shown=0;document.querySelectorAll('.opt tr').forEach(function(r,i){var h=r.querySelector('.hs');if(!h)return;var ok=!t||h.textContent.indexOf(t)>-1;r.style.display=ok?'':'none';if(ok&&r.closest('.opv.on'))shown++});nx.style.display=(t&&!shown)?'block':'none'});b.forEach(function(x){x.addEventListener('click',function(){q.dispatchEvent(new Event('input'))})})})();</script>")
+    inner = (f'<style>{OPT_CSS}</style><div class="opw"><div class="oph"><span class="t">옵션</span><span class="a">등록 기업 옵션 지표 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div><div class="opseg">{seg}</div><input class="opq" id="opq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="옵션 기업 검색"><div class="opx" id="opx">검색 결과가 없습니다.</div>{body}{note}</div>{js}')
     open(f"{OUT}/options.html", "w", encoding="utf-8").write(shell("옵션 — 5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립", inner, "options"))
 options_page()
 

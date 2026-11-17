@@ -22,7 +22,7 @@ on:
         description: "일부만 갱신 (all이면 전체)"
         type: choice
         default: all
-        options: [all, funds, insiders, congress, options]
+        options: [all, funds, insiders, congress, options, backtest]
   push:
     branches: [main]          # 리포트 파일을 올리면 바로 다시 배포
 
