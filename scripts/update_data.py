@@ -319,7 +319,8 @@ ETF_BY_CLS = [  # (발행사명 포함어, 종류명 포함어, 티커) — 13F�
     ("STATE STR SPDR S&P 500", "", "SPY"), ("STATE STREET SPDR S&P 500", "", "SPY"), ("SPDR S&P 500", "", "SPY"),
     ("VANGUARD INDEX FDS", "S&P 500 ETF", "VOO"), ("VANGUARD S&P 500", "", "VOO"), ("VANGUARD INDEX FDS", "TOTAL STK MKT", "VTI"), ("VANGUARD INDEX FDS", "GROWTH ETF", "VUG"), ("VANGUARD INDEX FDS", "VALUE ETF", "VTV"),
     ("VANGUARD TAX-MANAGED FDS", "FTSE DEV", "VEA"), ("VANGUARD TOTAL BOND", "", "BND"), ("VANGUARD TOTAL INTL BOND", "", "BNDX"), ("VANGUARD INTL EQUITY INDEX", "EMR MKT", "VWO"),
-    ("INVESCO QQQ", "", "QQQ"), ("JPMORGAN BETABUILDERS JAPAN", "", "BBJP"), ("ISHARES CORE S&P 500 ETF", "", "IVV"),
+    ("ISHARES", "RUS 1000 GRW", "IWF"), ("ISHARES", "RUS 1000 VAL", "IWD"), ("ISHARES", "US TREAS BD", "GOVT"), ("ISHARES", "S&P US GWT", "IVW"), ("ISHARES", "S&P US VLU", "IVE"), ("ISHARES", "RUS MID CAP", "IWR"),
+    ("PHILIP MORRIS INTL", "", "PM"), ("TAIWAN SEMICONDUCTOR MANUFAC", "", "TSM"), ("INVESCO QQQ", "", "QQQ"), ("JPMORGAN BETABUILDERS JAPAN", "", "BBJP"), ("ISHARES CORE S&P 500 ETF", "", "IVV"),
 ]
 
 
@@ -1045,7 +1046,7 @@ def update_corp13f(cta):
         k = _norm(name)
         return rev_title.get(k) if k else None
 
-    SIG13 = "2-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
+    SIG13 = "3-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
     for tk in ours:
         cik = cik_of.get(tk.replace("-", "."))
