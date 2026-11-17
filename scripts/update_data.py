@@ -32,6 +32,7 @@ MARKET = {  # 사이트 키: 야후 심볼
 }
 RATES = {"US02Y": "2 Yr", "US10Y": "10 Yr", "US20Y": "20 Yr", "US30Y": "30 Yr"}  # 미 재무부 일간 수익률 곡선 열 이름
 STOCKS = {  # 사이트 티커: 야후 심볼
+    "BRK.B": "BRK-B", "COF": "COF", "AXP": "AXP", "PYPL": "PYPL", "SYF": "SYF", "C": "C", "BNY": "BNY",
     "MU": "MU", "GOOGL": "GOOGL", "MSFT": "MSFT", "AMZN": "AMZN", "NVDA": "NVDA", "MRVL": "MRVL",
     "005930": "005930.KS", "000660": "000660.KS", "AAPL": "AAPL", "AVGO": "AVGO", "TSM": "TSM", "AMD": "AMD",
     "INTC": "INTC", "QCOM": "QCOM", "ORCL": "ORCL", "PLTR": "PLTR", "META": "META", "CRWV": "CRWV",
@@ -305,8 +306,9 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
 def _extra_13f():
     """13F 탭에 싣는 기관 목록: data/filers_13f.json 에서 읽는다(줄만 추가하면 다음 갱신 때 자동 수집·배포)."""
     return [tuple(x) for x in load("filers_13f.json", {"filers": []}).get("filers", []) if len(x) == 4]
-MAP_VER = 4  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
+MAP_VER = 5  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
+    "BERKSHIRE HATHAWAY INC DEL": "BRK.B", "CAPITAL ONE FINL CORP": "COF", "AMERICAN EXPRESS CO": "AXP", "PAYPAL HLDGS INC": "PYPL", "SYNCHRONY FINANCIAL": "SYF", "CITIGROUP INC": "C", "BANK NEW YORK MELLON CORP": "BNY",
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
     "ALPHABET INC": "GOOGL",
     "APPLIED MATLS INC": "AMAT", "BANK AMER CORP": "BAC", "INTERNATIONAL BUSINESS MACHS COR": "IBM", "INTERNATIONAL BUSINESS MACHINES": "IBM",

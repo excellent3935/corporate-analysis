@@ -170,6 +170,13 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("apple.html", "aapl", [CONTENT + "/aapl/body.html"], "Apple 기업분석", "AAPL", "Apple Inc.", "빅테크", "FY26 매출 $479B · 아이폰 듀오 · 메모리 비용", "#f8fafc", "소비자 전자", "https://www.apple.com"),
  ("eli-lilly.html", "lly", [CONTENT + "/lly/body.html"], "Eli Lilly 기업분석", "LLY", "Eli Lilly and Company", "헬스케어", "비만약 매출 66% · PEG 0.92 · CTA +1.0", "#fdf2f8", "제약", "https://www.lilly.com"),
  ("jpmorgan.html", "jpm", [CONTENT + "/jpm/body.html"], "JPMorgan Chase 기업분석", "JPM", "JPMorgan Chase & Co.", "금융", "ROTCE 20% · PEG 0.79 · P/TBV 3배", "#eff6ff", "은행", "https://www.jpmorganchase.com"),
+ ("berkshire.html", "brk", [CONTENT + "/brk/body.html"], "Berkshire Hathaway 기업분석", "BRK.B", "Berkshire Hathaway Inc.", "금융", "PER 16.6배 · PEG 1.14 · 현금 $3,774억 · CTA +1.00", "#eff6ff", "보험·복합기업", "https://www.berkshirehathaway.com"),
+ ("capitalone.html", "cof", [CONTENT + "/cof/body.html"], "Capital One 기업분석", "COF", "Capital One Financial Corp.", "금융", "조정 EPS 기준 PEG 0.79 · P/B 1.06배 · CET1 13.8%", "#eff6ff", "카드·은행", "https://www.capitalone.com"),
+ ("amex.html", "axp", [CONTENT + "/axp/body.html"], "American Express 기업분석", "AXP", "American Express Co.", "금융", "일회성 제외 PEG 약 1.31 · ROE 35.7% · 결제액 +8%", "#eff6ff", "카드·결제망", "https://www.americanexpress.com"),
+ ("paypal.html", "pypl", [CONTENT + "/pypl/body.html"], "PayPal 기업분석", "PYPL", "PayPal Holdings, Inc.", "금융", "PER 11.2배 · PEG 2.19 · 잉여현금 TTM $63억", "#eff6ff", "결제·핀테크", "https://www.paypal.com"),
+ ("synchrony.html", "syf", [CONTENT + "/syf/body.html"], "Synchrony Financial 기업분석", "SYF", "Synchrony Financial", "금융", "PER 7.5배 · PEG 1.63 · 구매액 +8%", "#eff6ff", "소비자금융", "https://www.synchrony.com"),
+ ("citigroup.html", "c", [CONTENT + "/c/body.html"], "Citigroup 기업분석", "C", "Citigroup Inc.", "금융", "PEG 0.27 · RoTCE 11.5% · P/TBV 1.19배", "#eff6ff", "은행", "https://www.citigroup.com"),
+ ("bnymellon.html", "bny", [CONTENT + "/bny/body.html"], "BNY 기업분석", "BNY", "The Bank of New York Mellon Corp.", "금융", "PEG 0.55 · RoTCE 29% · 수탁자산 $63.4조", "#eff6ff", "수탁은행", "https://www.bny.com"),
  ("texas-instruments.html", "txn", [CONTENT + "/txn/body.html"], "Texas Instruments 기업분석", "TXN", "Texas Instruments Incorporated", "반도체", "TTM PER 38배 · CTA 강한 매수", "#eff6ff", "아날로그 반도체", "https://www.ti.com"),
  ("ast-spacemobile.html", "asts", [CONTENT + "/asts/body.html"], "AST SpaceMobile 기업분석", "ASTS", "AST SpaceMobile, Inc.", "우주항공", "위성 직접 통신 · 현금 소진 점검", "#f5f3ff", "통신 위성", "https://www.ast-science.com"),
  ("rocket-lab.html", "rklb", [CONTENT + "/rklb/body.html"], "Rocket Lab 기업분석", "RKLB", "Rocket Lab Corporation", "우주항공", "발사·우주시스템 · 흑자 전환 점검", "#f5f3ff", "우주", "https://www.rocketlabusa.com"),
@@ -264,10 +271,10 @@ def _pbase(tk):
     return f"{int(d[5:7])}/{int(d[8:10])} 종가" if len(d) >= 10 else ""
 
 PRICE = {r[4]: _price(r[4]) for r in REPORTS}
-EXCH = {"TGT": "NYSE", "HUM": "NYSE", "UBER": "NYSE", "NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
+EXCH = {"BRK.B": "NYSE", "COF": "NYSE", "AXP": "NYSE", "SYF": "NYSE", "C": "NYSE", "BNY": "NYSE", "TGT": "NYSE", "HUM": "NYSE", "UBER": "NYSE", "NOW": "NYSE", "CRM": "NYSE", "RDDT": "NYSE", "VRT": "NYSE", "COHR": "NYSE", "005930": "KRX", "000660": "KRX", "TSM": "NYSE", "ORCL": "NYSE", "DELL": "NYSE", "LLY": "NYSE", "JPM": "NYSE", "UNH": "NYSE", "KO": "NYSE", "IONQ": "NYSE", "IBM": "NYSE", "JOBY": "NYSE", "ACHR": "NYSE", "GEV": "NYSE", "BE": "NYSE", "VST": "NYSE", "CRCL": "NYSE", "JNJ": "NYSE", "ABBV": "NYSE", "BA": "NYSE", "UMAC": "AMEX", "GE": "NYSE", "RTX": "NYSE", "LMT": "NYSE", "BAC": "NYSE", "WFC": "NYSE", "V": "NYSE", "MA": "NYSE", "MP": "NYSE", "HIMS": "NYSE", "NVO": "NYSE", "ANET": "NYSE", "NKE": "NYSE", "RACE": "NYSE", "MRK": "NYSE"}
 
 MONO = {"005930": "삼성", "000660": "SK"}
-LOGO = {"TGT": "target", "HUM": "humana", "UBER": "uber", "INTU": "intuit", "ON": "on-semiconductor", "ADI": "analog-devices", "MRK": "merck-and-co", "MRNA": "moderna", "NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
+LOGO = {"BRK.B": "berkshire-hathaway", "COF": "capital-one", "AXP": "american-express", "PYPL": "paypal", "SYF": "synchrony", "C": "citigroup", "BNY": "bank-of-new-york-mellon", "TGT": "target", "HUM": "humana", "UBER": "uber", "INTU": "intuit", "ON": "on-semiconductor", "ADI": "analog-devices", "MRK": "merck-and-co", "MRNA": "moderna", "NVDA": "nvidia", "AAPL": "apple", "GOOGL": "alphabet", "MSFT": "microsoft", "AMZN": "amazon", "MU": "micron-technology", "MRVL": "marvell-tech",
         "005930": "samsung", "TSM": "taiwan-semiconductor", "AVGO": "broadcom", "AMD": "advanced-micro-devices", "INTC": "intel", "QCOM": "qualcomm",
         "ORCL": "oracle", "PLTR": "palantir", "META": "meta-platforms", "CRWV": "coreweave",
         "TSLA": "tesla", "SPCX": "spacex", "DELL": "dell", "SNDK": "sandisk", "CRWD": "crowdstrike", "NBIS": "nebius-group-nv",
@@ -827,6 +834,11 @@ def _peg_data(r):  # 각 보고서 본문의 동종업계 비교표(트레이딩
 # 일회성 비용·비교 기저 왜곡으로 트레이딩뷰 PEG가 없거나 낮게 나온 종목의 조정 EPS 기준 값. 모두 해당 기업 보고서 PEG 심층 표의 수치.
 #  main: 조정 EPS 기준 PEG를 PEG 칸에 넣는다 / side: PEG 칸은 그대로 두고 비고에 일회성 비용 제외 PEG를 적는다 / none: 조정해도 산출 불가
 ADJ_PEG = {
+    "COF": {"mode": "main", "peg": 0.79, "per": "9.3배", "gr": "+11.8%", "note": "조정 EPS 기준 PEG(보고서 PEG 심층 표). 트레이딩뷰 PEG 0.02는 디스커버 인수 전 순손실 기저 효과"},
+    "AXP": {"mode": "gain", "peg": 1.31, "per": "약 18.8배", "gr": "+14.3%", "why": "GBTG 지분 이익 제외(추정)"},
+    "BRK.B": {"mode": "none", "note": "투자손익 제외 주당 영업이익 TTM이 -3.1%라 산출 불가. 트레이딩뷰 PEG 1.14는 투자 평가익 포함"},
+    "C": {"mode": "side", "note": "조정 추정 PEG 약 0.33(바나멕스 손상 기저 제외, 성장 약 36% 가정). 트레이딩뷰 0.27은 기저 효과 포함"},
+    "PYPL": {"mode": "side", "note": "비GAAP EPS 기준 PEG 약 4.1(참고)"},
     "ON": {"mode": "side", "note": "트레이딩뷰 PEG 0.35는 1Q25 GAAP 순손실(저기저) 효과. 조정 EPS 기준 PEG 약 2.5"},
     "ADI": {"mode": "side", "note": "조정 EPS 기준 PEG 약 0.63"},
     "MRK": {"mode": "none", "note": "GAAP·조정 EPS 모두 감소(취득 IPR&D 비용)해 산출 불가"},
@@ -1082,7 +1094,7 @@ Promise.all([g('visits',!seen),g('d'+d,!seen)]).then(function(v){{if(v[0]==null)
 _LBL = {"소프트웨어": "소프트웨어·클라우드", "양자": "양자컴퓨팅"}
 PILLS = '<button class="pill on" data-f="all">전체</button>' + "".join(f'<button class="pill" data-f="{t}">{_LBL.get(t, t)}</button>' for t in dict.fromkeys(r[6] for r in sorted(REPORTS, key=lambda r: -sum(1 for x in REPORTS if x[6] == r[6]))))
 
-KO_ALIAS = {"TGT": "타깃 타겟 target", "HUM": "휴매나 후마나 humana 메디케어", "UBER": "우버 uber 승차 배달", "INTU": "인튜이트 인투이트 intuit 터보택스 퀵북스", "ON": "온세미 온세미컨덕터 on semiconductor", "ADI": "아날로그 디바이시스 아날로그디바이스", "MRK": "머크 엠에스디 msd 키트루다", "MRNA": "모더나 엠알엔에이", "MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
+KO_ALIAS = {"BRK.B": "버크셔 해서웨이 버크셔해서웨이 버핏 berkshire brk", "COF": "캐피털원 캐피탈원 capital one 디스커버", "AXP": "아멕스 아메리칸 익스프레스 american express", "PYPL": "페이팔 paypal 벤모 venmo", "SYF": "신크로니 싱크로니 synchrony", "C": "씨티그룹 씨티 시티 citi citigroup", "BNY": "비엔와이 뉴욕멜론 멜론은행 bank of new york mellon bk", "TGT": "타깃 타겟 target", "HUM": "휴매나 후마나 humana 메디케어", "UBER": "우버 uber 승차 배달", "INTU": "인튜이트 인투이트 intuit 터보택스 퀵북스", "ON": "온세미 온세미컨덕터 on semiconductor", "ADI": "아날로그 디바이시스 아날로그디바이스", "MRK": "머크 엠에스디 msd 키트루다", "MRNA": "모더나 엠알엔에이", "MU": "마이크론", "GOOGL": "구글 알파벳", "MSFT": "마이크로소프트 마소", "AMZN": "아마존", "NVDA": "엔비디아", "MRVL": "마벨", "TSM": "티에스엠씨 tsmc 대만반도체", "AVGO": "브로드컴", "AMD": "에이엠디", "INTC": "인텔",
     "QCOM": "퀄컴", "ORCL": "오라클", "PLTR": "팔란티어", "META": "메타 페이스북", "CRWV": "코어위브", "TSLA": "테슬라", "SPCX": "스페이스엑스", "DELL": "델", "SNDK": "샌디스크", "CRWD": "크라우드스트라이크",
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
