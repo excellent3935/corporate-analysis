@@ -11,6 +11,7 @@ import io
 import json
 import os
 import sys
+import time
 import traceback
 
 import pandas as pd
@@ -958,6 +959,145 @@ def update_briefing(mode="auto"):
     print("브리핑", day, kind, len(items), "건")
 
 
+# ---------------- 옵션 지표 (5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립) ----------------
+def _atm(df_c, df_p, spot):
+    """현재가에 가장 가까운 행사가의 (행사가, 콜·풋 평균 IV, 스트래들 가격). 값이 없으면 None."""
+    import numpy as np
+    try:
+        ks = sorted(set(df_c["strike"]) & set(df_p["strike"]))
+        if not ks:
+            return None
+        k = min(ks, key=lambda x: abs(x - spot))
+        c = df_c[df_c["strike"] == k].iloc[0]; p = df_p[df_p["strike"] == k].iloc[0]
+
+        def mid(r):
+            b, a = float(r.get("bid") or 0), float(r.get("ask") or 0)
+            return (b + a) / 2 if b > 0 and a > 0 else float(r.get("lastPrice") or 0)
+        ivs = [float(x) for x in (c.get("impliedVolatility"), p.get("impliedVolatility")) if x and float(x) > 0.01]
+        return k, (float(np.mean(ivs)) if ivs else None), mid(c) + mid(p)
+    except Exception:
+        return None
+
+
+def _gex_flip(spot, rows):
+    """rows=[(K, T연, IV, OI, +1콜/-1풋)] → 감마 플립 가격(딜러 순감마가 0이 되는 가격)과 현재가에서의 부호(+1/-1).
+    통상의 GEX 관행: 콜 미결제약정은 +감마, 풋은 -감마로 보고(딜러가 콜은 팔고 풋은 샀다고 가정) 합산한다. 실제 딜러 포지션과 다를 수 있는 추정치."""
+    import numpy as np
+    if not rows:
+        return None, 0
+    K, T, iv, oi, sg = (np.array(c, dtype=float) for c in zip(*rows))
+    grid = spot * np.linspace(0.7, 1.3, 121)
+
+    def gex(S):
+        S = np.asarray(S, dtype=float)[:, None]
+        d1 = (np.log(S / K) + (0.04 + 0.5 * iv ** 2) * T) / (iv * np.sqrt(T))
+        g = np.exp(-0.5 * d1 ** 2) / np.sqrt(2 * np.pi) / (S * iv * np.sqrt(T))
+        return (sg * oi * 100 * g * S ** 2 * 0.01).sum(axis=1)
+    y = gex(grid); y0 = float(gex([spot])[0])
+    cross = []
+    for i in range(len(grid) - 1):
+        if y[i] == 0 or y[i] * y[i + 1] < 0:
+            cross.append(float(grid[i] - y[i] * (grid[i + 1] - grid[i]) / (y[i + 1] - y[i])) if y[i + 1] != y[i] else float(grid[i]))
+    flip = min(cross, key=lambda x: abs(x - spot)) if cross else None
+    return flip, (1 if y0 > 0 else -1 if y0 < 0 else 0)
+
+
+def _options_for(t, spot, earn_day, earn_time):
+    import numpy as np
+    out = {"px": round(spot, 2)}
+    today = dt.date.today()
+    try:
+        h = t.history(period="3mo", interval="1d", auto_adjust=False)["Close"].dropna()
+        if len(h) > 21:
+            out["hv20"] = round(float(np.log(h / h.shift(1)).dropna().tail(20).std() * np.sqrt(252)), 4)
+    except Exception:
+        pass
+    exps = list(t.options or [])
+    if not exps:
+        return out if "hv20" in out else None
+    days = {e: (dt.date.fromisoformat(e) - today).days for e in exps}
+    cache = {}
+
+    def chain(e):
+        if e not in cache:
+            c = t.option_chain(e); cache[e] = (c.calls, c.puts); time.sleep(0.1)
+        return cache[e]
+
+    # ① 5거래일 1σ: 만기가 5일 이상 남은 첫 만기의 ATM IV (없으면 HV20)
+    e5 = next((e for e in exps if days[e] >= 5), exps[-1])
+    a = _atm(*chain(e5), spot)
+    iv5, src = (a[1], "iv") if a and a[1] else (out.get("hv20"), "hv")
+    if iv5:
+        sg = spot * iv5 * (5 / 252) ** 0.5
+        out.update({"iv5": round(iv5, 4), "src": src, "e5": e5, "lo": round(spot - sg, 2), "hi": round(spot + sg, 2), "sg": round(sg, 2), "sgp": round(sg / spot * 100, 2)})
+    # ② 실적 발표: 발표 직후 첫 만기의 ATM IV와 스트래들 기준 기대 변동폭
+    if earn_day:
+        ed = dt.date.fromisoformat(earn_day)
+        need = ed if earn_time == "bmo" else ed + dt.timedelta(days=1)  # 장 마감 후·시각 불명은 다음 날 만기부터 반영
+        ee = next((e for e in exps if dt.date.fromisoformat(e) >= need), None)
+        if ee:
+            a = _atm(*chain(ee), spot)
+            if a:
+                r = {"d": earn_day, "t": earn_time, "e": ee, "k": a[0]}
+                if a[1]: r["iv"] = round(a[1], 4)
+                if a[2] > 0: r["mv"] = round(a[2], 2); r["mvp"] = round(a[2] / spot * 100, 2)
+                eb = next((e for e in exps if (dt.date.fromisoformat(e) - dt.date.fromisoformat(ee)).days >= 14), None)  # 실적 이후 평상시 IV
+                if eb:
+                    b = _atm(*chain(eb), spot)
+                    if b and b[1]: r["ivb"] = round(b[1], 4)
+                out["er"] = r
+    # ③ 풋월·콜월·감마 플립: 45일 이내 만기 전체의 미결제약정(OI)
+    coi, poi, rows = {}, {}, []
+    for e in [e for e in exps if 1 <= days[e] <= 45][:8]:
+        c, p = chain(e); T = max(days[e], 1) / 365
+        for df, book, sgn in ((c, coi, 1), (p, poi, -1)):
+            for _, r in df.iterrows():
+                k, oi, iv = float(r["strike"]), float(r.get("openInterest") or 0), float(r.get("impliedVolatility") or 0)
+                if oi > 0 and 0.7 * spot <= k <= 1.3 * spot:
+                    book[k] = book.get(k, 0) + oi
+                    if iv > 0.01: rows.append((k, T, iv, oi, sgn))
+    if coi or poi:
+        lo_p = {k: v for k, v in poi.items() if k <= spot} or poi
+        hi_c = {k: v for k, v in coi.items() if k >= spot} or coi
+        if lo_p: k = max(lo_p, key=lo_p.get); out["pw"] = k; out["pwo"] = int(lo_p[k])
+        if hi_c: k = max(hi_c, key=hi_c.get); out["cw"] = k; out["cwo"] = int(hi_c[k])
+        flip, reg = _gex_flip(spot, rows)
+        out["gf"] = round(flip, 2) if flip else None
+        out["gr"] = reg
+        out["pcr"] = round(sum(poi.values()) / max(sum(coi.values()), 1), 2)
+    return out if len(out) > 1 else None
+
+
+def update_options(cta):
+    """옵션 지표를 data/options.json에 저장 (야후 옵션 체인). 옵션이 없거나 실패한 종목은 이전 값 유지."""
+    old = load("options.json", {"t": {}})
+    res = dict(old.get("t", {}))
+    cal = load("calendar.json", {"earn": []})
+    base = dt.datetime.now(KST).date() - dt.timedelta(days=1)
+    nxt = {}
+    for e in sorted(cal.get("earn", []), key=lambda x: x["day"]):
+        if e.get("eps") in (None, "", "-") and dt.date.fromisoformat(e["day"]) >= base and e["tk"] not in nxt:
+            nxt[e["tk"]] = (e["day"], e.get("time") or "na")
+    ok = fail = 0
+    for tk in [x for x in cta["tickers"] if not x.isdigit()]:
+        try:
+            spot = cta["tickers"][tk].get("close")
+            if not spot:
+                continue
+            ed, et = nxt.get(tk, (None, None))
+            r = _options_for(yf.Ticker(STOCKS.get(tk, tk)), float(spot), ed, et)
+            if r:
+                res[tk] = r; ok += 1
+            else:
+                res.pop(tk, None)
+        except Exception:
+            fail += 1
+            print("[옵션 실패]", tk)
+            traceback.print_exc()
+    save("options.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"), "t": res})
+    print("옵션 지표", ok, "개 / 실패", fail, "개 / 저장", len(res), "개")
+
+
 if __name__ == "__main__":
     now = dt.datetime.now(KST)
     if len(sys.argv) > 1 and sys.argv[1] == "news":  # 뉴스만 빠르게 갱신 (몇 시간마다)
@@ -968,6 +1108,9 @@ if __name__ == "__main__":
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds", "congress"):  # 내부자 거래 / 13F / 의원 거래만 갱신
         {"insiders": update_insiders, "funds": update_funds, "congress": update_congress}[sys.argv[1]](load("cta.json", {"tickers": {}}))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "options":  # 옵션 지표만 갱신 (매일 아침)
+        update_options(load("cta.json", {"tickers": {}}))
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신
         update_targets(load("cta.json", {"tickers": {}}))

@@ -1023,6 +1023,7 @@ def gside(on, cur):
             f'<a class="si{" on" if on == "home" else ""}" data-k="home" href="index.html">🏠 홈</a>'
             '<a class="si" data-k="m" href="index.html#market">📈 지수선물</a>'
             '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
+            f'<a class="si{c("options")}" href="options.html">🎯 옵션</a>'
             f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
             f'<a class="si{c("calendar")}" href="calendar.html">📅 일정</a>'
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
@@ -1035,11 +1036,12 @@ def mpanels(on):
     return ('<div class="mp" id="spn"><div class="mq"><input id="mq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="기업 검색"></div><div class="sres" id="mr"></div></div>'
             '<div class="mp" id="mpn">'
             f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 지수선물</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
+            f'<a class="mi{c("options")}" href="options.html">🎯 옵션</a>'
             f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
 
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
 {mpanels(on)}
@@ -1264,6 +1266,68 @@ def cal_page():
              '<script>(function(){' + CALX_JS.replace("__DATA__", data) + js + '})();</script>')
     open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("일정 — " + ttl, inner, "calendar"))
 cal_page()
+
+# --------------- 옵션 탭 ---------------
+OPT_CSS = """
+.opw{max-width:1100px}.oph{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.oph .t{font-size:22px;font-weight:800}.oph .a{font-size:12.5px;color:var(--muted)}
+.opseg{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}.opseg button{border:1px solid var(--line);background:var(--card,transparent);color:var(--text,inherit);padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer}.opseg button.on{background:var(--brand,#2563eb);border-color:var(--brand,#2563eb);color:#fff}
+.opleg{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.65;color:var(--muted);margin-bottom:10px}.opleg b{color:var(--text,inherit)}
+.opv{display:none}.opv.on{display:block}.optw{overflow-x:auto}.opt{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}.opt th{text-align:right;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);position:sticky;top:0}.opt th:first-child,.opt td:first-child{text-align:left}
+.opt td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line)}.opt td a{color:inherit;font-weight:700;text-decoration:none}.opt .s{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.opt .up{color:var(--up);font-weight:700}.opt .down{color:var(--down);font-weight:700}.opt .mu{color:var(--muted)}
+.rb{position:relative;display:inline-block;width:120px;height:8px;border-radius:4px;background:var(--line);vertical-align:middle}.rb i{position:absolute;top:0;bottom:0;background:#93c5fd;border-radius:4px}.rb u{position:absolute;top:-3px;width:2px;height:14px;background:var(--text,#111);text-decoration:none}
+.tg{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700}.tg.p{background:rgba(22,163,74,.14);color:#16a34a}.tg.n{background:rgba(220,38,38,.14);color:#dc2626}
+.opn{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:10px}
+"""
+def options_page():
+    try:
+        O = json.load(open(os.path.join(ROOT, "data", "options.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        O = {"asof": "", "t": {}}
+    T = O.get("t", {})
+    def nm(r): return f'<a href="{r[0]}">{r[3].replace(" 기업분석", "")}</a><span class="s">{r[4]}</span>'
+    def pct(a, b): return (a / b - 1) * 100
+    r1, r2, r3 = [], [], []
+    for r in REPORTS:
+        tk = r[4]; o = T.get(tk)
+        if not o: continue
+        px = o["px"]
+        if "lo" in o:
+            span = (o["hi"] - o["lo"]) * 2 or 1; l0 = o["lo"] - (o["hi"] - o["lo"]) / 2
+            bar = f'<span class="rb"><i style="left:25%;width:50%"></i><u style="left:50%"></u></span>'
+            src = "옵션 IV" if o.get("src") == "iv" else "과거 변동성"
+            r1.append(f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">${o["lo"]:,.2f}</td><td class="up">${o["hi"]:,.2f}</td><td><b>±{o["sgp"]:.2f}%</b><span class="s">±${o["sg"]:,.2f}</span></td><td>{bar}</td><td>{o["iv5"] * 100:.1f}%<span class="s">{src}</span></td><td>{(o.get("hv20") or 0) * 100:.1f}%</td></tr>' if o.get("hv20") else
+                      f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">${o["lo"]:,.2f}</td><td class="up">${o["hi"]:,.2f}</td><td><b>±{o["sgp"]:.2f}%</b><span class="s">±${o["sg"]:,.2f}</span></td><td>{bar}</td><td>{o["iv5"] * 100:.1f}%<span class="s">{src}</span></td><td class="mu">-</td></tr>')
+        e = o.get("er")
+        if e and e.get("mvp") is not None:
+            prem = f'{e["iv"] / e["ivb"]:.2f}배' if e.get("iv") and e.get("ivb") else "-"
+            tm = {"bmo": "장 시작 전", "amc": "장 마감 후"}.get(e.get("t"), "시각 미정")
+            r2.append((e["d"], f'<tr><td>{nm(r)}</td><td>{e["d"][5:7]}/{e["d"][8:10]}<span class="s">{tm}</span></td><td><b>±{e["mvp"]:.1f}%</b><span class="s">±${e["mv"]:,.2f}</span></td><td>${px * (1 - e["mvp"] / 100):,.2f} ~ ${px * (1 + e["mvp"] / 100):,.2f}</td><td>{(e.get("iv") or 0) * 100:.1f}%<span class="s">만기 {e["e"][5:]}</span></td><td>{(e.get("ivb") or 0) * 100:.1f}%</td><td>{prem}</td></tr>'))
+        if "pw" in o or "cw" in o or o.get("gf"):
+            def lv(k):
+                return f'${k:,.2f}<span class="s">{pct(k, px):+.1f}%</span>' if k else "-"
+            gf = o.get("gf"); reg = o.get("gr", 0)
+            tag = '<span class="tg p">양(+) 감마 · 변동성 억제</span>' if reg > 0 else ('<span class="tg n">음(-) 감마 · 변동성 확대</span>' if reg < 0 else "-")
+            r3.append(f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">{lv(o.get("pw"))}</td><td class="up">{lv(o.get("cw"))}</td><td>{lv(gf) if gf else "<span class=mu>구간 내 없음</span>"}</td><td>{tag}</td><td>{o.get("pcr", "-")}</td></tr>')
+    r2.sort(key=lambda x: x[0]); r2 = [x[1] for x in r2]
+    def tbl(h, rows, empty):
+        return (f'<div class="optw"><table class="opt"><tr>{h}</tr>' + "".join(rows) + '</table></div>') if rows else f'<div class="opleg">{empty}</div>'
+    v1 = tbl("<th>기업</th><th>현재가</th><th>하단(-1σ)</th><th>상단(+1σ)</th><th>변동폭</th><th>범위</th><th>사용 변동성(연)</th><th>HV20</th>", r1, "옵션 데이터가 아직 수집되지 않았습니다. 다음 아침 갱신 후 표시됩니다.")
+    v2 = tbl("<th>기업</th><th>실적일</th><th>옵션 기대 변동폭</th><th>기대 가격대</th><th>실적 만기 IV</th><th>평상시 IV</th><th>IV 배율</th>", r2, "발표 예정일이 잡힌 종목의 옵션 데이터가 아직 없습니다.")
+    v3 = tbl("<th>기업</th><th>현재가</th><th>풋월(지지)</th><th>콜월(저항)</th><th>감마 플립</th><th>현재 감마 구간</th><th>풋/콜 비율</th>", r3, "미결제약정 데이터가 아직 수집되지 않았습니다.")
+    legs = [
+        "<b>5거래일 1σ</b> — 앞으로 5거래일 뒤 주가가 이 범위 안에 있을 확률이 약 68%라는 뜻입니다. 현재가 × 옵션 IV(만기가 5일 이상 남은 첫 만기의 ATM 내재변동성) × √(5/252)로 계산하고, 옵션이 없으면 과거 20일 변동성(HV20)을 씁니다.",
+        "<b>실적발표 내재변동성</b> — 다음 실적 발표를 지나는 첫 만기의 ATM 스트래들(콜+풋) 가격 ÷ 현재가가 시장이 예상하는 발표 후 변동폭입니다. IV 배율은 그 만기 IV ÷ 실적 이후 평상시 IV로, 클수록 발표 이벤트 프리미엄이 큽니다.",
+        "<b>풋월·콜월·감마 플립</b> — 45일 이내 만기의 미결제약정(OI)이 가장 많이 쌓인 행사가입니다. 풋월은 현재가 아래(지지로 작용하기 쉬움), 콜월은 위(저항)에서 찾고, 감마 플립은 딜러 순감마가 0이 되는 가격입니다. 현재가가 플립 위면 양 감마(헤지가 변동성을 눌러 줌), 아래면 음 감마(변동성 확대)로 봅니다.",
+    ]
+    names = ["5거래일 1σ", "실적발표 내재변동성", "풋월 · 콜월 · 감마 플립"]
+    seg = "".join(f'<button type="button" class="{"on" if i == 0 else ""}" data-v="{i}">{n}</button>' for i, n in enumerate(names))
+    body = "".join(f'<div class="opv{" on" if i == 0 else ""}" data-v="{i}"><div class="opleg">{legs[i]}</div>{v}</div>' for i, v in enumerate((v1, v2, v3)))
+    note = ('<div class="opn">데이터: Yahoo Finance 옵션 체인(지연 시세), 매일 아침 갱신. 미결제약정은 전일 기준이며, 감마 플립은 "콜은 딜러가 팔고 풋은 산다"는 통상 가정으로 추정한 값이라 실제 딜러 포지션과 다를 수 있습니다. 옵션이 없는 종목·한국 종목은 표시되지 않습니다. 투자 권유가 아닙니다.</div>')
+    js = ("<script>(function(){var b=document.querySelectorAll('.opseg button'),v=document.querySelectorAll('.opv');b.forEach(function(x){x.onclick=function(){b.forEach(function(y){y.classList.toggle('on',y===x)});v.forEach(function(y){y.classList.toggle('on',y.dataset.v===x.dataset.v)})}})})();</script>")
+    inner = (f'<style>{OPT_CSS}</style><div class="opw"><div class="oph"><span class="t">옵션</span><span class="a">등록 기업 옵션 지표 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div><div class="opseg">{seg}</div>{body}{note}</div>{js}')
+    open(f"{OUT}/options.html", "w", encoding="utf-8").write(shell("옵션 — 5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립", inner, "options"))
+options_page()
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
