@@ -302,10 +302,9 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
     ("1167557", "AQR", "AQR"),
     ("2045724", "시추에이셔널 어웨어니스", "SITUATIONAL AWARENESS"),
 ]
-EXTRA_13F = [  # 사이트 미등록 기관(은행·펀드)의 13F도 13F 탭에 싣는다: (CIK, 표시 이름, 구분, 검증용 키워드)
-    ("948046", "도이치뱅크", "은행", "DEUTSCHE BANK"), ("1423053", "시타델", "펀드", "CITADEL"), ("1697748", "ARK 인베스트먼트", "펀드", "ARK INVEST"),
-    ("2045724", "시추에이셔널 어웨어니스", "펀드", "SITUATIONAL AWARENESS"), ("1065521", "소프트뱅크 그룹", "펀드", "SOFTBANK"),
-]
+def _extra_13f():
+    """13F 탭에 싣는 기관 목록: data/filers_13f.json 에서 읽는다(줄만 추가하면 다음 갱신 때 자동 수집·배포)."""
+    return [tuple(x) for x in load("filers_13f.json", {"filers": []}).get("filers", []) if len(x) == 4]
 MAP_VER = 4  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
@@ -1052,7 +1051,7 @@ def update_corp13f(cta):
 
     SIG13 = "4-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
-    jobs = [(tk, cik_of.get(tk.replace("-", ".")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in EXTRA_13F]
+    jobs = [(tk, cik_of.get(tk.replace("-", ".")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
     for tk, cik, ex in jobs:
         if not cik:
             continue
