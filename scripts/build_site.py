@@ -1049,6 +1049,7 @@ def gside(on, cur):
             '<a class="si" data-k="m" href="index.html#market">📈 지수선물</a>'
             '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
             f'<a class="si{c("options")}" href="options.html">🎯 옵션</a>'
+            f'<a class="si{c("f13")}" href="f13.html">🏛 13F</a>'
             f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
             f'<a class="si{c("calendar")}" href="calendar.html">📅 일정</a>'
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
@@ -1062,11 +1063,12 @@ def mpanels(on):
             '<div class="mp" id="mpn">'
             f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 지수선물</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
             f'<a class="mi{c("options")}" href="options.html">🎯 옵션</a>'
+            f'<a class="mi{c("f13")}" href="f13.html">🏛 13F</a>'
             f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
 
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("f13", "f13.html", "13F"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
 {mpanels(on)}
@@ -1390,6 +1392,60 @@ def options_page():
     inner = (f'<style>{OPT_CSS}</style><div class="opw"><div class="oph"><span class="t">옵션</span><span class="a">등록 기업 옵션 지표 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div><div class="opseg">{seg}</div><input class="opq" id="opq" type="search" placeholder="기업 검색 (이름·티커·한글)" autocomplete="off" aria-label="옵션 기업 검색"><div class="opx" id="opx">검색 결과가 없습니다.</div>{body}{note}</div>{js}')
     open(f"{OUT}/options.html", "w", encoding="utf-8").write(shell("옵션 — 5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립", inner, "options"))
 options_page()
+
+# --------------- 13F 탭: 등록 기업이 제출한 13F(타사 주식 보유 현황) ---------------
+F13_CSS = """
+.fw{max-width:1100px}.fh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.fh .t{font-size:22px;font-weight:800}.fh .a{font-size:12.5px;color:var(--muted)}
+.fq{width:100%;max-width:420px;box-sizing:border-box;margin:10px 0;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,transparent);color:inherit;font-size:14px}
+.fl{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;line-height:1.65;color:var(--muted);margin-bottom:10px}.fl b{color:var(--text,inherit)}
+.fc{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}.fc>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none}.fc>summary::-webkit-details-marker{display:none}
+.fc .lg{width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.fc .lg .mono{font-size:10px}
+.fc .nm{font-weight:800;font-size:15px}.fc .sb{font-size:12px;color:var(--muted);font-weight:500}.fc .tt{margin-left:auto;text-align:right;font-weight:800}.fc .tt span{display:block;font-size:11.5px;color:var(--muted);font-weight:500}
+.fb{padding:0 14px 12px}.ft{overflow-x:auto}.ftb{border-collapse:collapse;width:100%;font-size:13px;white-space:nowrap}.ftb th{text-align:right;color:var(--muted);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line)}.ftb td{text-align:right;padding:6px 8px;border-bottom:1px solid var(--line)}.ftb th:first-child,.ftb td:first-child{text-align:left}
+.ftb td a{color:inherit;font-weight:700}.ftb .s{display:block;font-size:11px;color:var(--muted);font-weight:500}.ftb .up{color:var(--up);font-weight:700}.ftb .down{color:var(--down);font-weight:700}.ftb .new{color:#2563eb;font-weight:700}.ftb .mu{color:var(--muted)}
+.fs{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.7}.fs b{color:var(--text,inherit)}
+"""
+CSS += F13_CSS
+def f13_page():
+    try:
+        O = json.load(open(os.path.join(ROOT, "data", "corp13f.json"), encoding="utf-8"))
+    except (OSError, ValueError):
+        O = {"asof": "", "c": {}}
+    C = O.get("c", {})
+    byk = {r[4]: r for r in REPORTS}
+    def money(v):
+        return f"${v / 1e9:,.2f}B" if v >= 1e9 else f"${v / 1e6:,.1f}M"
+    def nmcell(x):
+        lab = x["nm"].title() if x["nm"].isupper() else x["nm"]
+        if x.get("tk") and x["tk"] in byk:
+            return f'<a href="{byk[x["tk"]][0]}">{lab}</a><span class="s">{x["tk"]}</span>'
+        return f'{lab}<span class="s">{x.get("cls", "")}</span>'
+    cards = []
+    order = [r[4] for r in REPORTS if r[4] in C]
+    for tk in order:
+        c = C[tk]; r = byk[tk]
+        rows = ""
+        for x in c["rows"]:
+            if x["ch"] == "new": chs = '<span class="new">신규</span>'
+            elif x["ch"] == "same": chs = '<span class="mu">변동 없음</span>'
+            else:
+                chs = f'<span class="{"up" if x["ch"] == "up" else "down"}">{"확대" if x["ch"] == "up" else "축소"} {x["chp"]:+.0f}%</span>' if x.get("chp") is not None else "-"
+            rows += f'<tr><td>{nmcell(x)}</td><td>{x["sh"]:,}</td><td>{money(x["v"])}</td><td>{x["w"]:.2f}%</td><td>{chs}</td></tr>'
+        sold = ""
+        if c.get("sold"):
+            sold = '<div class="fs"><b>직전 분기 대비 전량 매도</b>: ' + ", ".join(f'{(x["nm"].title() if x["nm"].isupper() else x["nm"])}({money(x["v"])})' for x in c["sold"]) + "</div>"
+        hs = " ".join([tk, r[3], r[5], KO_ALIAS.get(tk, ""), c["name"]] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
+        nm = r[3].replace(" 기업분석", "")
+        cards.append(f'<details class="fc" data-s="{hs}"><summary><span class="lg">{ICON[tk]}</span><span><div class="nm"><a href="{r[0]}" style="color:inherit;text-decoration:none">{nm}</a> <span class="sb">{tk}</span></div><div class="sb">{c["period"]} 기준 · 접수 {c["filed"]} · 보유 {c["n"]:,}종목</div></span><span class="tt">{money(c["total"])}<span>13F 보고 총액</span></span></summary>'
+                     f'<div class="fb"><div class="ft"><table class="ftb"><tr><th>보유 종목 (상위 {len(c["rows"])})</th><th>보유 주식 수</th><th>평가금액</th><th>포트폴리오 비중</th><th>직전 분기 대비</th></tr>{rows}</table></div>{sold}</div></details>')
+    body = "".join(cards) or '<div class="fl">13F를 제출하는 등록 기업 데이터가 아직 수집되지 않았습니다. 수집 후 표시됩니다.</div>'
+    leg = ('<div class="fl"><b>13F 보유 현황</b> — 등록 기업 중 SEC에 13F-HR(기관투자자 주식 보유 보고서)을 제출하는 회사가 분기 말에 보유한 <b>타사 주식</b>입니다. 평가금액 기준 상위 30종목을 보여 주고, 직전 분기와 주식 수를 비교해 신규·확대·축소·전량 매도를 표시합니다. '
+           '13F는 미국 상장 주식 롱 포지션만 담고(옵션·채권·공매도·해외 주식 제외), 분기 종료 후 45일 안에 공시돼 시차가 있습니다. 비중은 13F에 보고된 포트폴리오 대비입니다.</div>')
+    inner = (f'<div class="fw"><div class="fh"><span class="t">13F</span><span class="a">등록 기업의 타사 주식 보유 현황 · {len(cards)}개 기업 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div>{leg}'
+             '<input class="fq" id="fq" type="search" placeholder="회사·보유 종목 검색 (예: 엔비디아, CoreWeave)" autocomplete="off">' + body +
+             "</div><script>(function(){var q=document.getElementById('fq');if(!q)return;q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();document.querySelectorAll('.fc').forEach(function(d){d.style.display=(!v||d.dataset.s.indexOf(v)>=0)?'':'none'})})})();</script>")
+    open(f"{OUT}/f13.html", "w", encoding="utf-8").write(shell("13F — 등록 기업의 타사 주식 보유 현황", inner, "f13"))
+f13_page()
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}

@@ -959,6 +959,96 @@ def update_briefing(mode="auto"):
     print("브리핑", day, kind, len(items), "건")
 
 
+# ---------------- 등록 기업 자체의 13F (타사 주식 보유 현황) ----------------
+def _f13_list(cik):
+    """회사 CIK의 13F-HR 목록 [(보고기준일, 접수일, 접수번호)] 최신순. 최근 제출 목록에 없으면 과거 제출 파일까지 훑는다(제출이 많은 대형 은행 대비)."""
+    j = _sec_get(f"https://data.sec.gov/submissions/CIK{int(cik):010d}.json").json()
+    out = []
+
+    def add(rc):
+        for i in range(len(rc.get("form", []))):
+            if rc["form"][i] == "13F-HR":
+                out.append((rc["reportDate"][i], rc["filingDate"][i], rc["accessionNumber"][i]))
+    add(j["filings"]["recent"])
+    for f in (j["filings"].get("files") or [])[:4]:
+        if len(out) >= 2:
+            break
+        try:
+            add(_sec_get("https://data.sec.gov/submissions/" + f["name"]).json())
+        except Exception:
+            pass
+    out.sort(reverse=True)
+    return j.get("name", ""), out
+
+
+def update_corp13f(cta):
+    """사이트 등록 기업 중 13F-HR을 제출하는 회사를 찾아 보유 종목 상위·직전 분기 대비 변동을 data/corp13f.json에 저장한다. 접수번호가 같으면 재수집하지 않는다."""
+    import hashlib
+    old = load("corp13f.json", {"c": {}})
+    res = dict(old.get("c", {}))
+    co = _sec_get("https://www.sec.gov/files/company_tickers.json").json()
+    cik_of, titles = {}, {}
+    for v in co.values():
+        t = v["ticker"].upper()
+        cik_of.setdefault(t, v["cik_str"]); titles.setdefault(t, v["title"])
+    ours = {tk: STOCKS[tk] for tk in STOCKS if not STOCKS[tk].endswith(".KS")}
+    by_name = {}
+    for tk in ours:
+        t = titles.get(tk.replace("-", "."))
+        if t:
+            by_name.setdefault(_norm(t), []).append(tk)
+    ov = {_norm(k): v for k, v in NAME_OVERRIDE.items()}
+
+    def tick_of(name, cls):
+        k = _norm(name)
+        if k in ov and ov[k] in ours:
+            if ov[k] == "GOOGL" and "C" in str(cls).upper().split() and "A" not in str(cls).upper().split():
+                return None
+            return ov[k]
+        c = by_name.get(k)
+        return c[0] if c else None
+
+    found = 0
+    for tk in ours:
+        cik = cik_of.get(tk.replace("-", "."))
+        if not cik:
+            continue
+        try:
+            sec_name, fl = _f13_list(cik)
+            if not fl:
+                res.pop(tk, None)
+                continue
+            per, filed, acc = fl[0]
+            if res.get(tk, {}).get("acc") == acc:
+                found += 1; print(f"{tk}: 변경 없음 ({per})"); continue
+            cur = _fund_table(cik, acc); time.sleep(0.3)
+            prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
+            time.sleep(0.3)
+            tot = sum(e["v"] for e in cur.values()) or 1
+            ptot = sum(e["v"] for e in prv.values())
+            rows = []
+            for c, e in sorted(cur.items(), key=lambda kv: -kv[1]["v"])[:30]:
+                pv = prv.get(c)
+                if not pv:
+                    ch, chp = "new", None
+                elif pv["sh"] and abs(e["sh"] - pv["sh"]) / pv["sh"] < 0.005:
+                    ch, chp = "same", 0.0
+                else:
+                    chp = round((e["sh"] / pv["sh"] - 1) * 100, 1) if pv["sh"] else None
+                    ch = "up" if e["sh"] > pv["sh"] else "down"
+                rows.append({"nm": e["name"], "cls": e["cls"], "tk": tick_of(e["name"], e["cls"]), "sh": round(e["sh"]), "v": round(e["v"]), "w": round(e["v"] / tot * 100, 2), "ch": ch, "chp": chp})
+            sold = [{"nm": e["name"], "sh": round(e["sh"]), "v": round(e["v"]), "tk": tick_of(e["name"], e["cls"])} for c, e in sorted(prv.items(), key=lambda kv: -kv[1]["v"]) if c not in cur][:8]
+            res[tk] = {"name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
+                       "total": round(tot), "ptotal": round(ptot), "n": len(cur), "rows": rows, "sold": sold}
+            found += 1
+            print(f"{tk}: {sec_name} {per} 보유 {len(cur)}종목, 총 ${tot / 1e9:.2f}B")
+        except Exception:
+            print("[13F 실패]", tk)
+            traceback.print_exc()
+    save("corp13f.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"), "c": res})
+    print("등록 기업 13F 제출 회사", found, "곳")
+
+
 # ---------------- 옵션 지표 (5거래일 1σ · 실적 내재변동성 · 풋월/콜월/감마 플립) ----------------
 def _sdiv(spot, straddle, days):
     """ATM 스트래들 가격으로 역산한 내재변동성(연). 스트래들 ≈ 0.7979·S·σ·√T. 야후의 impliedVolatility 필드는 장외 시간에 0에 가까운 값이 나오는 일이 있어 가격에서 직접 구한다."""
@@ -1134,6 +1224,9 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] in ("insiders", "funds", "congress"):  # 내부자 거래 / 13F / 의원 거래만 갱신
         {"insiders": update_insiders, "funds": update_funds, "congress": update_congress}[sys.argv[1]](load("cta.json", {"tickers": {}}))
         sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "corp13f":  # 등록 기업 자체의 13F 보유 현황
+        update_corp13f(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "backtest":  # 5거래일 1σ 백테스트 (HV 방식 커버리지 검증)
         import backtest_sigma
         save("backtest_sigma.json", backtest_sigma.run(["NVDA"] + [t for t in STOCKS if t != "NVDA" and not STOCKS[t].endswith(".KS")], STOCKS))
@@ -1158,6 +1251,7 @@ if __name__ == "__main__":
     update_targets(cta)
     update_insiders(cta)
     update_funds(cta)
+    update_corp13f(cta)
     update_congress(cta)
     update_news(cta)
     update_briefing("auto")
