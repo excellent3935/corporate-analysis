@@ -1060,7 +1060,7 @@ def _options_for(t, spot, earn_day, earn_time):
             if a:
                 r = {"d": earn_day, "t": earn_time, "e": ee, "k": a[0]}
                 ivx = _sdiv(spot, a[2], days[ee])
-                if _sane(ivx, hv): r["iv"] = round(ivx, 4)
+                if ivx and 0.05 <= ivx <= 10: r["iv"] = round(ivx, 4)  # 실적 직후 만기는 만기가 짧아(1~2일) IV가 HV의 3배를 넘는 것이 정상이라 HV 비교 없이 절대 범위만 본다
                 elif _sane(a[1], hv): r["iv"] = round(a[1], 4)
                 if a[2] > 0: r["mv"] = round(a[2], 2); r["mvp"] = round(a[2] / spot * 100, 2)
                 eb = next((e for e in exps if (dt.date.fromisoformat(e) - dt.date.fromisoformat(ee)).days >= 14), None)  # 실적 이후 평상시 IV

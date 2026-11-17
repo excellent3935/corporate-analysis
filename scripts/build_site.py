@@ -1364,7 +1364,7 @@ def options_page():
         if e and e.get("mvp") is not None:
             prem = f'{e["iv"] / e["ivb"]:.2f}배' if e.get("iv") and e.get("ivb") else "-"
             tm = {"pre": "장 시작 전", "post": "장 마감 후", "bmo": "장 시작 전", "amc": "장 마감 후"}.get(e.get("t"), "시각 미정")
-            r2.append((e["d"], f'<tr><td>{nm(r)}</td><td>{e["d"][5:7]}/{e["d"][8:10]}<span class="s">{tm}</span></td><td><b>±{e["mvp"]:.1f}%</b><span class="s">±${e["mv"]:,.2f}</span></td><td>${px * (1 - e["mvp"] / 100):,.2f} ~ ${px * (1 + e["mvp"] / 100):,.2f}</td><td>{(e.get("iv") or 0) * 100:.1f}%<span class="s">만기 {e["e"][5:]}</span></td><td>{(e.get("ivb") or 0) * 100:.1f}%</td><td>{prem}</td></tr>'))
+            r2.append((e["d"], f'<tr><td>{nm(r)}</td><td>{e["d"][5:7]}/{e["d"][8:10]}<span class="s">{tm}</span></td><td><b>±{e["mvp"]:.1f}%</b><span class="s">±${e["mv"]:,.2f}</span></td><td>${px * (1 - e["mvp"] / 100):,.2f} ~ ${px * (1 + e["mvp"] / 100):,.2f}</td><td>{(f"{e[chr(105)+chr(118)] * 100:.1f}%" if e.get("iv") else "-")}<span class="s">만기 {e["e"][5:]}</span></td><td>{(f"{e[chr(105)+chr(118)+chr(98)] * 100:.1f}%" if e.get("ivb") else "-")}</td><td>{prem}</td></tr>'))
         if "pw" in o or "cw" in o or o.get("gf"):
             def lv(k):
                 return f'${k:,.2f}<span class="s">{pct(k, px):+.1f}%</span>' if k else "-"
