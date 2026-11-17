@@ -1421,7 +1421,8 @@ def f13_page():
             return f'<a href="{byk[x["tk"]][0]}">{lab}</a><span class="s">{x["tk"]}</span>'
         return f'{lab}<span class="s">{x.get("cls", "")}</span>'
     cards = []
-    order = [r[4] for r in REPORTS if r[4] in C]
+    _lim = (dt.date.today() - dt.timedelta(days=400)).isoformat()  # 마지막 13F가 1년 넘게 지난(제출 중단) 회사는 제외
+    order = [r[4] for r in REPORTS if r[4] in C and C[r[4]]["period"] >= _lim]
     for tk in order:
         c = C[tk]; r = byk[tk]
         rows = ""

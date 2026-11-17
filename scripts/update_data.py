@@ -310,7 +310,7 @@ NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이�
     "MASTERCARD INC": "MA", "MASTERCARD INCORPORATED": "MA", "TEXAS INSTRS INC": "TXN", "TEXAS INSTRUMENTS INC": "TXN", "VERISIGN INC": "VRSN",
     "WELLS FARGO & CO NEW": "WFC", "WELLS FARGO & CO": "WFC", "GE AEROSPACE": "GE", "GENERAL ELECTRIC CO": "GE",
     "CREDO TECHNOLOGY GROUP HOLDING": "CRDO", "CREDO TECHNOLOGY GROUP HLDG": "CRDO", "UNUSUAL MACHINES INC": "UMAC", "UNUSUAL MACHS INC": "UMAC", "CREDO TECHNOLOGY GROUP HOLDI": "CRDO",
-    "INTERNATIONAL BUSINESS MACHS": "IBM", "BANK OF AMERICA CORP": "BAC", "BANK AMERICA CORP": "BAC", "BANK AMER CORP": "BAC", "BANK OF AMER CORP": "BAC", "ARM HOLDINGS PLC": "ARM", "BROADCOM INC": "AVGO", "ELI LILLY & CO": "LLY", "SPACE EXPLORATION TECHNOLOGIES CORP": "SPCX",
+    "INTERNATIONAL BUSINESS MACHS": "IBM", "BANK OF AMERICA CORP": "BAC", "BANK AMERICA CORP": "BAC", "BANK AMER CORP": "BAC", "BANK OF AMER CORP": "BAC", "SPACE EXPLORATION TECHN CORP": "SPCX", "ARM HOLDINGS PLC": "ARM", "BROADCOM INC": "AVGO", "ELI LILLY & CO": "LLY", "SPACE EXPLORATION TECHNOLOGIES CORP": "SPCX",
 }
 _STOP = {"INC", "INCORPORATED", "CORP", "CORPORATION", "CO", "COMPANY", "LTD", "LIMITED", "PLC", "HOLDINGS", "HLDGS", "HLDG", "GROUP", "THE", "NV", "SA", "AG", "LP", "CLASS", "CL", "A", "B", "C", "NEW", "DEL", "COM", "SPONSORED", "ADS", "ADR", "DE"}
 
@@ -1008,6 +1008,7 @@ def update_corp13f(cta):
         c = by_name.get(k)
         return c[0] if c else None
 
+    SIG13 = "1-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
     for tk in ours:
         cik = cik_of.get(tk.replace("-", "."))
@@ -1019,7 +1020,7 @@ def update_corp13f(cta):
                 res.pop(tk, None)
                 continue
             per, filed, acc = fl[0]
-            if res.get(tk, {}).get("acc") == acc:
+            if res.get(tk, {}).get("acc") == acc and res[tk].get("mv") == SIG13:
                 found += 1; print(f"{tk}: 변경 없음 ({per})"); continue
             cur = _fund_table(cik, acc); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
@@ -1038,7 +1039,7 @@ def update_corp13f(cta):
                     ch = "up" if e["sh"] > pv["sh"] else "down"
                 rows.append({"nm": e["name"], "cls": e["cls"], "tk": tick_of(e["name"], e["cls"]), "sh": round(e["sh"]), "v": round(e["v"]), "w": round(e["v"] / tot * 100, 2), "ch": ch, "chp": chp})
             sold = [{"nm": e["name"], "sh": round(e["sh"]), "v": round(e["v"]), "tk": tick_of(e["name"], e["cls"])} for c, e in sorted(prv.items(), key=lambda kv: -kv[1]["v"]) if c not in cur][:8]
-            res[tk] = {"name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
+            res[tk] = {"mv": SIG13, "name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
                        "total": round(tot), "ptotal": round(ptot), "n": len(cur), "rows": rows, "sold": sold}
             found += 1
             print(f"{tk}: {sec_name} {per} 보유 {len(cur)}종목, 총 ${tot / 1e9:.2f}B")
