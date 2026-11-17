@@ -1033,7 +1033,7 @@ def _options_for(t, spot, earn_day, earn_time):
     # ② 실적 발표: 발표 직후 첫 만기의 ATM IV와 스트래들 기준 기대 변동폭
     if earn_day:
         ed = dt.date.fromisoformat(earn_day)
-        need = ed if earn_time == "bmo" else ed + dt.timedelta(days=1)  # 장 마감 후·시각 불명은 다음 날 만기부터 반영
+        need = ed if earn_time in ("pre", "bmo") else ed + dt.timedelta(days=1)  # 장 시작 전(pre)은 당일 만기부터, 마감 후(post)·시각 불명은 다음 날 만기부터 반영
         ee = next((e for e in exps if dt.date.fromisoformat(e) >= need), None)
         if ee:
             a = _atm(*chain(ee), spot)

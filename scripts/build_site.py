@@ -926,6 +926,22 @@ BR_CSS = """
 """
 CSS += BR_CSS
 
+CN_CSS = """
+.cdk{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:0;scrollbar-width:none;max-width:460px;margin:8px auto 0;border-radius:18px;outline:none}.cdk::-webkit-scrollbar{display:none}
+.cd{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:3/4;box-sizing:border-box;padding:26px 24px;background:linear-gradient(160deg,#10172f,#0b1024 60%,#141a3d);color:#eef0ff;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.cd .ck{font-size:11px;letter-spacing:.18em;color:#8b93ff;font-weight:700;margin-bottom:12px}.cd .ct{font-size:26px;font-weight:800;line-height:1.25;margin-bottom:6px}.cd .cm{font-size:12.5px;color:#9aa3c7;margin-bottom:14px}.cd .cf{margin-top:auto;font-size:11.5px;color:#7c85ad;padding-top:10px}
+.cd.cv{justify-content:center}.cv .cbig{font-size:44px;font-weight:900;line-height:1.15;margin:8px 0 14px}.cv .cdt{font-size:20px;color:#c7ccff;font-weight:700}.cv .cs{font-size:13px;color:#9aa3c7;margin-top:14px;line-height:1.6}.cv .cs2{font-size:15px;line-height:1.8;color:#c9cef0}.cv .cf{margin-top:28px}
+.tg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.tl{background:rgba(255,255,255,.06);border-radius:12px;padding:12px 10px}.tl .tn{font-size:11px;color:#9aa3c7;margin-bottom:6px}.tl .tp{font-size:16px;font-weight:800}.tl .tc{font-size:13px;font-weight:700;margin-top:3px;color:#9aa3c7}.tl .tc.u{color:#ff6b6b}.tl .tc.d{color:#5aa2ff}
+.gw{position:relative;margin:6px auto 0;width:100%;max-width:320px}.gg{width:100%;display:block}.gs2{text-align:center;font-size:52px;font-weight:900;margin-top:4px;line-height:1.1}.gr{text-align:center;font-size:18px;font-weight:800;margin-top:2px;color:#ffd27a}
+.gh{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:26px}.gh div{background:rgba(255,255,255,.06);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;font-size:13px}.gh span{color:#9aa3c7}.gh b{font-size:16px}
+.cd.nw .cl{align-self:flex-start;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(129,140,248,.22);color:#c7ccff;margin-bottom:14px}.nh{font-size:23px;font-weight:800;line-height:1.4;margin-bottom:16px;word-break:keep-all}.nsum{font-size:14.5px;line-height:1.7;color:#d7dbf7;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:12px}.nsum b{color:#ffd27a}
+.no{font-size:12px;color:#8e97c0;font-style:italic;line-height:1.5;margin-bottom:12px}.ntg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.ctk{font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.1);color:#eef0ff;text-decoration:none}.nm2{font-size:11.5px;color:#7c85ad}
+.nb{margin-top:auto;align-self:stretch;text-align:center;background:#6366f1;color:#fff;font-weight:700;font-size:14px;padding:11px;border-radius:12px;text-decoration:none}
+.es{font-size:12px;letter-spacing:.08em;color:#8b93ff;font-weight:700;margin:12px 0 8px}.eg{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}.eg>span{font-size:12px;color:#9aa3c7;min-width:62px}.em{font-size:13px;color:#7c85ad}.ei{display:flex;gap:10px;font-size:13.5px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}.ei span{color:#ffd27a;font-weight:700;min-width:44px}.ei i{margin-left:auto;color:#f59e0b;font-style:normal;font-size:11px}
+.cnav{display:flex;justify-content:center;align-items:center;gap:16px;margin:10px 0 4px}.cnav button{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:inherit;font-size:18px;cursor:pointer}#cct{font-size:13px;color:var(--muted);min-width:56px;text-align:center}
+"""
+CSS += CN_CSS
+
 GS_CSS = """
 .gl{display:grid;grid-template-columns:248px minmax(0,1fr);align-items:start}
 .gl>.gm{min-width:0}.gl .readwrap{display:block;min-height:0;background:transparent}
@@ -1190,7 +1206,15 @@ try:
     _BR = json.load(open(os.path.join(ROOT, "data", "briefing.json"), encoding="utf-8")).get("b", [])
 except (OSError, ValueError):
     _BR = []
-_bd = json.dumps({"b": _BR, "nm": _nm, "lk": _lk}, ensure_ascii=False).replace("</", "<\\/")
+_MK = {"label": M.get("label", ""), "asof": M.get("asof", ""), "snap": {k: SNAP[k] for k in ("NQ", "ES", "YM", "VIX", "DXY", "USDKRW", "US10Y", "CL", "GC") if k in SNAP},
+       "fg": {k: FG.get(k) for k in ("score", "rating", "prev", "w", "m", "y")}}
+try:
+    _CB = json.load(open(os.path.join(ROOT, "data", "calendar.json"), encoding="utf-8"))
+except (OSError, ValueError):
+    _CB = {"econ": [], "earn": []}
+_ECAL = {"earn": [{"day": e["day"], "tk": e["tk"], "time": e.get("time", "na"), "est": e.get("est", "")} for e in _CB.get("earn", []) if not e.get("eps")],
+         "econ": [{"day": e["day"], "ts": e.get("ts", ""), "ko": e.get("ko") or e.get("name", ""), "imp": e.get("imp", 0), "allday": e.get("allday", False)} for e in _CB.get("econ", []) if e.get("imp", 0) >= 2]}
+_bd = json.dumps({"b": _BR, "nm": _nm, "lk": _lk, "mk": _MK, "cal": _ECAL}, ensure_ascii=False).replace("</", "<\\/")
 BR_JS = """<script>(function(){var D=__DATA__,K='pre',L=document.getElementById('brl'),SM=document.getElementById('brs'),SEL=document.getElementById('brd'),NX=document.getElementById('brn');
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function kst(iso){return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false})}
@@ -1200,8 +1224,34 @@ function hh(m){m=((m%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2
 var o=etOff(new Date()),sh=(9-o)*60;NX.textContent='자동 생성 시각(현재 한국시간 기준): 장 시작 전 브리핑 '+hh(8*60+30+sh)+' (개장 1시간 전) · 장 마감 후 브리핑 '+hh(16*60+5+sh)+' (마감 직후). 서머타임 변경은 자동 반영됩니다.';
 function list(){return D.b.filter(function(b){return b.kind===K})}
 function fill(){var a=list();SEL.innerHTML=a.map(function(b,i){return'<option value="'+i+'">'+b.day+'</option>'}).join('');SEL.style.display=a.length>1?'':'none';draw()}
+var CN=document.getElementById('brc');
+function pc(v){return(v>=0?'+':'')+v.toFixed(2)+'%'}
+function cc(v){return v>0?'u':(v<0?'d':'')}
+function nextDay(day){var d=new Date(day+'T12:00:00Z');do{d=new Date(d.getTime()+86400000)}while(d.getUTCDay()===0||d.getUTCDay()===6);return d.toISOString().slice(0,10)}
+function tm(ts){return new Date(ts).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false})}
+function gauge(sc){var a=Math.PI*(1-sc/100),x=150+110*Math.cos(a),y=150-110*Math.sin(a),segs=[[0,25,'#ef4444'],[25,45,'#f59e0b'],[45,55,'#a3a3a3'],[55,75,'#84cc16'],[75,100,'#22c55e']],p='';
+segs.forEach(function(g){var a0=Math.PI*(1-g[0]/100),a1=Math.PI*(1-g[1]/100);p+='<path d="M'+(150+120*Math.cos(a0))+','+(150-120*Math.sin(a0))+' A120,120 0 0 1 '+(150+120*Math.cos(a1))+','+(150-120*Math.sin(a1))+'" stroke="'+g[2]+'" stroke-width="16" fill="none" opacity=".9"/>'});
+return'<svg viewBox="0 0 300 175" class="gg">'+p+'<line x1="150" y1="150" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#fff" stroke-width="4" stroke-linecap="round"/><circle cx="150" cy="150" r="8" fill="#fff"/></svg>'}
+function deck(b){var M=D.mk,S=M.snap,C=[],n=b.items.length,nd=nextDay(b.day);
+C.push('<div class="cd cv"><div class="ck">CORPORATE ANALYSIS</div><div class="cbig">장 마감 후<br>브리핑</div><div class="cdt">'+esc(b.day)+'</div><div class="cs">핵심 뉴스 '+n+'건 · 시장 요약 · 다음 거래일 일정</div><div class="cf">옆으로 넘겨 보세요 →</div></div>');
+var T=[['NQ','나스닥100 선물'],['ES','S&P500 선물'],['YM','다우 선물'],['VIX','VIX 변동성'],['DXY','달러 인덱스'],['USDKRW','원/달러'],['US10Y','미 10년 금리'],['CL','WTI 유가'],['GC','금 선물']];
+C.push('<div class="cd"><div class="ck">MARKET</div><div class="ct">지수·매크로 요약</div><div class="cm">미국장 마감 기준 · 갱신 '+kst(M.asof)+' (KST)</div><div class="tg3">'+T.filter(function(t){return S[t[0]]}).map(function(t){var v=S[t[0]];return'<div class="tl"><div class="tn">'+t[1]+'</div><div class="tp">'+v[0].toLocaleString('en-US',{maximumFractionDigits:2})+'</div><div class="tc '+cc(v[1])+'">'+pc(v[1])+'</div></div>'}).join('')+'</div><div class="cf">출처: Yahoo Finance · 선물·지수 기준 등락률</div></div>');
+var F=M.fg;if(F&&F.score!=null)C.push('<div class="cd"><div class="ck">SENTIMENT</div><div class="ct">공포·탐욕 지수</div><div class="gw">'+gauge(F.score)+'<div class="gs2">'+Math.round(F.score)+'</div><div class="gr">'+esc(F.rating||'')+'</div></div><div class="gh"><div><span>전일</span><b>'+Math.round(F.prev)+'</b></div><div><span>1주 전</span><b>'+Math.round(F.w)+'</b></div><div><span>1개월 전</span><b>'+Math.round(F.m)+'</b></div><div><span>1년 전</span><b>'+Math.round(F.y)+'</b></div></div><div class="cf">출처: CNN Business Fear &amp; Greed</div></div>');
+b.items.forEach(function(x,i){var tags=x.k.map(function(t){return'<a class="ctk" href="'+(D.lk[t]||'#')+'">'+esc(D.nm[t]||t)+'</a>'}).join('');
+C.push('<div class="cd nw"><div class="ck">오늘의 소식 · '+(i+1)+'/'+n+'</div><span class="cl">'+esc(x.lab)+'</span><div class="nh">'+esc(x.ko)+'</div>'+(x.ks?'<div class="nsum"><b>요약 :</b> '+esc(x.ks)+'</div>':'')+(x.tr?'<div class="no">'+esc(x.t)+'</div>':'')+'<div class="ntg">'+tags+'</div><div class="nm2">'+esc(host(x.l))+' · '+kst(x.d)+'</div><a class="nb" href="'+esc(x.l)+'" target="_blank" rel="noopener noreferrer">원문 보기 ↗</a></div>')});
+var er=D.cal.earn.filter(function(e){return e.day===nd}),ec=D.cal.econ.filter(function(e){return e.day===nd}).sort(function(a,b){return a.ts<b.ts?-1:1}).slice(0,8);
+var gp=function(k,l){var a=er.filter(function(e){return e.time===k});return a.length?'<div class="eg"><span>'+l+'</span>'+a.map(function(e){return'<a class="ctk" href="'+(D.lk[e.tk]||'#')+'">'+esc(D.nm[e.tk]||e.tk)+'</a>'}).join('')+'</div>':''};
+C.push('<div class="cd"><div class="ck">NEXT DAY</div><div class="ct">'+nd.slice(5,7)+'/'+nd.slice(8,10)+' 주요 일정</div><div class="cm">시간은 한국시간(KST)</div><div class="es">실적 발표(등록 기업)</div>'+(er.length?gp('pre','장 시작 전')+gp('post','장 마감 후')+gp('na','시각 미정'):'<div class="em">등록 기업 중 발표 예정 없음</div>')+'<div class="es">경제지표 ★★ 이상</div>'+(ec.length?ec.map(function(e){return'<div class="ei"><span>'+(e.allday?'종일':tm(e.ts))+'</span>'+esc(e.ko)+'<i>'+'★'.repeat(e.imp)+'</i></div>'}).join(''):'<div class="em">주요 지표 없음</div>')+'</div>');
+C.push('<div class="cd cv"><div class="ck">NOTICE</div><div class="cs2">핵심 기사는 규칙으로 자동 선별했고, 한국어 제목·요약은 기계 번역입니다. 정확한 내용은 원문을 확인하세요.<br><br>투자 권유가 아니며 투자 판단과 책임은 본인에게 있습니다.</div><div class="cf">CORPORATE ANALYSIS</div></div>');
+CN.innerHTML='<div class="cdk" id="cdk">'+C.join('')+'</div><div class="cnav"><button type="button" id="cpv" aria-label="이전">←</button><span id="cct"></span><button type="button" id="cnx" aria-label="다음">→</button></div>';
+var K2=document.getElementById('cdk'),ct=document.getElementById('cct'),cards=K2.children;
+function upd(){var w=K2.clientWidth||1,i=Math.round(K2.scrollLeft/w);ct.textContent=(i+1)+' / '+cards.length}
+K2.addEventListener('scroll',function(){requestAnimationFrame(upd)});
+document.getElementById('cpv').onclick=function(){K2.scrollBy({left:-K2.clientWidth,behavior:'smooth'})};document.getElementById('cnx').onclick=function(){K2.scrollBy({left:K2.clientWidth,behavior:'smooth'})};
+K2.tabIndex=0;K2.addEventListener('keydown',function(e){if(e.key==='ArrowRight')document.getElementById('cnx').click();if(e.key==='ArrowLeft')document.getElementById('cpv').click()});upd()}
 function draw(){var a=list(),b=a[+SEL.value||0];document.querySelectorAll('.brtab .pill').forEach(function(p){p.classList.toggle('on',p.dataset.k===K)});
-if(!b){SM.innerHTML='아직 생성된 '+(K==='pre'?'장 시작 전':'장 마감 후')+' 브리핑이 없습니다. 위 시각에 자동으로 만들어집니다.';L.innerHTML='';return}
+if(!b){SM.style.display='';L.style.display='';CN.style.display='none';SM.innerHTML='아직 생성된 '+(K==='pre'?'장 시작 전':'장 마감 후')+' 브리핑이 없습니다. 위 시각에 자동으로 만들어집니다.';L.innerHTML='';return}
+if(K==='post'){SM.style.display='none';L.style.display='none';CN.style.display='';deck(b);return}SM.style.display='';L.style.display='';CN.style.display='none';CN.innerHTML='';
 SM.innerHTML=esc(b.summary)+'<span class="gn">'+esc(b.day)+' · '+kst(b.gen)+' 생성 · 영어 기사의 제목·요약은 기계 번역입니다</span>';
 L.innerHTML=b.items.map(function(x){var tags=x.k.map(function(t){return'<a class="tk" href="'+(D.lk[t]||'#')+'">'+esc(D.nm[t]||t)+'</a>'}).join('');
 return'<li><div><span class="lb">'+esc(x.lab)+'</span><a class="t" href="'+esc(x.l)+'" target="_blank" rel="noopener noreferrer">'+esc(x.ko)+'</a></div>'+(x.ks?'<div class="s">'+esc(x.ks)+'</div>':'')+(x.tr?'<div class="o">'+esc(x.t)+'</div>':'')+'<div class="m">'+tags+'<span>'+esc(host(x.l))+'</span><span>·</span><span>'+kst(x.d)+'</span></div></li>'}).join('')}
@@ -1209,7 +1259,7 @@ document.querySelectorAll('.brtab .pill').forEach(function(p){p.addEventListener
 var l=D.b[0];if(l)K=l.kind;fill();})();</script>"""
 br_inner = (f'<div class="readwrap">{side("briefing.html")}<div class="read"><div class="rhead"><a href="index.html">←</a><div><div class="t">뉴스 브리핑</div><div class="a">장 시작 1시간 전 · 장 마감 후 핵심 뉴스 {len(REPORTS)}개 기업 대상</div></div></div>'
     '<div class="brtab"><button class="pill on" data-k="pre" type="button">장 시작 전</button><button class="pill" data-k="post" type="button">장 마감 후</button><select id="brd" aria-label="날짜"></select></div>'
-    '<div class="brsum" id="brs"></div><ol class="brl" id="brl"></ol>'
+    '<div class="brsum" id="brs"></div><ol class="brl" id="brl"></ol><div id="brc" style="display:none"></div>'
     '<div class="nwnote" id="brn"></div><div class="nwnote">핵심 기사는 사람이 고르지 않고 규칙으로 자동 선별합니다. 종목 시가총액, 실적·인수합병·규제·경영진·애널리스트·급등락 같은 키워드, 출처 신뢰도, 여러 종목에 걸친 기사 여부로 점수를 매기고, 투자 권유성 기사와 중복 기사는 낮추거나 제외합니다. 한국어 문장은 번역이므로 정확한 내용은 원문을 확인하세요. 투자 조언이 아닙니다.</div>'
     '</div></div>' + BR_JS.replace("__DATA__", _bd))
 open(f"{OUT}/briefing.html", "w", encoding="utf-8").write(shell("뉴스 브리핑 — Corporate Analysis", br_inner, "briefing"))
@@ -1301,7 +1351,7 @@ def options_page():
         e = o.get("er")
         if e and e.get("mvp") is not None:
             prem = f'{e["iv"] / e["ivb"]:.2f}배' if e.get("iv") and e.get("ivb") else "-"
-            tm = {"bmo": "장 시작 전", "amc": "장 마감 후"}.get(e.get("t"), "시각 미정")
+            tm = {"pre": "장 시작 전", "post": "장 마감 후", "bmo": "장 시작 전", "amc": "장 마감 후"}.get(e.get("t"), "시각 미정")
             r2.append((e["d"], f'<tr><td>{nm(r)}</td><td>{e["d"][5:7]}/{e["d"][8:10]}<span class="s">{tm}</span></td><td><b>±{e["mvp"]:.1f}%</b><span class="s">±${e["mv"]:,.2f}</span></td><td>${px * (1 - e["mvp"] / 100):,.2f} ~ ${px * (1 + e["mvp"] / 100):,.2f}</td><td>{(e.get("iv") or 0) * 100:.1f}%<span class="s">만기 {e["e"][5:]}</span></td><td>{(e.get("ivb") or 0) * 100:.1f}%</td><td>{prem}</td></tr>'))
         if "pw" in o or "cw" in o or o.get("gf"):
             def lv(k):
