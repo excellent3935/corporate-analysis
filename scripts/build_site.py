@@ -1415,6 +1415,8 @@ F13_CSS = """
 .fs{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.7}.fs b{color:var(--text,inherit)}
 """
 CSS += F13_CSS
+def esc_h(x):
+    return str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 def f13_page():
     try:
         O = json.load(open(os.path.join(ROOT, "data", "corp13f.json"), encoding="utf-8"))
@@ -1432,9 +1434,15 @@ def f13_page():
         return f'{lab}<span class="s">{(d + " · ") if d else ""}{x.get("cls", "")}</span>'
     cards = []
     _lim = (dt.date.today() - dt.timedelta(days=400)).isoformat()  # 마지막 13F가 1년 넘게 지난(제출 중단) 회사는 제외
-    order = [r[4] for r in REPORTS if r[4] in C and C[r[4]]["period"] >= _lim]
+    def _rank(k):  # 은행 → 증권사 → 펀드 순으로 맨 위, 나머지는 기존 순서
+        if k in byk:
+            g = byk[k][9]
+            return 0 if g == "은행" else 1 if "증권" in g else 3
+        return 0.5 if C[k].get("grp") == "은행" else 1.5 if C[k].get("grp") == "증권" else 2.5
+    _all = [r[4] for r in REPORTS if r[4] in C] + [k for k in C if k not in byk]
+    order = sorted([k for k in _all if C[k]["period"] >= _lim], key=lambda k: _rank(k))
     for tk in order:
-        c = C[tk]; r = byk[tk]
+        c = C[tk]; r = byk.get(tk)
         rows = ""
         for x in c["rows"]:
             if x["ch"] == "new": chs = '<span class="new">신규</span>'
@@ -1445,12 +1453,17 @@ def f13_page():
         sold = ""
         if c.get("sold"):
             sold = '<div class="fs"><b>직전 분기 대비 전량 매도</b>: ' + ", ".join(f'{(x["nm"].title() if x["nm"].isupper() else x["nm"])}({money(x["v"])})' for x in c["sold"]) + "</div>"
-        hs = " ".join([tk, r[3], r[5], KO_ALIAS.get(tk, ""), c["name"]] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
-        nm = r[3].replace(" 기업분석", "")
-        cards.append(f'<details class="fc" data-s="{hs}"><summary><span class="lg">{ICON[tk]}</span><span><div class="nm"><a href="{r[0]}" style="color:inherit;text-decoration:none">{nm}</a> <span class="sb">{tk}</span></div><div class="sb">{c["period"]} 기준 · 접수 {c["filed"]} · 보유 {c["n"]:,}종목</div></span><span class="tt">{money(c["total"])}<span>13F 보고 총액</span></span></summary>'
+        if r:
+            hs = " ".join([tk, r[3], r[5], KO_ALIAS.get(tk, ""), c["name"]] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
+            nm = r[3].replace(" 기업분석", "")
+            head = f'<span class="lg">{ICON[tk]}</span><span><div class="nm"><a href="{r[0]}" style="color:inherit;text-decoration:none">{nm}</a> <span class="sb">{tk}</span></div>'
+        else:
+            hs = " ".join([c.get("label", ""), c["name"], c.get("grp", "")] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
+            head = f'<span class="lg"><span class="mono" style="font-weight:800">{esc_h(c.get("label", "?")[:1])}</span></span><span><div class="nm">{esc_h(c.get("label", c["name"]))} <span class="sb">{esc_h(c.get("grp", ""))}</span></div>'
+        cards.append(f'<details class="fc" data-s="{hs}"><summary>{head}<div class="sb">{c["period"]} 기준 · 접수 {c["filed"]} · 보유 {c["n"]:,}종목</div></span><span class="tt">{money(c["total"])}<span>13F 보고 총액</span></span></summary>'
                      f'<div class="fb"><div class="ft"><table class="ftb"><tr><th>보유 종목 (상위 {len(c["rows"])})</th><th>보유 주식 수</th><th>평가금액</th><th>포트폴리오 비중</th><th>직전 분기 대비</th></tr>{rows}</table></div>{sold}</div></details>')
     body = "".join(cards) or '<div class="fl">13F를 제출하는 등록 기업 데이터가 아직 수집되지 않았습니다. 수집 후 표시됩니다.</div>'
-    leg = ('<div class="fl"><b>13F 보유 현황</b> — 등록 기업 중 SEC에 13F-HR(기관투자자 주식 보유 보고서)을 제출하는 회사가 분기 말에 보유한 <b>타사 주식</b>입니다. 평가금액 기준 상위 30종목을 보여 주고, 직전 분기와 주식 수를 비교해 신규·확대·축소·전량 매도를 표시합니다. '
+    leg = ('<div class="fl"><b>13F 보유 현황</b> — 등록 기업 중 SEC에 13F-HR(기관투자자 주식 보유 보고서)을 제출하는 회사(은행·증권사·유명 펀드를 맨 위에 둡니다)가 분기 말에 보유한 <b>타사 주식</b>입니다. 평가금액 기준 상위 30종목을 보여 주고, 직전 분기와 주식 수를 비교해 신규·확대·축소·전량 매도를 표시합니다. '
            '13F는 미국 상장 주식 롱 포지션만 담고(옵션·채권·공매도·해외 주식 제외), 분기 종료 후 45일 안에 공시돼 시차가 있습니다. 비중은 13F에 보고된 포트폴리오 대비입니다.</div>')
     inner = (f'<div class="fw"><div class="fh"><span class="t">13F</span><span class="a">등록 기업의 타사 주식 보유 현황 · {len(cards)}개 기업 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div>{leg}'
              '<input class="fq" id="fq" type="search" placeholder="회사·보유 종목 검색 (예: 엔비디아, CoreWeave)" autocomplete="off">' + body +

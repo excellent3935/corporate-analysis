@@ -302,6 +302,10 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
     ("1167557", "AQR", "AQR"),
     ("2045724", "시추에이셔널 어웨어니스", "SITUATIONAL AWARENESS"),
 ]
+EXTRA_13F = [  # 사이트 미등록 기관(은행·펀드)의 13F도 13F 탭에 싣는다: (CIK, 표시 이름, 구분, 검증용 키워드)
+    ("948046", "도이치뱅크", "은행", "DEUTSCHE BANK"), ("1423053", "시타델", "펀드", "CITADEL"), ("1697748", "ARK 인베스트먼트", "펀드", "ARK INVEST"),
+    ("2045724", "시추에이셔널 어웨어니스", "펀드", "SITUATIONAL AWARENESS"), ("1065521", "소프트뱅크 그룹", "펀드", "SOFTBANK"),
+]
 MAP_VER = 4  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
@@ -1046,14 +1050,17 @@ def update_corp13f(cta):
         k = _norm(name)
         return rev_title.get(k) if k else None
 
-    SIG13 = "3-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
+    SIG13 = "4-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
-    for tk in ours:
-        cik = cik_of.get(tk.replace("-", "."))
+    jobs = [(tk, cik_of.get(tk.replace("-", ".")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in EXTRA_13F]
+    for tk, cik, ex in jobs:
         if not cik:
             continue
         try:
             sec_name, fl = _f13_list(cik)
+            if ex and ex[2] not in sec_name.upper():
+                print(f"[건너뜀] {ex[0]}: CIK {cik} 이름 불일치 → {sec_name}")
+                continue
             if not fl:
                 res.pop(tk, None)
                 continue
@@ -1079,6 +1086,8 @@ def update_corp13f(cta):
             sold = [{"nm": e["name"], "sh": round(e["sh"]), "v": round(e["v"]), "tk": tick_of(e["name"], e["cls"]), "dt": disp_tick(e["name"], e["cls"])} for c, e in sorted(prv.items(), key=lambda kv: -kv[1]["v"]) if c not in cur][:8]
             res[tk] = {"mv": SIG13, "name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
                        "total": round(tot), "ptotal": round(ptot), "n": len(cur), "rows": rows, "sold": sold}
+            if ex:
+                res[tk].update({"label": ex[0], "grp": ex[1]})
             found += 1
             print(f"{tk}: {sec_name} {per} 보유 {len(cur)}종목, 총 ${tot / 1e9:.2f}B")
         except Exception:
