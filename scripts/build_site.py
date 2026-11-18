@@ -1427,6 +1427,12 @@ F13_CSS = """
 .fs{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.7}.fs b{color:var(--text,inherit)}
 """
 CSS += F13_CSS
+F13_DOM = {  # 13F 탭 비등록 기관 로고용 공식 도메인(구글 파비콘 서비스). 없으면 이니셜 표시
+    '948046': 'db.com', '1423053': 'citadel.com', '1697748': 'ark-invest.com', '1065521': 'group.softbank', '1335730': 'mizuhogroup.com',
+    '895421': 'morganstanley.com', '1610520': 'ubs.com', '312069': 'barclays.com', '947263': 'td.com',
+}
+
+
 def esc_h(x):
     return str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
 def f13_page():
@@ -1471,7 +1477,11 @@ def f13_page():
             head = f'<span class="lg">{ICON[tk]}</span><span><div class="nm"><a href="{r[0]}" style="color:inherit;text-decoration:none">{nm}</a> <span class="sb">{tk}</span></div>'
         else:
             hs = " ".join([c.get("label", ""), c["name"], c.get("grp", "")] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
-            head = f'<span class="lg"><span class="mono" style="font-weight:800">{esc_h(c.get("label", "?")[:1])}</span></span><span><div class="nm">{esc_h(c.get("label", c["name"]))} <span class="sb">{esc_h(c.get("grp", ""))}</span></div>'
+            _dom = F13_DOM.get(c.get("cik", ""))
+            _ini = esc_h(c.get("label", "?")[:1])
+            _lg = (f'<img src="https://www.google.com/s2/favicons?domain={_dom}&sz=128" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain;border-radius:6px" onerror="this.replaceWith(document.createTextNode(\'{_ini}\'))">'
+                   if _dom else f'<span class="mono" style="font-weight:800">{_ini}</span>')
+            head = f'<span class="lg">{_lg}</span><span><div class="nm">{esc_h(c.get("label", c["name"]))} <span class="sb">{esc_h(c.get("grp", ""))}</span></div>'
         o = c.get("opt") or {}
         osec = ""
         if o.get("n"):
