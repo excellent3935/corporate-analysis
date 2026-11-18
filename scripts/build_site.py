@@ -1118,12 +1118,57 @@ def live_cta(html, tk):
     lv.sort(key=lambda x: -x[0])
     t3 = '<table><tr><th>가격</th><th>기준</th><th>무엇이 바뀌나</th></tr>' + "".join(f'<tr><td><b>{N(a)}</b></td><td>{b}</td><td>{d}</td></tr>' for a, b, d in lv) + '</table>'
     n3 = '<p class="note">가격 수준은 신호가 바뀌는 기준선일 뿐 진입·청산 가격 제안이 아니다. 20일/50일 교차는 이동평균 자체가 움직여 단일 가격으로 표시하지 않았다. 일봉·주봉은 종가 기준 직접 계산(고저 데이터 미사용)이다.</p>'
+    # 4. 지지·저항 (이동평균·55일 고저·52주 고저로 자동 산출) + 5. 기준 가격 구간
+    lvls = [(e[k], lab) for k, lab in (("s5", "5일선"), ("s20", "20일선"), ("s50", "50일선"), ("s100", "100일선"), ("s200", "200일선")) if e.get(k)]
+    lvls += [(e["dh55"], "55일 고가"), (e["dl55"], "55일 저가"), (mid, "돈키언 중간값")]
+    if e.get("h52"): lvls.append((e["h52"], "52주 고가"))
+    if e.get("l52"): lvls.append((e["l52"], "52주 저가"))
+    def clusters(items, rev):
+        items = sorted(items, key=lambda x: x[0], reverse=rev); out = []
+        for v, lab in items:
+            if out and abs(v / out[-1]["hi"] - 1) < 0.012 or out and abs(v / out[-1]["lo"] - 1) < 0.012:
+                g = out[-1]; g["lo"] = min(g["lo"], v); g["hi"] = max(g["hi"], v); g["lab"].append(lab)
+            else:
+                out.append({"lo": v, "hi": v, "lab": [lab]})
+        return out
+    res = clusters([x for x in lvls if x[0] > c * 1.0005], False)[:2]
+    sup = clusters([x for x in lvls if x[0] < c * 0.9995], True)[:3]
+    rng = lambda g: N(g["lo"]) if g["lo"] == g["hi"] else f'{N(g["lo"])} ~ {N(g["hi"])}'
+    rws = "".join(f'<tr><td>저항 {i + 1}</td><td>{rng(g)}</td><td>{" · ".join(g["lab"])}</td></tr>' for i, g in reversed(list(enumerate(res))))
+    rws += "".join(f'<tr><td>지지 {i + 1}</td><td>{rng(g)}</td><td>{" · ".join(g["lab"])}</td></tr>' for i, g in enumerate(sup))
+    if not res: rws = f'<tr><td>저항</td><td>-</td><td>종가 위에 기준선 없음(신고가 영역)</td></tr>' + rws
+    t4 = '<table><tr><th>구분</th><th>가격대</th><th>근거</th></tr>' + rws + '</table><p class="note">종가 기준 위·아래에 있는 이동평균선·55일 고저·52주 고저를 매일 자동으로 정렬한 값이다(1.2% 이내는 한 구간으로 묶음).</p>'
+    a = e.get("atr") or c * 0.02
+    if sup:
+        b1 = sup[0]["hi"]; b2 = sup[1]["lo"] if len(sup) > 1 else sup[0]["lo"]
+        buy = f'{N(min(b1, b2))} ~ {N(max(b1, b2))}'; stop = N(min(b1, b2) - 0.5 * a)
+    else:
+        buy = "종가 아래 기준선 없음"; stop = N(c - 1.5 * a)
+    t1p = res[0]["hi"] if res else c + a
+    t2p = res[1]["hi"] if len(res) > 1 else t1p + a
+    t5 = ('<div class="strat"><div><div class="k">눌림 관찰 구간 (지지 1~2)</div><div class="v">' + buy + '</div></div>'
+          '<div><div class="k">1차 / 2차 저항</div><div class="v">' + f'{N(t1p)} / {N(t2p)}' + '</div></div>'
+          '<div><div class="k">추세 훼손선 (지지 2 하단 − 0.5 ATR)</div><div class="v">' + stop + '</div></div></div>'
+          '<p class="note">규칙으로 계산한 기준 가격이며 매매 권유가 아니다. 매일 종가 기준으로 자동 갱신된다. 펀더멘털·이벤트 판단은 반영하지 않는다.</p>')
     T = r"<table>.*?</table>"
+    # 기존 손글씨 지지·저항 / 대응 시나리오 교체
+    html, n4 = re.subn(r"<h3>(\d)\. 지지·저항[^<]*</h3>" + T, lambda m: f"<h3>{m.group(1)}. 지지·저항 (자동 산출)</h3>" + t4, html, count=1, flags=re.S)
+    STRAT = r'<div class="strat">(?:<div><div class="k">.*?</div><div class="v">.*?</div></div>)+</div>(?:\s*<p>.*?</p>)?'
+    def _sc(m):
+        num = int(m.group(1))
+        pre = ""
+        if not n4:  # 지지·저항 표가 없던 보고서: 새로 삽입하고 번호를 한 칸 뒤로
+            pre = f"<h3>{num}. 지지·저항 (자동 산출)</h3>" + t4; num += 1
+        return pre + f"<h3>{num}. 기준 가격 구간 (규칙 기반 참고값)</h3>" + t5
+    html = re.sub(r"<h3>(\d)\. 대응 시나리오[^<]*</h3>" + STRAT, _sc, html, count=1, flags=re.S)
+    # 해설 문단은 작성일 기준 표시
     # h3와 표를 통째로 교체 (제목 변형: '전환선'·'전환 가격', '(계산 가능한 4개만)' 포함)
-    html, n = re.subn(r"<h3>1\. 이동평균선 배열[^<]*</h3>" + T + r"(<p>.*?</p>)?", lambda m: h1 + t1 + (m.group(1) or ""), html, count=1, flags=re.S)
+    html, n = re.subn(r"<h3>1\. 이동평균선 배열[^<]*</h3>" + T + r"(<p>.*?</p>)?", lambda m: h1 + t1 + ((m.group(1) or "").replace("<p>", '<p><span class="tag y">작성일 기준</span> ', 1)), html, count=1, flags=re.S)
     html = re.sub(r"(<h3>2\. CTA 신호 스코어카드[^<]*</h3>)" + T + r"(?:\s*<p><b>해석</b>.*?</p>)?", lambda m: m.group(1).split("(계산")[0].replace("</h3>", "") + "</h3>" + t2 + p2 if False else "<h3>2. CTA 신호 스코어카드</h3>" + t2 + p2, html, count=1, flags=re.S)
     html = re.sub(r"<h3>3\. CTA 신호 전환[^<]*</h3>" + T + r'(?:\s*<p class="note">.*?</p>)?', lambda m: "<h3>3. CTA 신호 전환 가격</h3>" + t3 + n3, html, count=1, flags=re.S)
-    note = '<p class="note">1~3번 표(이동평균·신호 스코어카드·전환 가격)는 매일 종가 기준으로 자동 갱신됩니다. 표 밖의 해설·지지저항·대응 시나리오는 보고서 작성일 기준입니다.</p>'
+    if "지지·저항 (자동 산출)" not in html and "<h3>3. CTA 신호 전환 가격</h3>" in html:  # 3개 표만 있던 보고서에 4·5번 추가
+        html = html.replace(n3, n3 + "<h3>4. 지지·저항 (자동 산출)</h3>" + t4 + "<h3>5. 기준 가격 구간 (규칙 기반 참고값)</h3>" + t5, 1)
+    note = '<p class="note">1~5번(이동평균·신호 스코어카드·전환 가격)은 매일 종가 기준으로 자동 갱신됩니다. 4·5번(지지·저항, 기준 가격 구간)도 같은 기준으로 자동 계산됩니다. “작성일 기준” 표시가 붙은 해설 문단만 보고서 작성일 기준입니다.</p>'
     html = re.sub(r"(<h2[^>]*>(?:<span class=\"n\">\d+</span>|\d+\. )CTA 방식 차트 분석</h2>)", lambda m: m.group(1) + note, html, count=1)
     return html
 
