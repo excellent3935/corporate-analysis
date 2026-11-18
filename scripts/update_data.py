@@ -306,7 +306,7 @@ NAMED_FUNDS = [  # (CIK, 표시 이름, 검증용 키워드: SEC 등록 이름�
 def _extra_13f():
     """13F 탭에 싣는 기관 목록: data/filers_13f.json 에서 읽는다(줄만 추가하면 다음 갱신 때 자동 수집·배포)."""
     return [tuple(x) for x in load("filers_13f.json", {"filers": []}).get("filers", []) if len(x) == 4]
-MAP_VER = 5  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
+MAP_VER = 6  # 이름 매칭 규칙을 바꾸면 올려서 저장된 펀드를 다시 계산하게 한다
 NAME_OVERRIDE = {  # 13F 발행사명(정규화 전) → 사이트 티커. 이름 매칭이 어려운 종목용
     "BERKSHIRE HATHAWAY INC DEL": "BRK.B", "CAPITAL ONE FINL CORP": "COF", "AMERICAN EXPRESS CO": "AXP", "PAYPAL HLDGS INC": "PYPL", "SYNCHRONY FINANCIAL": "SYF", "CITIGROUP INC": "C", "BANK NEW YORK MELLON CORP": "BNY",
     "TAIWAN SEMICONDUCTOR MFG CO LTD": "TSM", "TAIWAN SEMICONDUCTOR MANUFACTURING": "TSM", "META PLATFORMS INC": "META",
@@ -1076,7 +1076,7 @@ def update_corp13f(cta):
         k = _norm(name)
         return rev_title.get(k) if k else None
 
-    SIG13 = "5-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
+    SIG13 = "6-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
     jobs = [(tk, cik_of.get(tk) or cik_of.get(tk.replace("-", ".")) or cik_of.get(tk.replace(".", "-")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
     for tk, cik, ex in jobs:
