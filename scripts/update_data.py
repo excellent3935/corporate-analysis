@@ -1053,7 +1053,7 @@ def update_corp13f(cta):
 
     SIG13 = "4-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
-    jobs = [(tk, cik_of.get(tk) or cik_of.get(tk.replace("-", ".")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
+    jobs = [(tk, cik_of.get(tk) or cik_of.get(tk.replace("-", ".")) or cik_of.get(tk.replace(".", "-")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
     for tk, cik, ex in jobs:
         if not cik:
             print(f"{tk}: SEC 등록 CIK 없음")
