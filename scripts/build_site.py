@@ -757,7 +757,7 @@ def cta_box(tk):
             f'{atrp}</div>{f"<div class=tr>{trend}<small>최근 60거래일 점수 추이</small></div>" if trend else ""}</div>'
             f'<div class="tw"><table><tr><th>규칙</th><th>기준</th><th>현재 값</th><th>신호</th></tr>{rows}</table></div>'
             f'<div class="mas">이동평균선: {mas}</div>'
-            f'<div class="small">아래 본문의 차트 분석(3장)은 리포트 작성 시점(2026.11.06 종가) 기준이고, 이 박스는 매일 갱신됩니다.</div></div>')
+            f'<div class="small">아래 본문 07의 이동평균·신호 표는 리포트 작성 시점 종가 기준이고, 이 박스는 매일 갱신됩니다.</div></div>')
 
 def cta_board():
     rows = []
