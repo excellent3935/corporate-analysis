@@ -1075,13 +1075,65 @@ def cover(r):  # 작은 정사각 타일
             f'<div class="tl-logo">{ICON[tk]}</div><div class="tl-nm">{title.replace(" 기업분석","")}</div>'
             f'<div class="tl-px">{px} <span class="{c}">{ch}</span></div></a>')
 
+
+# --------------- 07 CTA 표: 매일 종가 데이터로 자동 갱신 ---------------
+def _num(v, cur):
+    return f"{v:,.0f}" if cur == "원" else fmt(v, cur)
+def _lab(sc):
+    return "강한 매수" if sc >= 0.75 else "매수 우위" if sc > 0 else "강한 매도" if sc <= -0.75 else "매도 우위" if sc < 0 else "중립"
+def live_cta(html, tk):
+    e = CTA.get(tk) or {}
+    sigs, sc = signals(e)
+    if sigs is None:
+        return html
+    cur = e.get("cur", "$"); c = e["close"]; N = lambda v: _num(v, cur)
+    mid = (e["dh55"] + e["dl55"]) / 2
+    # 1. 이동평균선 배열
+    ma = [(k, lab) for k, lab in (("s5", "5일선"), ("s20", "20일선"), ("s50", "50일선"), ("s100", "100일선"), ("s200", "200일선")) if e.get(k)]
+    t1 = '<table><tr><th>이동평균</th><th class="r">값</th><th class="r">종가 대비</th><th>위치</th></tr>' + "".join(
+        f'<tr><td>{lab}</td><td class="r">{N(e[k])}</td><td class="r">{(c / e[k] - 1) * 100:+.1f}%</td><td>종가 {"아래" if c < e[k] else "위"}</td></tr>' for k, lab in ma) + '</table>'
+    h1 = f'<h3>1. 이동평균선 배열 (종가 {N(c)}, {e.get("date", "")})</h3>'
+    # 2. 스코어카드
+    rows = ""
+    for lab, basis, val, v in sigs:
+        if lab == "돈키언 채널":
+            basis = f'55일 고가 {N(e["dh55"])} / 저가 {N(e["dl55"])}'
+        val = re.sub(r"\$[\d,.]+|[\d,]+원", lambda m: N(float(re.sub(r"[^\d.]", "", m.group(0)))), val).replace("<", "&lt;").replace(">", "&gt;")
+        rows += f'<tr><td>{lab}</td><td>{basis}</td><td>{val}</td><td><span class="tag {"g" if v > 0 else "b"}">{"매수" if v > 0 else "매도"}</span></td></tr>'
+    tg = "g" if sc > 0 else "b" if sc < 0 else "y"
+    t2 = ('<table><tr><th>규칙</th><th>기준</th><th>현재 값</th><th>신호</th></tr>' + rows +
+          f'<tr class="hl"><td><b>종합 ({len(sigs)}개 평균)</b></td><td></td><td><b>{sc:+.2f}</b></td><td><span class="tag {tg}">{_lab(sc)}</span></td></tr></table>')
+    buy = [x[0] for x in sigs if x[3] > 0]; sell = [x[0] for x in sigs if x[3] < 0]
+    atr = f' 14일 ATR {N(e["atr"])} ({e["atr"] / c * 100:.1f}%).' if e.get("atr") else ""
+    hi = f' 52주 고가 {N(e["h52"])} · 저가 {N(e["l52"])}.' if e.get("h52") and e.get("l52") else ""
+    p2 = (f'<p><b>해석</b>: 매수 신호 {len(buy)}개{"(" + ", ".join(buy) + ")" if buy else ""}, 매도 신호 {len(sell)}개{"(" + ", ".join(sell) + ")" if sell else ""}. '
+          f'{len(sigs)}개 중 {max(len(buy), len(sell))}개가 {"매수" if len(buy) >= len(sell) else "매도"}다.{atr}{hi}</p>')
+    # 3. 전환 가격
+    lv = [(e["dh55"], "55일 고가", "돌파 시 채널 상단 갱신"), (e["dl55"], "55일 저가", "이탈 시 채널 하단 갱신"), (mid, "돈키언 중간값", "55일 채널 중간값 위/아래로 신호가 바뀜")]
+    if e.get("s200"):
+        lv.append((e["s200"], "200일선", "종가가 이 선 위/아래인지로 장기 추세 신호가 바뀜"))
+    for k, lab in (("m1", "1개월"), ("m3", "3개월"), ("m6", "6개월"), ("m12", "12개월")):
+        if e.get(k):
+            lv.append((e[k], f"{lab} 모멘텀 기준가", f"종가가 이 가격 위면 {lab} 신호 매수"))
+    lv.sort(key=lambda x: -x[0])
+    t3 = '<table><tr><th>가격</th><th>기준</th><th>무엇이 바뀌나</th></tr>' + "".join(f'<tr><td><b>{N(a)}</b></td><td>{b}</td><td>{d}</td></tr>' for a, b, d in lv) + '</table>'
+    n3 = '<p class="note">가격 수준은 신호가 바뀌는 기준선일 뿐 진입·청산 가격 제안이 아니다. 20일/50일 교차는 이동평균 자체가 움직여 단일 가격으로 표시하지 않았다. 일봉·주봉은 종가 기준 직접 계산(고저 데이터 미사용)이다.</p>'
+    T = r"<table>.*?</table>"
+    # h3와 표를 통째로 교체 (제목 변형: '전환선'·'전환 가격', '(계산 가능한 4개만)' 포함)
+    html, n = re.subn(r"<h3>1\. 이동평균선 배열[^<]*</h3>" + T + r"(<p>.*?</p>)?", lambda m: h1 + t1 + (m.group(1) or ""), html, count=1, flags=re.S)
+    html = re.sub(r"(<h3>2\. CTA 신호 스코어카드[^<]*</h3>)" + T + r"(?:\s*<p><b>해석</b>.*?</p>)?", lambda m: m.group(1).split("(계산")[0].replace("</h3>", "") + "</h3>" + t2 + p2 if False else "<h3>2. CTA 신호 스코어카드</h3>" + t2 + p2, html, count=1, flags=re.S)
+    html = re.sub(r"<h3>3\. CTA 신호 전환[^<]*</h3>" + T + r'(?:\s*<p class="note">.*?</p>)?', lambda m: "<h3>3. CTA 신호 전환 가격</h3>" + t3 + n3, html, count=1, flags=re.S)
+    note = '<p class="note">1~3번 표(이동평균·신호 스코어카드·전환 가격)는 매일 종가 기준으로 자동 갱신됩니다. 표 밖의 해설·지지저항·대응 시나리오는 보고서 작성일 기준입니다.</p>'
+    html = re.sub(r"(<h2[^>]*>(?:<span class=\"n\">\d+</span>|\d+\. )CTA 방식 차트 분석</h2>)", lambda m: m.group(1) + note, html, count=1)
+    return html
+
 # --------------- read pages ---------------
 def side(active):
     return ""  # 사이드바는 shell()의 gside()가 모든 페이지에 공통으로 그린다
 
 for i, r in enumerate(REPORTS):
     f, d, src, title, tk, comp, tag, sub, cols, line, url = r
-    body = bullify(merged(src), d)
+    body = bullify(live_cta(merged(src), tk), d)
     body = re.sub(r'<img class="ch" src="%s/c_price\.png"[^>]*>' % re.escape(d), lambda m: cta_widget(tk, d), body)
     px, ch, c = PRICE[tk]
     prev = REPORTS[i - 1] if i > 0 else None; nxt = REPORTS[i + 1] if i < len(REPORTS) - 1 else None
