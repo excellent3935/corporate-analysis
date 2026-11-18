@@ -439,6 +439,19 @@ def _parse_infotable(xml_bytes):
     return out
 
 
+def _scale_fix(tbl, opts=None):
+    """일부 제출자(듀케인 등)는 value를 천 달러 단위로 적는다. 종목당 평균가(value/주식 수) 중앙값이 2달러 미만이면 ×1000 보정."""
+    import statistics
+    r = [e["v"] / e["sh"] for e in tbl.values() if e["sh"] > 0 and e["v"] > 0]
+    if len(r) >= 10 and statistics.median(r) < 2:
+        for e in tbl.values():
+            e["v"] *= 1000
+        for e in (opts or {}).values():
+            e["v"] *= 1000
+        return True
+    return False
+
+
 def _fund_filings(cik):
     j = _sec_get(f"https://data.sec.gov/submissions/CIK{int(cik):010d}.json").json()
     rc = j["filings"]["recent"]
@@ -514,6 +527,7 @@ def update_funds(cta):
             cur = _fund_table(cik, acc); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
             time.sleep(0.3)
+            _scale_fix(cur); _scale_fix(prv)
 
             issuers.update(e["name"] for e in cur.values())
 
@@ -1085,6 +1099,7 @@ def update_corp13f(cta):
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
             popt = dict(getattr(_parse_infotable, "opts", {})) if len(fl) > 1 else {}
             time.sleep(0.3)
+            _scale_fix(cur, copt); _scale_fix(prv, popt)
             tot = sum(e["v"] for e in cur.values()) or 1
             ptot = sum(e["v"] for e in prv.values())
             rows = []
