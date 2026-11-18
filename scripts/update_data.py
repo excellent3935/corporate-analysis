@@ -1076,9 +1076,14 @@ def update_corp13f(cta):
         k = _norm(name)
         return rev_title.get(k) if k else None
 
-    SIG13 = "6-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
+    SIG13 = "7-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
     jobs = [(tk, cik_of.get(tk) or cik_of.get(tk.replace("-", ".")) or cik_of.get(tk.replace(".", "-")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
+    _have = {str(j[1]).lstrip("0") for j in jobs}
+    NF_CIKS = {str(c).lstrip("0") for c, _l, _k in NAMED_FUNDS}
+    for c, lab, kw in NAMED_FUNDS:  # 거래 추적 탭용 네임드 펀드(13F 탭에는 나오지 않음)
+        if str(c).lstrip("0") not in _have:
+            jobs.append(("x" + c, c, (lab, "네임드 펀드", kw)))
     for tk, cik, ex in jobs:
         if not cik:
             print(f"{tk}: SEC 등록 CIK 없음")
@@ -1137,6 +1142,8 @@ def update_corp13f(cta):
         except Exception:
             print("[13F 실패]", tk)
             traceback.print_exc()
+    for _k, _v in res.items():
+        _v["nf"] = str(_v.get("cik", "")).lstrip("0") in NF_CIKS
     save("corp13f.json", {"asof": dt.datetime.now(KST).strftime("%Y-%m-%d %H:%M"), "c": res})
     print("등록 기업 13F 제출 회사", found, "곳")
 

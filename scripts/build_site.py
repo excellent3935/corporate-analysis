@@ -735,40 +735,7 @@ def smart_box(tk):
                 '<div class="nt">출처: Yahoo Finance(SEC Form 4). 주식 보상·옵션 행사는 시장 매매가 아니므로 매수/매도와 구분해 표시합니다. 가격은 신고 문구에서 추출해 일부는 비어 있을 수 있습니다.</div></details>')
     elif True:
         out += none("🧑‍💼", "내부자 거래 (Form 4)", "수집 대상 아님 (한국 상장 종목)" if kr else "거래 없음")
-    fr = []
-    for cik, f in _F13.items():
-        c, p = f["rows"].get(tk), f["prows"].get(tk)
-        if not c and not p: continue
-        sh, psh = (c or {}).get("sh", 0), (p or {}).get("sh", 0)
-        if psh == 0 and sh > 0: ac, cl = "신규 매수", "up"
-        elif sh == 0: ac, cl = "전량 매도", "down"
-        elif sh > psh: ac, cl = f"확대 +{(sh / psh - 1) * 100:.0f}%", "up"
-        elif sh < psh: ac, cl = f"축소 {(sh / psh - 1) * 100:.0f}%", "down"
-        else: ac, cl = "변동 없음", "mu"
-        w = c["v"] / f["total"] * 100 if c and f.get("total") else None
-        pw = p["v"] / f["ptotal"] * 100 if p and f.get("ptotal") else None
-        est = (c or p).get("est") if sh != psh else None
-        fr.append((c["v"] if c else 0, f'<tr><td>{f["name"]}</td><td>{f["period"][:4]} Q{(int(f["period"][5:7]) + 2) // 3}</td><td><span class="{cl}">{ac}</span></td><td class="r">{_sh(psh)} → <b>{_sh(sh)}</b></td><td class="r">{(f"{pw:.2f}% → " if pw is not None else "")}<b>{(f"{w:.2f}%" if w is not None else "0%")}</b></td><td class="r">{_usd(c["v"]) if c else "-"}</td><td class="r">{(("추정 $%.2f" % est) if est else "-")}</td></tr>'))
-    if fr:
-        fr.sort(key=lambda x: -x[0]); per = max(f["period"] for f in _F13.values())
-        out += (f'<details class="smd"><summary>🏦 네임드 펀드 13F 매매 <span>{len(fr)}개 펀드 · 펀드별 가장 최근 공시 분기 기준</span></summary><div class="tw"><table><tr><th>펀드</th><th>기준</th><th>행동</th><th class="r">보유 주식</th><th class="r">포트폴리오 비중</th><th class="r">평가금액</th><th class="r">추정 평단(매도가)</th></tr>' + "".join(x[1] for x in fr) + '</table></div>'
-                '<div class="nt">13F는 분기 말 기준 보유 내역이라 정확한 매매일·체결가는 알 수 없습니다. 비중은 해당 펀드의 13F 보고 포트폴리오(미국 상장 롱 포지션) 대비이며 전체 운용자산(시드)과는 다릅니다. 추정 평단은 변동이 생긴 분기의 거래량가중 평균가로, 실제 체결가와 다를 수 있는 추정치입니다. 공시는 분기 종료 후 최대 45일 뒤에 나옵니다.</div></details>')
-    else:
-        out += none("🏦", "네임드 펀드 13F 매매", "수집 대상 아님 (한국 상장 종목)" if kr else f"거래 없음 (네임드 {len(_F13)}개 펀드 보유 내역 없음)")
-    cg = _CG.get(tk) or []
-    if not cg:
-        out += none("🏛", "의원 주식 거래 (STOCK Act)", "수집 대상 아님 (한국 상장 종목)" if kr else "거래 없음 (추적 중인 하원의원 기준)")
-    if cg:
-        _T = {"P": ("매수", "up"), "S": ("매도", "down"), "SP": ("일부 매도", "down"), "E": ("교환", "mu")}
-        tr = ""
-        for x in cg[:12]:
-            lb, cl = _T.get(x["ty"], ("-", "mu"))
-            tr += (f'<tr><td>{x["d"]}</td><td>{x["m"]}</td><td><span class="{cl}">{lb}</span></td><td>{x["o"]}</td><td class="r">{x["amt"]}</td><td>{x["n"]}</td>'
-                   f'<td><a href="https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{x["yr"]}/{x["doc"]}.pdf" target="_blank" rel="noopener">원문</a></td></tr>')
-        names = sorted({x["m"] for x in cg})
-        out += (f'<details class="smd"><summary>🏛 의원 주식 거래 (STOCK Act) <span>{len(cg)}건 · {", ".join(names[:3])}{" 외" if len(names) > 3 else ""}</span></summary><div class="tw"><table><tr><th>거래일</th><th>의원</th><th>구분</th><th>명의</th><th class="r">금액 구간</th><th>공시 통지일</th><th></th></tr>{tr}</table></div>'
-                '<div class="nt">출처: 미 하원 사무처(House Clerk) 정기 거래 보고서. 이름이 알려진 하원의원 일부만 추적하며 상원의원은 포함하지 않습니다. 정확한 금액이 아니라 신고 구간으로만 공개되고, 거래 후 최대 45일 뒤에 공시되므로 실시간 정보가 아닙니다. 명의는 본인·배우자·자녀·공동입니다.</div></details>')
-    return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 · 네임드 펀드 · 의원 매수·매도 기록</span></div>' + out + '</div>'
+    return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 매수·매도 기록 · 펀드·의원은 <a href="track.html">거래 추적</a> 탭</span></div>' + out + '</div>'
 SM_CSS = """
 .smd{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.smd summary{cursor:pointer;font-size:13.5px;font-weight:700}.smd summary span{font-weight:500;font-size:12px;color:var(--muted);margin-left:8px}
 .smd .tw{overflow-x:auto;margin-top:8px}.smd table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}.smd th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}.smd td{padding:5px 8px;border-bottom:1px solid var(--line)}
@@ -1064,7 +1031,7 @@ def gside(on, cur):
             '<a class="si" data-k="m" href="index.html#market">📈 지수선물</a>'
             '<a class="si" data-k="h" href="index.html#heatmap">🔥 히트맵</a>'
             f'<a class="si{c("options")}" href="options.html">🎯 옵션</a>'
-            f'<a class="si{c("f13")}" href="f13.html">🏛 13F</a>'
+            f'<a class="si{c("track")}" href="track.html">🔎 거래 추적</a>'
             f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
             f'<a class="si{c("calendar")}" href="calendar.html">📅 일정</a>'
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
@@ -1078,12 +1045,12 @@ def mpanels(on):
             '<div class="mp" id="mpn">'
             f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 지수선물</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
             f'<a class="mi{c("options")}" href="options.html">🎯 옵션</a>'
-            f'<a class="mi{c("f13")}" href="f13.html">🏛 13F</a>'
+            f'<a class="mi{c("track")}" href="track.html">🔎 거래 추적</a>'
             f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
 
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("f13", "f13.html", "13F"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("track", "track.html", "거래 추적"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
 {mpanels(on)}
@@ -1429,13 +1396,16 @@ F13_CSS = """
 CSS += F13_CSS
 F13_DOM = {  # 13F 탭 비등록 기관 로고용 공식 도메인(구글 파비콘 서비스). 없으면 이니셜 표시
     '948046': 'db.com', '1423053': 'citadel.com', '1697748': 'ark-invest.com', '1065521': 'group.softbank', '1335730': 'mizuhogroup.com',
+    '1067983': 'berkshirehathaway.com', '1350694': 'bridgewater.com', '1037389': 'rentec.com', '1336528': 'pershingsquareholdings.com', '1167483': 'tigerglobal.com', '1040273': 'thirdpoint.com',
+    '1135730': 'coatue.com', '1103804': 'vikingglobal.com', '1603466': 'point72.com', '1179392': 'twosigma.com', '1009207': 'deshaw.com', '1791786': 'elliottmgmt.com', '1061768': 'baupost.com',
+    '1273087': 'mlp.com', '1167557': 'aqr.com', '1061165': 'lonepinecapital.com',
     '895421': 'morganstanley.com', '1610520': 'ubs.com', '312069': 'barclays.com', '947263': 'td.com',
 }
 
 
 def esc_h(x):
     return str(x).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-def f13_page():
+def f13_page(items=False):
     try:
         O = json.load(open(os.path.join(ROOT, "data", "corp13f.json"), encoding="utf-8"))
     except (OSError, ValueError):
@@ -1459,6 +1429,7 @@ def f13_page():
         return 0.5 if C[k].get("grp") == "은행" else 1.5 if C[k].get("grp") == "증권" else 2.5
     _all = [r[4] for r in REPORTS if r[4] in C] + [k for k in C if k not in byk]
     order = sorted([k for k in _all if C[k]["period"] >= _lim], key=lambda k: _rank(k))
+    ITEMS = []
     for tk in order:
         c = C[tk]; r = byk.get(tk)
         rows = ""
@@ -1475,6 +1446,7 @@ def f13_page():
             hs = " ".join([tk, r[3], r[5], KO_ALIAS.get(tk, ""), c["name"]] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
             nm = r[3].replace(" 기업분석", "")
             head = f'<span class="lg">{ICON[tk]}</span><span><div class="nm"><a href="{r[0]}" style="color:inherit;text-decoration:none">{nm}</a> <span class="sb">{tk}</span></div>'
+            _logo, _nm = ICON[tk], nm
         else:
             hs = " ".join([c.get("label", ""), c["name"], c.get("grp", "")] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
             _dom = F13_DOM.get(c.get("cik", ""))
@@ -1482,6 +1454,7 @@ def f13_page():
             _lg = (f'<img src="https://www.google.com/s2/favicons?domain={_dom}&sz=128" alt="" loading="lazy" referrerpolicy="no-referrer" style="width:100%;height:100%;object-fit:contain;border-radius:6px" onerror="this.replaceWith(document.createTextNode(\'{_ini}\'))">'
                    if _dom else f'<span class="mono" style="font-weight:800">{_ini}</span>')
             head = f'<span class="lg">{_lg}</span><span><div class="nm">{esc_h(c.get("label", c["name"]))} <span class="sb">{esc_h(c.get("grp", ""))}</span></div>'
+            _logo, _nm = _lg, esc_h(c.get("label", c["name"]))
         o = c.get("opt") or {}
         osec = ""
         if o.get("n"):
@@ -1499,8 +1472,12 @@ def f13_page():
             pcr = f' · 풋/콜 비율 {o["put"] / o["call"]:.2f}' if o.get("call") else ""
             osec = (f'<div class="fs" style="margin-top:14px"><b>옵션 포지션 (풋·콜)</b> — 총 {o["n"]:,}건 · 콜 {money(o["call"])} · 풋 {money(o["put"])}{pcr} · 직전 분기 콜 {money(o.get("pcall", 0))} / 풋 {money(o.get("pput", 0))}</div>'
                     f'<div class="ft"><table class="ftb"><tr><th>기초자산 (상위 {len(o["rows"])})</th><th>구분</th><th>기초 주식 수</th><th>기초자산 명목금액</th><th>직전 분기 대비</th></tr>{orow}</table></div>{osold}')
+        _isf = bool(c.get("nf")) or c.get("grp") in ("펀드", "네임드 펀드")
         cards.append(f'<details class="fc" data-s="{hs}"><summary>{head}<div class="sb">{c["period"]} 기준 · 접수 {c["filed"]} · 보유 {c["n"]:,}종목</div></span><span class="tt">{money(c["total"])}<span>13F 보고 총액</span></span></summary>'
                      f'<div class="fb"><div class="ft"><table class="ftb"><tr><th>보유 종목 (상위 {len(c["rows"])})</th><th>보유 주식 수</th><th>평가금액</th><th>포트폴리오 비중</th><th>직전 분기 대비</th></tr>{rows}</table></div>{sold}{osec}</div></details>')
+        ITEMS.append({"id": f"e{len(ITEMS)}", "grp": "fund" if _isf else "co", "name": _nm, "logo": _logo, "sub": f'{c["period"]} 기준 · 보유 {c["n"]:,}종목', "total": c["total"], "card": cards[-1].replace('<details class="fc"', '<details class="fc" open', 1), "hs": hs, "tk": tk})
+    if items:
+        return ITEMS
     body = "".join(cards) or '<div class="fl">13F를 제출하는 등록 기업 데이터가 아직 수집되지 않았습니다. 수집 후 표시됩니다.</div>'
     leg = ('<div class="fl"><b>13F 보유 현황</b> — 등록 기업 중 SEC에 13F-HR(기관투자자 주식 보유 보고서)을 제출하는 회사(은행·증권사·유명 펀드를 맨 위에 둡니다)가 분기 말에 보유한 <b>타사 주식</b>입니다. 평가금액 기준 상위 30종목을 보여 주고, 직전 분기와 주식 수를 비교해 신규·확대·축소·전량 매도를 표시합니다. '
            '위 표는 주식 롱 포지션이고(채권·공매도·해외 주식 제외), 옵션은 카드 아래쪽에 풋/콜로 따로 보여 줍니다. 옵션 금액은 옵션 가격이 아니라 기초자산 기준 명목금액이며 행사가·만기·매수/매도 방향은 13F에 없습니다. 분기 종료 후 45일 안에 공시돼 시차가 있습니다. 비중은 13F에 보고된 포트폴리오 대비입니다.</div>')
@@ -1508,7 +1485,138 @@ def f13_page():
              '<input class="fq" id="fq" type="search" placeholder="회사·보유 종목 검색 (예: 엔비디아, CoreWeave)" autocomplete="off">' + body +
              "</div><script>(function(){var q=document.getElementById('fq');if(!q)return;q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();document.querySelectorAll('.fc').forEach(function(d){d.style.display=(!v||d.dataset.s.indexOf(v)>=0)?'':'none'})})})();</script>")
     open(f"{OUT}/f13.html", "w", encoding="utf-8").write(shell("13F — 등록 기업의 타사 주식 보유 현황", inner, "f13"))
-f13_page()
+# --------------- 거래 추적 탭: 기업·기관 13F / 네임드 펀드 / 의원 거래 / 종목별 종합 ---------------
+TRK_CSS = """
+.tw2{max-width:1180px}.tw2 .fh{margin-bottom:8px}
+.tseg{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 12px}.tseg button{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer}.tseg button.on{background:var(--ink,#161412);color:var(--paper,#F1E9DA);border-color:var(--ink,#161412)}
+.tsp{display:grid;grid-template-columns:290px 1fr;gap:14px;align-items:start}.tls{border:1px solid var(--line);border-radius:12px;padding:8px;max-height:78vh;overflow:auto;position:sticky;top:12px}.tls .tq{width:calc(100% - 8px);margin:2px 4px 8px;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:transparent;color:inherit;font-size:13px}
+.tls h4{margin:10px 8px 4px;font-size:11.5px;color:var(--muted);letter-spacing:.06em}.tit{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:10px;cursor:pointer;font-size:13px}.tit:hover{background:var(--soft)}.tit.on{background:var(--ink,#161412);color:var(--paper,#F1E9DA)}
+.tit .lg,.mav{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--muted)}.tit .lg .mono{font-size:9px}.tit .nn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tit small{opacity:.7;font-size:11px;white-space:nowrap}
+.tpane{display:none}.tpane.on{display:block}.tkv{display:none}.tkv.on{display:block}
+.mh{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:12px 12px 0 0;border-bottom:0}.mh .mav{width:44px;height:44px;font-size:16px}.mh .nm{font-weight:800;font-size:16px}.mh .sb{font-size:12px;color:var(--muted)}.mh .tt{margin-left:auto;text-align:right;font-weight:800}.mh .tt span{display:block;font-size:11.5px;color:var(--muted);font-weight:500}
+.msg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 0 10px}.msg div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:11.5px;color:var(--muted)}.msg b{display:block;font-size:16px;color:var(--text,inherit);margin-top:2px}
+.mbox{border:1px solid var(--line);border-radius:0 0 12px 12px;padding:10px 12px 12px}
+.xtw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}.xt{border-collapse:collapse;width:100%;font-size:13px}.xt th{text-align:left;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}.xt td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}.xt th.r,.xt td.r{text-align:right}.xt tr.x{cursor:pointer}.xt tr.x:hover td{background:var(--soft)}.xt .det td{background:var(--soft);line-height:1.9;font-size:12.5px}
+.xt .up,.mbox .up{color:var(--up);font-weight:700}.xt .dn,.mbox .dn{color:var(--down);font-weight:700}.lkx{cursor:pointer;border-bottom:1px dotted var(--muted);font-weight:700}
+.xchips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}.xchips span{border:1px solid var(--line);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;cursor:pointer}.xchips span.on{background:var(--ink,#161412);color:var(--paper,#F1E9DA)}
+@media(max-width:820px){.tsp{grid-template-columns:1fr}.tls{position:static;max-height:260px}.msg{grid-template-columns:1fr 1fr}}
+"""
+CSS += TRK_CSS
+
+def track_page():
+    items = f13_page(items=True)
+    try:
+        CG = json.load(open(os.path.join(ROOT, "data", "congress.json"), encoding="utf-8")).get("t", {})
+    except (OSError, ValueError):
+        CG = {}
+    try:
+        FD = json.load(open(os.path.join(ROOT, "data", "funds13f.json"), encoding="utf-8")).get("f", {})
+    except (OSError, ValueError):
+        FD = {}
+    try:
+        CC = json.load(open(os.path.join(ROOT, "data", "corp13f.json"), encoding="utf-8")).get("c", {})
+    except (OSError, ValueError):
+        CC = {}
+    byk = {r[4]: r for r in REPORTS}
+    cikid = {str(CC[it["tk"]].get("cik", "")).lstrip("0"): it["id"] for it in items if it["tk"] in CC}
+    # 의원별 정리
+    MEM = {}
+    for tk, l in CG.items():
+        for t in l:
+            MEM.setdefault(t["m"], []).append({**t, "tk": tk})
+    for l in MEM.values():
+        l.sort(key=lambda t: t["d"], reverse=True)
+    mids = {m: f"m{i}" for i, m in enumerate(sorted(MEM, key=lambda k: -len(MEM[k])))}
+    TY = {"P": ("매수", "up"), "S": ("매도", "dn"), "SP": ("부분 매도", "dn"), "E": ("교환", "")}
+    def usd(v):
+        return f"${v / 1e9:,.2f}B" if v >= 1e9 else f"${v / 1e6:,.1f}M"
+    mpanes = ""
+    for m, l in MEM.items():
+        b = sum(1 for t in l if t["ty"] == "P"); sl = sum(1 for t in l if t["ty"] in ("S", "SP"))
+        cnt = {}
+        for t in l:
+            cnt[t["tk"]] = cnt.get(t["tk"], 0) + 1
+        top = " · ".join(sorted(cnt, key=lambda k: -cnt[k])[:6])
+        rows = ""
+        for t in l[:120]:
+            lab, cl = TY.get(t["ty"], (t["ty"], ""))
+            tkc = f'<a href="{byk[t["tk"]][0]}">{t["tk"]}</a>' if t["tk"] in byk else t["tk"]
+            rows += f'<tr><td>{t["d"]}</td><td><b>{tkc}</b></td><td><span class="{cl}">{lab}</span></td><td>{esc_h(t["o"])}</td><td>{esc_h(t["amt"])}</td><td>{esc_h(t["f"])}</td></tr>'
+        mpanes += (f'<div class="tpane" data-id="{mids[m]}"><div class="mh"><span class="mav">{esc_h(m[:1])}</span><div><div class="nm">{esc_h(m)} <span class="sb">하원의원</span></div><div class="sb">최근 거래 {l[0]["d"]} · 신고 {len(l)}건</div></div><div class="tt">{len(l)}건<span>STOCK Act 신고</span></div></div>'
+                   f'<div class="mbox"><div class="msg"><div>신고 거래<b>{len(l)}건</b></div><div>매수<b class="up">{b}</b></div><div>매도<b class="dn">{sl}</b></div><div>자주 거래한 종목<b style="font-size:13px">{top}</b></div></div>'
+                   f'<div class="ft"><table class="ftb"><tr><th>거래일</th><th>종목</th><th>구분</th><th>명의</th><th>금액 구간</th><th>공시 통지일</th></tr>{rows}</table></div>'
+                   + (f'<div class="fs">최근 120건만 표시 · 전체 {len(l)}건</div>' if len(l) > 120 else "") + '</div></div>')
+    def lst(group, label_fn):
+        return "".join(f'<div class="tit" data-id="{i["id"]}" data-s="{i["hs"]}"><span class="lg">{i["logo"]}</span><span class="nn">{i["name"]}</span><small>{label_fn(i)}</small></div>' for i in items if i["grp"] == group)
+    co = [i for i in items if i["grp"] == "co"]; fd = sorted([i for i in items if i["grp"] == "fund"], key=lambda i: -i["total"])
+    items = co + fd
+    panes = "".join(f'<div class="tpane" data-id="{i["id"]}">{i["card"]}</div>' for i in items)
+    mlist = "".join(f'<div class="tit" data-id="{mids[m]}" data-s="{esc_h(m).lower()}"><span class="mav">{esc_h(m[:1])}</span><span class="nn">{esc_h(m)}</span><small>{len(l)}건</small></div>' for m, l in sorted(MEM.items(), key=lambda kv: -len(kv[1])))
+    def tab(key, title, listhtml, ph, extra=""):
+        return f'<div class="tkv" data-t="{key}"><div class="tsp"><div class="tls"><input class="tq" type="search" placeholder="{ph}" autocomplete="off">{listhtml}</div><div class="tdet"><div class="fl">{extra}</div>__PANES__</div></div></div>'
+    co_list = "".join(f'<div class="tit" data-id="{i["id"]}" data-s="{i["hs"]}"><span class="lg">{i["logo"]}</span><span class="nn">{i["name"]}</span><small>{usd(i["total"])}</small></div>' for i in co)
+    fd_list = "".join(f'<div class="tit" data-id="{i["id"]}" data-s="{i["hs"]}"><span class="lg">{i["logo"]}</span><span class="nn">{i["name"]}</span><small>{usd(i["total"])}</small></div>' for i in fd)
+    lg13 = "분기 말 보유 주식을 직전 분기와 비교한 SEC 13F-HR 기준입니다(상위 30종목, 옵션은 카드 아래 풋·콜 별도). 분기 종료 후 최대 45일 뒤 공시되며 매매일·체결가는 알 수 없습니다. 옵션 금액은 기초자산 명목금액입니다."
+    lgf = "이름이 알려진 펀드의 13F-HR입니다. 사이트 등록 종목에 대한 변화는 종목별 종합 탭에서 한눈에 볼 수 있습니다. 분기 종료 후 최대 45일 뒤 공시되며 평단은 거래량가중 평균가로 추정한 값입니다."
+    lgc = "미 하원 사무처(House Clerk) 정기 거래 보고서 기준입니다. 이름이 알려진 하원의원 일부만 추적하며 상원은 포함하지 않습니다. 금액은 구간으로만 공개되고 거래 후 최대 45일 뒤 공시됩니다. 전자 신고 의원만 수집합니다."
+    v_co = tab("co", "기업·기관", co_list, "기업·기관 검색", lg13).replace("__PANES__", "".join(f'<div class="tpane" data-id="{i["id"]}">{i["card"]}</div>' for i in co))
+    v_fd = tab("fund", "네임드 펀드", fd_list, "펀드 검색", lgf).replace("__PANES__", "".join(f'<div class="tpane" data-id="{i["id"]}">{i["card"]}</div>' for i in fd))
+    v_cg = tab("cong", "의원", mlist, "의원 검색", lgc).replace("__PANES__", mpanes)
+    # 종목별 종합 (이벤트: [종류, 대상 id, 이름, 티커, 행동, 변동%, 금액, 날짜])
+    EV = []
+    nm_of = {it["id"]: re.sub("<[^>]+>", "", it["name"]) for it in items}
+    for it in items:
+        c = CC[it["tk"]]
+        if str(c.get("cik", "")).lstrip("0") in FD or c.get("nf"):
+            continue
+        for r in c["rows"]:
+            if r["ch"] != "same":
+                EV.append(["g", it["id"], nm_of[it["id"]], r.get("dt") or r.get("tk") or "", r["ch"], r.get("chp"), r["v"], c["period"]])
+        for r in c.get("sold", [])[:5]:
+            EV.append(["g", it["id"], nm_of[it["id"]], r.get("dt") or r.get("tk") or "", "exit", None, 0, c["period"]])
+    for cik, x in FD.items():
+        wid = cikid.get(str(cik).lstrip("0"), "")
+        for tk in set(x["rows"]) | set(x["prows"]):
+            a = x["rows"].get(tk) or {}; b = x["prows"].get(tk) or {}
+            sh, ps = a.get("sh", 0), b.get("sh", 0)
+            if sh == ps:
+                continue
+            act = "new" if ps == 0 else "exit" if sh == 0 else "up" if sh > ps else "down"
+            EV.append(["f", wid, x["name"], tk, act, round((sh / ps - 1) * 100) if ps and sh else None, round(a.get("v") or b.get("v") or 0), x["period"]])
+    for m, l in MEM.items():
+        for t in l:
+            EV.append(["c", mids[m], m, t["tk"], {"P": "buy", "S": "sell", "SP": "sell"}.get(t["ty"], "ex"), None, 0, t["d"]])
+    v_tk = '<div class="tkv" data-t="tk"><div class="fl">종목 하나를 기준으로 기업·기관 13F, 네임드 펀드, 의원이 어떻게 움직였는지 모아 봅니다. 행을 누르면 거래 내역이 펼쳐지고, 이름을 누르면 해당 상세로 이동합니다.</div><div class="xchips"><span class="on" data-o="n">관심 많은 순</span><span data-o="net">매수 우위 순</span><span data-o="neg">매도 우위 순</span></div><input class="tq" id="xq" type="search" placeholder="종목·기관·펀드·의원 검색" autocomplete="off" style="max-width:340px;margin-bottom:8px;box-sizing:border-box;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:transparent;color:inherit;width:100%"><div class="xtw"><table class="xt" id="xt"></table></div></div>'
+    names = [("co", "기업·기관 13F"), ("fund", "네임드 펀드"), ("cong", "의원 거래"), ("tk", "종목별 종합")]
+    seg = "".join(f'<button type="button" data-t="{k}">{n}</button>' for k, n in names)
+    ev_json = json.dumps(EV, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    reg = json.dumps({k: r[0] for k, r in byk.items()}, ensure_ascii=False).replace("</", "<\\/")
+    js = """<script>(function(){var EV=__EV__,REG=__REG__,SORT='n',cur='co',sel={};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function usd(v){v=Math.abs(v||0);return v>=1e9?'$'+(v/1e9).toFixed(2)+'B':v>=1e6?'$'+(v/1e6).toFixed(1)+'M':v>=1e3?'$'+Math.round(v/1e3)+'K':'$'+Math.round(v)}
+var A={new:['신규 매수','up'],up:['확대','up'],down:['축소','dn'],exit:['전량 매도','dn'],buy:['매수','up'],sell:['매도','dn'],ex:['교환','']};
+function at(a,p){var x=A[a]||[a,''];return'<span class="'+x[1]+'">'+x[0]+(p!=null&&a!=='new'&&a!=='exit'&&a!=='buy'&&a!=='sell'?' '+(p>0?'+':'')+Math.round(p)+'%':'')+'</span>'}
+function show(t){cur=t;document.querySelectorAll('.tseg button').forEach(function(b){b.classList.toggle('on',b.dataset.t===t)});document.querySelectorAll('.tkv').forEach(function(v){v.classList.toggle('on',v.dataset.t===t)});if(t==='tk')xt();else{var v=document.querySelector('.tkv[data-t="'+t+'"]');if(v&&!v.querySelector('.tit.on')){var f=v.querySelector('.tit');if(f)pick(v,f.dataset.id)}}
+ if(history.replaceState)history.replaceState(null,'','#'+t)}
+function pick(v,id){v.querySelectorAll('.tit').forEach(function(x){x.classList.toggle('on',x.dataset.id===id)});v.querySelectorAll('.tpane').forEach(function(x){x.classList.toggle('on',x.dataset.id===id)})}
+function go(id){var v=document.querySelector('.tpane[data-id="'+id+'"]');if(!v)return;var w=v.closest('.tkv');show(w.dataset.t);pick(w,id);window.scrollTo(0,0)}
+document.querySelectorAll('.tseg button').forEach(function(b){b.onclick=function(){show(b.dataset.t)}});
+document.querySelectorAll('.tkv .tit').forEach(function(x){x.onclick=function(){pick(x.closest('.tkv'),x.dataset.id)}});
+document.querySelectorAll('.tkv .tq').forEach(function(q){if(q.id==='xq')return;q.addEventListener('input',function(){var t=q.value.trim().toLowerCase();q.closest('.tls').querySelectorAll('.tit').forEach(function(x){x.style.display=(!t||x.dataset.s.indexOf(t)>=0)?'':'none'})})});
+function xt(){var q=document.getElementById('xq').value.trim().toLowerCase(),m={};EV.forEach(function(e){if(!e[3])return;var o=m[e[3]]=m[e[3]]||{tk:e[3],ev:[],g:[0,0],f:[0,0],c:[0,0]};o.ev.push(e);var u=e[4]==='new'||e[4]==='up'||e[4]==='buy',d=e[4]==='down'||e[4]==='exit'||e[4]==='sell';var k=e[0];if(u)o[k][0]++;else if(d)o[k][1]++});
+ var R=Object.keys(m).map(function(k){return m[k]}).filter(function(o){return!q||(o.tk+o.ev.map(function(e){return e[2]}).join(' ')).toLowerCase().indexOf(q)>=0});R.forEach(function(o){o.net=o.g[0]+o.f[0]+o.c[0]-o.g[1]-o.f[1]-o.c[1]});
+ R.sort(function(a,b){return SORT==='net'?b.net-a.net:SORT==='neg'?a.net-b.net:b.ev.length-a.ev.length});
+ var h='<tr><th>종목</th><th class="r">기업·기관 13F 매수/매도</th><th class="r">네임드 펀드 매수/매도</th><th class="r">의원 매수/매도</th></tr>';
+ R.slice(0,80).forEach(function(o,i){h+='<tr class="x" data-i="'+i+'"><td><b>'+(REG[o.tk]?'<a href="'+REG[o.tk]+'" onclick="event.stopPropagation()">'+esc(o.tk)+'</a>':esc(o.tk))+'</b></td><td class="r"><span class="up">'+o.g[0]+'</span> / <span class="dn">'+o.g[1]+'</span></td><td class="r"><span class="up">'+o.f[0]+'</span> / <span class="dn">'+o.f[1]+'</span></td><td class="r"><span class="up">'+o.c[0]+'</span> / <span class="dn">'+o.c[1]+'</span></td></tr><tr class="det" id="xd'+i+'" style="display:none"><td colspan="4">'+o.ev.slice().sort(function(a,b){return a[7]<b[7]?1:-1}).slice(0,16).map(function(e){return(e[1]?'<span class="lkx" data-go="'+e[1]+'">'+esc(e[2])+'</span>':esc(e[2]))+' — '+at(e[4],e[5])+(e[6]?' '+usd(e[6]):'')+' <span style="color:var(--muted)">('+e[7]+')</span>'}).join('<br>')+'</td></tr>'});
+ var T=document.getElementById('xt');T.innerHTML=h;T.querySelectorAll('tr.x').forEach(function(r){r.onclick=function(){var d=document.getElementById('xd'+r.dataset.i);d.style.display=d.style.display==='none'?'table-row':'none'}});T.querySelectorAll('[data-go]').forEach(function(x){x.onclick=function(ev){ev.stopPropagation();go(x.dataset.go)}})}
+document.getElementById('xq').addEventListener('input',xt);document.querySelectorAll('.xchips span').forEach(function(s){s.onclick=function(){SORT=s.dataset.o;document.querySelectorAll('.xchips span').forEach(function(x){x.classList.toggle('on',x===s)});xt()}});
+var h=(location.hash||'').slice(1);show(['co','fund','cong','tk'].indexOf(h)>=0?h:'co')})();</script>"""
+    js = js.replace("__EV__", ev_json).replace("__REG__", reg)
+    inner = (f'<div class="fw tw2"><div class="fh"><span class="t">거래 추적</span><span class="a">기업·기관 13F · 네임드 펀드 · 의원 거래 · 갱신 {json.load(open(os.path.join(ROOT, "data", "corp13f.json"), encoding="utf-8")).get("asof", "")} (KST)</span></div>'
+             f'<div class="tseg">{seg}</div>{v_co}{v_fd}{v_cg}{v_tk}</div>{js}')
+    open(f"{OUT}/track.html", "w", encoding="utf-8").write(shell("거래 추적 — 기업·기관 13F · 네임드 펀드 · 의원 거래", inner, "track"))
+    open(f"{OUT}/f13.html", "w", encoding="utf-8").write('<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=track.html#co"><title>거래 추적</title></head><body><a href="track.html#co">거래 추적 탭으로 이동</a></body></html>')
+track_page()
 
 # --------------- home ---------------
 LIVE = {"NQ": ("FOREXCOM:NSXUSD", "나스닥100"), "ES": ("FOREXCOM:SPXUSD", "S&P500"), "YM": ("FOREXCOM:DJI", "다우존스")}
