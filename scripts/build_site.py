@@ -1472,11 +1472,28 @@ def f13_page():
         else:
             hs = " ".join([c.get("label", ""), c["name"], c.get("grp", "")] + [x["nm"] for x in c["rows"]]).lower().replace('"', "")
             head = f'<span class="lg"><span class="mono" style="font-weight:800">{esc_h(c.get("label", "?")[:1])}</span></span><span><div class="nm">{esc_h(c.get("label", c["name"]))} <span class="sb">{esc_h(c.get("grp", ""))}</span></div>'
+        o = c.get("opt") or {}
+        osec = ""
+        if o.get("n"):
+            orow = ""
+            for x in o["rows"]:
+                if x["ch"] == "new": chs = '<span class="new">신규</span>'
+                elif x["ch"] == "same": chs = '<span class="mu">변동 없음</span>'
+                else:
+                    chs = f'<span class="{"up" if x["ch"] == "up" else "down"}">{"확대" if x["ch"] == "up" else "축소"} {x["chp"]:+.0f}%</span>' if x.get("chp") is not None else "-"
+                kind = '<span class="up">콜</span>' if x["pc"] == "CALL" else '<span class="down">풋</span>'
+                orow += f'<tr><td>{nmcell(x)}</td><td>{kind}</td><td>{x["sh"]:,}</td><td>{money(x["v"])}</td><td>{chs}</td></tr>'
+            osold = ""
+            if o.get("sold"):
+                osold = '<div class="fs"><b>직전 분기 대비 옵션 포지션 소멸</b>: ' + ", ".join(f'{(x["nm"].title() if x["nm"].isupper() else x["nm"])} {"콜" if x["pc"] == "CALL" else "풋"}({money(x["v"])})' for x in o["sold"]) + "</div>"
+            pcr = f' · 풋/콜 비율 {o["put"] / o["call"]:.2f}' if o.get("call") else ""
+            osec = (f'<div class="fs" style="margin-top:14px"><b>옵션 포지션 (풋·콜)</b> — 총 {o["n"]:,}건 · 콜 {money(o["call"])} · 풋 {money(o["put"])}{pcr} · 직전 분기 콜 {money(o.get("pcall", 0))} / 풋 {money(o.get("pput", 0))}</div>'
+                    f'<div class="ft"><table class="ftb"><tr><th>기초자산 (상위 {len(o["rows"])})</th><th>구분</th><th>기초 주식 수</th><th>기초자산 명목금액</th><th>직전 분기 대비</th></tr>{orow}</table></div>{osold}')
         cards.append(f'<details class="fc" data-s="{hs}"><summary>{head}<div class="sb">{c["period"]} 기준 · 접수 {c["filed"]} · 보유 {c["n"]:,}종목</div></span><span class="tt">{money(c["total"])}<span>13F 보고 총액</span></span></summary>'
-                     f'<div class="fb"><div class="ft"><table class="ftb"><tr><th>보유 종목 (상위 {len(c["rows"])})</th><th>보유 주식 수</th><th>평가금액</th><th>포트폴리오 비중</th><th>직전 분기 대비</th></tr>{rows}</table></div>{sold}</div></details>')
+                     f'<div class="fb"><div class="ft"><table class="ftb"><tr><th>보유 종목 (상위 {len(c["rows"])})</th><th>보유 주식 수</th><th>평가금액</th><th>포트폴리오 비중</th><th>직전 분기 대비</th></tr>{rows}</table></div>{sold}{osec}</div></details>')
     body = "".join(cards) or '<div class="fl">13F를 제출하는 등록 기업 데이터가 아직 수집되지 않았습니다. 수집 후 표시됩니다.</div>'
     leg = ('<div class="fl"><b>13F 보유 현황</b> — 등록 기업 중 SEC에 13F-HR(기관투자자 주식 보유 보고서)을 제출하는 회사(은행·증권사·유명 펀드를 맨 위에 둡니다)가 분기 말에 보유한 <b>타사 주식</b>입니다. 평가금액 기준 상위 30종목을 보여 주고, 직전 분기와 주식 수를 비교해 신규·확대·축소·전량 매도를 표시합니다. '
-           '13F는 미국 상장 주식 롱 포지션만 담고(옵션·채권·공매도·해외 주식 제외), 분기 종료 후 45일 안에 공시돼 시차가 있습니다. 비중은 13F에 보고된 포트폴리오 대비입니다.</div>')
+           '위 표는 주식 롱 포지션이고(채권·공매도·해외 주식 제외), 옵션은 카드 아래쪽에 풋/콜로 따로 보여 줍니다. 옵션 금액은 옵션 가격이 아니라 기초자산 기준 명목금액이며 행사가·만기·매수/매도 방향은 13F에 없습니다. 분기 종료 후 45일 안에 공시돼 시차가 있습니다. 비중은 13F에 보고된 포트폴리오 대비입니다.</div>')
     inner = (f'<div class="fw"><div class="fh"><span class="t">13F</span><span class="a">등록 기업의 타사 주식 보유 현황 · {len(cards)}개 기업 · 갱신 {O.get("asof") or "수집 전"} (KST)</span></div>{leg}'
              '<input class="fq" id="fq" type="search" placeholder="회사·보유 종목 검색 (예: 엔비디아, CoreWeave)" autocomplete="off">' + body +
              "</div><script>(function(){var q=document.getElementById('fq');if(!q)return;q.addEventListener('input',function(){var v=q.value.trim().toLowerCase();document.querySelectorAll('.fc').forEach(function(d){d.style.display=(!v||d.dataset.s.indexOf(v)>=0)?'':'none'})})})();</script>")

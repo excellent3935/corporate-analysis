@@ -411,12 +411,22 @@ def _parse_infotable(xml_bytes):
     import xml.etree.ElementTree as ET
     root = ET.fromstring(xml_bytes)
     out = {}
+    opts = {}  # 풋/콜 줄은 따로 모아 _parse_infotable.opts 로 남긴다(기초자산 명목금액)
     for it in root.iter():
         if not it.tag.endswith("infoTable"):
             continue
         f = {c.tag.split("}")[-1]: c for c in it.iter()}
         txt = lambda k: (f[k].text or "").strip() if k in f else ""
-        if txt("putCall") or txt("sshPrnamtType") not in ("SH", ""):
+        pc = txt("putCall").upper()
+        if pc in ("PUT", "CALL"):
+            try:
+                osh = float(txt("sshPrnamt") or 0); ov = float(txt("value") or 0)
+            except ValueError:
+                continue
+            oe = opts.setdefault((txt("cusip"), pc), {"name": txt("nameOfIssuer"), "cls": txt("titleOfClass"), "pc": pc, "sh": 0.0, "v": 0.0})
+            oe["sh"] += osh; oe["v"] += ov
+            continue
+        if pc or txt("sshPrnamtType") not in ("SH", ""):
             continue
         try:
             sh = float(txt("sshPrnamt") or 0); v = float(txt("value") or 0)
@@ -425,6 +435,7 @@ def _parse_infotable(xml_bytes):
         c = txt("cusip")
         e = out.setdefault(c, {"name": txt("nameOfIssuer"), "cls": txt("titleOfClass"), "sh": 0.0, "v": 0.0})
         e["sh"] += sh; e["v"] += v
+    _parse_infotable.opts = opts
     return out
 
 
@@ -1051,7 +1062,7 @@ def update_corp13f(cta):
         k = _norm(name)
         return rev_title.get(k) if k else None
 
-    SIG13 = "4-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
+    SIG13 = "5-" + hashlib.md5(",".join(sorted(ours)).encode()).hexdigest()[:8] + str(len(NAME_OVERRIDE))  # 매칭 규칙·등록 종목이 바뀌면 다시 계산
     found = 0
     jobs = [(tk, cik_of.get(tk) or cik_of.get(tk.replace("-", ".")) or cik_of.get(tk.replace(".", "-")), None) for tk in ours] + [("x" + c, c, (lab, grp, kw)) for c, lab, grp, kw in _extra_13f()]
     for tk, cik, ex in jobs:
@@ -1070,8 +1081,9 @@ def update_corp13f(cta):
             per, filed, acc = fl[0]
             if res.get(tk, {}).get("acc") == acc and res[tk].get("mv") == SIG13:
                 found += 1; print(f"{tk}: 변경 없음 ({per})"); continue
-            cur = _fund_table(cik, acc); time.sleep(0.3)
+            cur = _fund_table(cik, acc); copt = dict(getattr(_parse_infotable, "opts", {})); time.sleep(0.3)
             prv = _fund_table(cik, fl[1][2]) if len(fl) > 1 else {}
+            popt = dict(getattr(_parse_infotable, "opts", {})) if len(fl) > 1 else {}
             time.sleep(0.3)
             tot = sum(e["v"] for e in cur.values()) or 1
             ptot = sum(e["v"] for e in prv.values())
@@ -1087,7 +1099,21 @@ def update_corp13f(cta):
                     ch = "up" if e["sh"] > pv["sh"] else "down"
                 rows.append({"nm": e["name"], "cls": e["cls"], "tk": tick_of(e["name"], e["cls"]), "dt": disp_tick(e["name"], e["cls"]), "sh": round(e["sh"]), "v": round(e["v"]), "w": round(e["v"] / tot * 100, 2), "ch": ch, "chp": chp})
             sold = [{"nm": e["name"], "sh": round(e["sh"]), "v": round(e["v"]), "tk": tick_of(e["name"], e["cls"]), "dt": disp_tick(e["name"], e["cls"])} for c, e in sorted(prv.items(), key=lambda kv: -kv[1]["v"]) if c not in cur][:8]
-            res[tk] = {"mv": SIG13, "name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
+            orows = []
+            for k2, e in sorted(copt.items(), key=lambda kv: -kv[1]["v"])[:15]:
+                pv = popt.get(k2)
+                if not pv:
+                    ch, chp = "new", None
+                elif pv["sh"] and abs(e["sh"] - pv["sh"]) / pv["sh"] < 0.005:
+                    ch, chp = "same", 0.0
+                else:
+                    chp = round((e["sh"] / pv["sh"] - 1) * 100, 1) if pv["sh"] else None
+                    ch = "up" if e["sh"] > pv["sh"] else "down"
+                orows.append({"nm": e["name"], "cls": e["cls"], "pc": e["pc"], "tk": tick_of(e["name"], e["cls"]), "dt": disp_tick(e["name"], e["cls"]), "sh": round(e["sh"]), "v": round(e["v"]), "ch": ch, "chp": chp})
+            osold = [{"nm": e["name"], "pc": e["pc"], "v": round(e["v"]), "dt": disp_tick(e["name"], e["cls"])} for k2, e in sorted(popt.items(), key=lambda kv: -kv[1]["v"]) if k2 not in copt][:6]
+            opt = {"n": len(copt), "put": round(sum(e["v"] for e in copt.values() if e["pc"] == "PUT")), "call": round(sum(e["v"] for e in copt.values() if e["pc"] == "CALL")),
+                   "pput": round(sum(e["v"] for e in popt.values() if e["pc"] == "PUT")), "pcall": round(sum(e["v"] for e in popt.values() if e["pc"] == "CALL")), "rows": orows, "sold": osold}
+            res[tk] = {"mv": SIG13, "opt": opt, "name": sec_name, "cik": str(cik), "acc": acc, "period": per, "filed": filed, "prev": fl[1][0] if len(fl) > 1 else "",
                        "total": round(tot), "ptotal": round(ptot), "n": len(cur), "rows": rows, "sold": sold}
             if ex:
                 res[tk].update({"label": ex[0], "grp": ex[1]})
