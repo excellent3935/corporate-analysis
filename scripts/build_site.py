@@ -263,6 +263,28 @@ try:
     _CAP = json.load(open(os.path.join(ROOT, "data", "mcap.json"), encoding="utf-8")).get("usd", {})
 except (OSError, ValueError):
     _CAP = {}
+REPORTS += [
+ ('exxonmobil.html', 'xom', [CONTENT + "/xom/body.html"], '엑슨모빌 기업분석', 'XOM', 'Exxon Mobil Corporation', '에너지', '정제마진이 끌어올린 분기 이익, 연 $200억 자사주 매입 · CTA +0.25', '#fff7ed', '종합 석유·가스', 'https://corporate.exxonmobil.com'),
+ ('pg.html', 'pg', [CONTENT + "/pg/body.html"], 'P&G 기업분석', 'PG', 'Procter & Gamble', '소비재', '모든 사업부 유기적 성장, 톤 인수 반영한 가이던스 · CTA +1.00', '#eff6ff', '생활용품', 'https://us.pg.com'),
+ ('chevron.html', 'cvx', [CONTENT + "/cvx/body.html"], '셰브론 기업분석', 'CVX', 'Chevron', '에너지', '미국 생산 일 200만 배럴 돌파, 부채 $35억 감축 · CTA +0.50', '#fff7ed', '종합 석유·가스', 'https://www.chevron.com'),
+ ('homedepot.html', 'hd', [CONTENT + "/hd/body.html"], '홈디포 기업분석', 'HD', 'Home Depot', '소비재', '비교매출 +2.2%로 개선, 그러나 거래 건수는 감소 · CTA +0.50', '#fff7ed', '주택 개량 유통', 'https://corporate.homedepot.com'),
+ ('cisco.html', 'csco', [CONTENT + "/csco/body.html"], '시스코 기업분석', 'CSCO', 'Cisco Systems', '컴퓨터 하드웨어', '매출 +24%, AI 인프라 목표 $90억으로 상향 · CTA -0.50', '#ecfeff', '네트워크 장비', 'https://www.cisco.com'),
+ ('philipmorris.html', 'pm', [CONTENT + "/pm/body.html"], '필립모리스 기업분석', 'PM', 'Philip Morris International', '소비재', '무연 제품 매출 비중 40%, 미국 ZYN 투자 확대 · CTA +0.50', '#f0fdf4', '담배·무연 제품', 'https://www.pmi.com'),
+ ('morganstanley.html', 'ms', [CONTENT + "/ms/body.html"], '모건스탠리 기업분석', 'MS', 'Morgan Stanley', '금융', '자산관리 순신규자산 $2,320억, 주식 트레이딩 +41% · CTA -0.50', '#eff6ff', '투자은행·자산관리', 'https://www.morganstanley.com'),
+ ('caterpillar.html', 'cat', [CONTENT + "/cat/body.html"], '캐터필러 기업분석', 'CAT', 'Caterpillar', '산업재', '수주잔고 $780억, 데이터센터 발전이 이끄는 성장 · CTA -0.75', '#fefce8', '건설·광산 장비', 'https://www.caterpillar.com'),
+ ('goldmansachs.html', 'gs', [CONTENT + "/gs/body.html"], '골드만삭스 기업분석', 'GS', 'Goldman Sachs', '금융', '주식 매출 +72%, 투자은행 대기 물량은 감소 · CTA -0.75', '#eff6ff', '투자은행', 'https://www.goldmansachs.com'),
+ ('thermofisher.html', 'tmo', [CONTENT + "/tmo/body.html"], '써모 피셔 기업분석', 'TMO', 'Thermo Fisher Scientific', '헬스케어', '유기 +6%, 가이던스 상향 · CTA +1.00', '#f0fdf4', '생명과학 도구', 'https://www.thermofisher.com'),
+ ('linde.html', 'lin', [CONTENT + "/lin/body.html"], '린데 기업분석', 'LIN', 'Linde', '소재', '매출 사상 최대 $94억, 조정 EPS +9% · CTA +0.75', '#f0f9ff', '산업용 가스', 'https://www.linde.com'),
+ ('gilead.html', 'gild', [CONTENT + "/gild/body.html"], '길리어드 기업분석', 'GILD', 'Gilead Sciences', '헬스케어', 'HIV 매출 +18%, 연간 매출 가이던스 세 번째 상향 · CTA +1.00', '#f0fdf4', 'HIV·항암 바이오제약', 'https://www.gilead.com'),
+ ('mcdonalds.html', 'mcd', [CONTENT + "/mcd/body.html"], '맥도날드 기업분석', 'MCD', "Mcdonald's", '소비재', '전 세계 동일점포 +1.5%, 미국은 -0.2% · CTA +0.00', '#fffbeb', '햄버거 프랜차이즈', 'https://corporate.mcdonalds.com'),
+ ('tmobile.html', 'tmus', [CONTENT + "/tmus/body.html"], '티모바일 기업분석', 'TMUS', 'T-Mobile US, Inc.', '통신', '서비스 매출 +6%, 가이던스 상향 · CTA -0.75', '#fdf2f8', '무선통신', 'https://www.t-mobile.com'),
+ ('nextera.html', 'nee', [CONTENT + "/nee/body.html"], '넥스트에라 기업분석', 'NEE', 'NextEra Energy, Inc.', '유틸리티', '조정 EPS +9.7%, 수주잔고 36.7GW · CTA -0.25', '#f0fdf4', '전력·재생에너지', 'https://www.nexteraenergy.com'),
+ ('verizon.html', 'vz', [CONTENT + "/vz/body.html"], '버라이즌 기업분석', 'VZ', 'Verizon Communications', '통신', '포스트페이드 폰 순증 40.6만, 가이던스 3분기 연속 상향 · CTA -0.50', '#fef2f2', '무선통신', 'https://www.verizon.com'),
+ ('abbott.html', 'abt', [CONTENT + "/abt/body.html"], '애보트 기업분석', 'ABT', 'Abbott Laboratories', '헬스케어', '동일 기준 매출 +7%, 영양 사업 분사 발표 · CTA +0.25', '#eff6ff', '의료기기·진단', 'https://www.abbott.com'),
+ ('amgen.html', 'amgn', [CONTENT + "/amgn/body.html"], '암젠 기업분석', 'AMGN', 'Amgen', '헬스케어', '17개 제품 두 자릿수 성장, 가이던스 상향 · CTA +1.00', '#f0fdf4', '바이오제약', 'https://www.amgen.com'),
+ ('att.html', 'att', [CONTENT + "/att/body.html"], 'AT&T 기업분석', 'T', 'AT&T Inc.', '통신', '고급 연결 순증 100만+, 조정 EPS +20% · CTA -1.00', '#eff6ff', '무선·광 통신', 'https://www.att.com'),
+ ('disney.html', 'dis', [CONTENT + "/dis/body.html"], '월트 디즈니 기업분석', 'DIS', 'The Walt Disney Company', '미디어', '4Q 조정 EPS $1.77, FY27 두 자릿수 EPS 성장 재확인 · CTA +1.00', '#eef2ff', '엔터테인먼트·파크', 'https://thewaltdisneycompany.com'),
+]
 REPORTS.sort(key=lambda r: -(_CAP.get(r[4]) or 0))
 
 def _pbase(tk):
@@ -281,6 +303,8 @@ LOGO = {"BRK.B": "berkshire-hathaway", "COF": "capital-one", "AXP": "american-ex
         "LLY": "eli-lilly", "JPM": "jpmorgan-chase", "UNH": "unitedhealth", "KO": "coca-cola", "WMT": "walmart", "COST": "costco-wholesale", "IONQ": "ionq",
         "TXN": "texas-instruments", "ASTS": "ast-spacemobile", "RKLB": "rocket-lab", "NOW": "servicenow", "CRM": "salesforce", "RDDT": "reddit", "SMCI": "super-micro-computer",
         "IREN": "iren", "WDC": "western-digital", "VRT": "vertiv-holdings", "COHR": "coherent", "MSTR": "microstrategy", "IBM": "international-bus-mach", "UMAC": "unusual-machines", "JOBY": "joby-aviation", "ACHR": "archer-aviation", "ONDS": "ondas", "GEV": "ge-verona", "CEG": "constellation-energy", "BE": "bloom-energy", "VST": "vistra-energy", "COIN": "coinbase", "CRCL": "circle-internet-group-inc", "HOOD": "robinhood", "JNJ": "johnson-and-johnson", "ILMN": "illumina", "ABBV": "abbvie", "BA": "boeing", "GE": "ge-aerospace", "RTX": "raytheon", "LMT": "lockheed-martin", "AXON": "axon-enterprise", "BAC": "bank-of-america", "WFC": "wells-fargo", "V": "visa", "MA": "mastercard", "MP": "mp-materials", "LRCX": "lam-research", "AMAT": "applied-materials", "KLAC": "kla-tencor", "TER": "teradyne", "HIMS": "hims-and-hers-health", "TEM": "tempus-ai", "NVO": "novo-nordisk", "CRSP": "crispr-therapeutics-ag", "QBTS": "d-wave-quantum", "RGTI": "rigetti-computing-redeemable", "DDOG": "datadog", "SNPS": "synopsys", "VRSN": "verisign", "CRDO": "credo-technology-ltd", "PEP": "pepsico", "LITE": "lumentum-hldgs", "ANET": "arista-networks", "PANW": "palo-alto-networks", "NKE": "nike", "RACE": "ferrari", "APP": "applovin-cdr-cad-hedged", "ARM": "arm", "NFLX": "netflix", "CBRS": "cerebras-systems", "ALAB": "astera-labs"}  # 트레이딩뷰 공개 로고 (SK하이닉스는 없어 글자 배지 유지)
+EXCH.update({"XOM": "NYSE", "PG": "NYSE", "CVX": "NYSE", "HD": "NYSE", "PM": "NYSE", "MS": "NYSE", "CAT": "NYSE", "GS": "NYSE", "TMO": "NYSE", "MCD": "NYSE", "NEE": "NYSE", "VZ": "NYSE", "ABT": "NYSE", "T": "NYSE", "DIS": "NYSE"})
+LOGO.update({"XOM": "exxon", "PG": "procter-and-gamble", "CVX": "chevron", "HD": "home-depot", "CSCO": "cisco", "PM": "philip-morris", "MS": "morgan-stanley", "CAT": "caterpillar", "GS": "goldman-sachs", "TMO": "thermo-fisher-scientific", "LIN": "linde", "GILD": "gilead", "MCD": "mcdonalds", "TMUS": "t-mobile", "NEE": "nextera-energy", "VZ": "verizon", "ABT": "abbott", "AMGN": "amgen", "T": "at-and-t", "DIS": "walt-disney"})
 def _icon(r):
     tk = r[4]; mono = f'<span class="mono">{MONO.get(tk, tk)}</span>'
     if tk == "000660": return f'<img class="logo" src="skh/logo.png" alt="{r[5]} 로고">'
@@ -1066,6 +1090,7 @@ KO_ALIAS = {"BRK.B": "버크셔 해서웨이 버크셔해서웨이 버핏 berksh
     "NBIS": "네비우스", "AAPL": "애플", "LLY": "일라이릴리 릴리", "JPM": "제이피모건 jp모건", "TXN": "텍사스인스트루먼트", "ASTS": "에이에스티 스페이스모바일", "RKLB": "로켓랩", "NOW": "서비스나우", "CRM": "세일즈포스",
     "RDDT": "레딧", "SMCI": "슈퍼마이크로 슈마컴", "IREN": "아이렌", "WDC": "웨스턴디지털", "VRT": "버티브", "COHR": "코히런트", "MSTR": "스트래티지 마이크로스트래티지", "UNH": "유나이티드헬스", "KO": "코카콜라",
     "WMT": "월마트", "COST": "코스트코", "IONQ": "아이온큐", "IBM": "아이비엠", "UMAC": "언유주얼 머신스 드론", "JOBY": "조비 에어택시", "ACHR": "아처 에어택시", "ONDS": "온다스 드론", "GEV": "지이 버노바 ge", "CEG": "컨스텔레이션 에너지 원전", "BE": "블룸에너지 연료전지", "VST": "비스트라 전력", "COIN": "코인베이스", "CRCL": "서클 스테이블코인 usdc", "HOOD": "로빈후드", "JNJ": "존슨앤드존슨 존슨앤존슨", "ILMN": "일루미나", "ABBV": "애브비", "BA": "보잉", "GE": "지이 에어로스페이스 항공엔진 ge", "RTX": "레이시온 알티엑스 방산", "LMT": "록히드마틴 방산", "AXON": "액슨 테이저", "BAC": "뱅크오브아메리카 뱅오아 은행", "WFC": "웰스파고 은행", "V": "비자 카드 결제", "MA": "마스터카드 결제", "MP": "엠피 머티리얼즈 희토류", "LRCX": "램리서치 반도체장비", "AMAT": "어플라이드 머티어리얼즈 어플라이드머티리얼즈 반도체장비", "KLAC": "케이엘에이 kla 반도체장비", "TER": "테라다인 반도체 테스트", "HIMS": "힘스앤허스 힘스 원격의료", "TEM": "템퍼스 ai 정밀의료", "NVO": "노보 노디스크 위고비 비만", "CRSP": "크리스퍼 유전자가위", "QBTS": "디웨이브 양자", "RGTI": "리게티 양자", "DDOG": "데이터독 관측", "SNPS": "시높시스 eda 반도체설계", "VRSN": "베리사인 도메인", "CRDO": "크레도 aec 광연결", "PEP": "펩시코 펩시 음료 스낵", "LITE": "루멘텀 광통신 레이저 ocs", "ANET": "아리스타 네트웍스 이더넷 스위치", "PANW": "팔로알토 네트웍스 보안 방화벽", "NKE": "나이키 신발 스포츠웨어", "RACE": "페라리 슈퍼카", "APP": "앱러빈 광고 게임", "ARM": "암 홀딩스 cpu 설계", "NFLX": "넷플릭스 스트리밍", "CBRS": "세레브라스 웨이퍼 ai 추론", "ALAB": "아스테라 랩스 연결 반도체"}
+KO_ALIAS.update({"XOM": "엑슨모빌 엑손모빌 exxon 석유", "PG": "피앤지 프록터앤갬블 procter gamble 팸퍼스", "CVX": "쉐브론 셰브론 chevron 석유", "HD": "홈디포 home depot", "CSCO": "시스코 cisco 네트워크", "PM": "필립모리스 필립 모리스 pmi 아이코스 zyn", "MS": "모건스탠리 모간스탠리 morgan stanley", "CAT": "캐터필러 caterpillar 건설장비", "GS": "골드만삭스 골드만 삭스 goldman sachs", "TMO": "써모피셔 써모 피셔 서모피셔 thermo fisher", "LIN": "린데 linde 산업가스", "GILD": "길리어드 gilead hiv", "MCD": "맥도날드 맥날 mcdonalds", "TMUS": "티모바일 티모바일us t-mobile", "NEE": "넥스트에라 nextera fpl 전력", "VZ": "버라이즌 verizon 통신", "ABT": "애보트 abbott 리브레", "AMGN": "암젠 amgen 레파타", "T": "에이티앤티 at&t att 통신", "DIS": "디즈니 월트디즈니 disney 디즈니플러스"})
 
 def cover(r):  # 작은 정사각 타일
     f, d, src, title, tk, comp, tag, sub, bg, line, url = r
