@@ -1913,16 +1913,16 @@ c.className='ch '+(C>0?'up':C<0?'down':'');const b=t.querySelector('.dly');if(b)
 upd();setInterval(()=>{{if(!document.hidden)upd();}},60000);document.addEventListener('visibilitychange',()=>{{if(!document.hidden)upd();}});}})();
 (function(){{const B=document.getElementById('ctaboard'),P=document.getElementById('ctapager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);let cur=0;
 function show(i){{cur=i;rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?'':'none');if(pages<2){{P.innerHTML='';return;}}
-let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
-h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
+const G=Math.floor(i/5),g0=G*5,g1=Math.min(g0+5,pages);let h='<button data-p="'+(g0-5)+'"'+(G===0?' disabled':'')+' aria-label="이전 5페이지">«</button><button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+' aria-label="이전 페이지">‹</button>';for(let k=g0;k<g1;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
+h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+' aria-label="다음 페이지">›</button><button data-p="'+g1+'"'+(g1>=pages?' disabled':'')+' aria-label="다음 5페이지">»</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
 P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disabled)show(+b.dataset.p);}});show(0);
 let v=matchMedia('(max-width:640px)').matches?'brief':'full';try{{v=localStorage.getItem('ctaView')||v}}catch(e){{}}const vb=document.querySelectorAll('[data-v]');
 function setV(x){{B.classList.toggle('brief',x==='brief');vb.forEach(b=>b.classList.toggle('on',b.dataset.v===x));try{{localStorage.setItem('ctaView',x)}}catch(e){{}}}}
 vb.forEach(b=>b.addEventListener('click',()=>setV(b.dataset.v)));setV(v);}})();
 (function(){{const B=document.getElementById('pegboard'),P=document.getElementById('pegpager');if(!B)return;const rows=[...B.querySelectorAll('tbody tr')],N=10,pages=Math.ceil(rows.length/N);rows.forEach((r,k)=>r.firstChild.textContent=k+1);
 function show(i){{rows.forEach((r,k)=>r.style.display=(k>=i*N&&k<(i+1)*N)?'':'none');if(pages<2){{P.innerHTML='';return;}}
-let h='<button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+'>‹</button>';for(let k=0;k<pages;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
-h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+'>›</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
+const G=Math.floor(i/5),g0=G*5,g1=Math.min(g0+5,pages);let h='<button data-p="'+(g0-5)+'"'+(G===0?' disabled':'')+' aria-label="이전 5페이지">«</button><button data-p="'+(i-1)+'"'+(i===0?' disabled':'')+' aria-label="이전 페이지">‹</button>';for(let k=g0;k<g1;k++)h+='<button data-p="'+k+'" class="'+(k===i?'on':'')+'">'+(k+1)+'</button>';
+h+='<button data-p="'+(i+1)+'"'+(i===pages-1?' disabled':'')+' aria-label="다음 페이지">›</button><button data-p="'+g1+'"'+(g1>=pages?' disabled':'')+' aria-label="다음 5페이지">»</button><span class="pi">'+(i*N+1)+'–'+Math.min((i+1)*N,rows.length)+' / '+rows.length+'개</span>';P.innerHTML=h;}}
 P.addEventListener('click',e=>{{const b=e.target.closest('button');if(b&&!b.disabled)show(+b.dataset.p);}});show(0);
 const R=rows.filter(r=>r.dataset.q),U='https://quote.cnbc.com/quote-html-webservice/restQuote/symbolType/symbol?requestMethod=itv&noform=1&partnerId=2&fund=1&exthrs=1&output=json&events=1&symbols='+R.map(r=>encodeURIComponent(r.dataset.q)).join('|');
 const num=v=>parseFloat(String(v).replace(/[%,+$]/g,'')),fmt=v=>v<1000?'$'+v.toFixed(2):'$'+Math.round(v).toLocaleString('en-US');
