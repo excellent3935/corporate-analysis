@@ -42,6 +42,7 @@ STOCKS = {  # 사이트 티커: 야후 심볼
     "ON": "ON", "ADI": "ADI", "MRK": "MRK", "MRNA": "MRNA", "TGT": "TGT", "HUM": "HUM", "UBER": "UBER", "INTU": "INTU",
     "XOM": "XOM", "PG": "PG", "CVX": "CVX", "HD": "HD", "CSCO": "CSCO", "PM": "PM", "MS": "MS", "CAT": "CAT", "GS": "GS", "TMO": "TMO", "LIN": "LIN", "GILD": "GILD", "MCD": "MCD", "TMUS": "TMUS", "NEE": "NEE", "VZ": "VZ", "ABT": "ABT", "AMGN": "AMGN", "T": "T", "DIS": "DIS",
     "BLK": "BLK", "APH": "APH", "WELL": "WELL", "UNP": "UNP", "DE": "DE", "DHR": "DHR", "PFE": "PFE", "SCHW": "SCHW", "COP": "COP", "TJX": "TJX", "ISRG": "ISRG", "BX": "BX", "CB": "CB", "VRTX": "VRTX", "ACN": "ACN", "PGR": "PGR", "ETN": "ETN", "IBKR": "IBKR", "SPGI": "SPGI", "MDT": "MDT",
+    "ADBE": "ADBE", "BKNG": "BKNG", "UPS": "UPS", "LOW": "LOW", "SBUX": "SBUX", "BMY": "BMY", "REGN": "REGN", "SYK": "SYK", "BSX": "BSX", "CDNS": "CDNS", "MO": "MO", "MDLZ": "MDLZ", "CME": "CME", "ICE": "ICE", "SO": "SO", "DUK": "DUK", "GD": "GD", "NOC": "NOC", "SLB": "SLB", "NEM": "NEM",
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),
