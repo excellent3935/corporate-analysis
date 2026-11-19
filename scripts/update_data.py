@@ -40,6 +40,7 @@ STOCKS = {  # 사이트 티커: 야후 심볼
     "LLY": "LLY", "JPM": "JPM", "UNH": "UNH", "KO": "KO", "WMT": "WMT", "COST": "COST", "IONQ": "IONQ",
     "TXN": "TXN", "ASTS": "ASTS", "RKLB": "RKLB", "NOW": "NOW", "CRM": "CRM", "RDDT": "RDDT", "SMCI": "SMCI", "IREN": "IREN", "WDC": "WDC", "VRT": "VRT", "COHR": "COHR", "MSTR": "MSTR", "IBM": "IBM", "UMAC": "UMAC", "JOBY": "JOBY", "ACHR": "ACHR", "ONDS": "ONDS", "GEV": "GEV", "CEG": "CEG", "BE": "BE", "VST": "VST", "COIN": "COIN", "CRCL": "CRCL", "HOOD": "HOOD", "JNJ": "JNJ", "ILMN": "ILMN", "ABBV": "ABBV", "BA": "BA", "GE": "GE", "RTX": "RTX", "LMT": "LMT", "AXON": "AXON", "BAC": "BAC", "WFC": "WFC", "V": "V", "MA": "MA", "MP": "MP", "LRCX": "LRCX", "AMAT": "AMAT", "KLAC": "KLAC", "TER": "TER", "HIMS": "HIMS", "TEM": "TEM", "NVO": "NVO", "CRSP": "CRSP", "QBTS": "QBTS", "RGTI": "RGTI", "DDOG": "DDOG", "SNPS": "SNPS", "VRSN": "VRSN", "CRDO": "CRDO", "PEP": "PEP", "LITE": "LITE", "ANET": "ANET", "PANW": "PANW", "NKE": "NKE", "RACE": "RACE", "APP": "APP", "ARM": "ARM", "NFLX": "NFLX", "CBRS": "CBRS", "ALAB": "ALAB",
     "ON": "ON", "ADI": "ADI", "MRK": "MRK", "MRNA": "MRNA", "TGT": "TGT", "HUM": "HUM", "UBER": "UBER", "INTU": "INTU",
+    "XOM": "XOM", "PG": "PG", "CVX": "CVX", "HD": "HD", "CSCO": "CSCO", "PM": "PM", "MS": "MS", "CAT": "CAT", "GS": "GS", "TMO": "TMO", "LIN": "LIN", "GILD": "GILD", "MCD": "MCD", "TMUS": "TMUS", "NEE": "NEE", "VZ": "VZ", "ABT": "ABT", "AMGN": "AMGN", "T": "T", "DIS": "DIS",
 }
 FG_COMP = [  # CNN 키, 이름, 설명
     ("market_momentum_sp500", "시장 모멘텀", "S&P500 vs 125일선"),
