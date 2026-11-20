@@ -1296,7 +1296,7 @@ def update_options(cta):
         if e.get("eps") in (None, "", "-") and dt.date.fromisoformat(e["day"]) >= base and e["tk"] not in nxt:
             nxt[e["tk"]] = (e["day"], e.get("time") or "na")
     ok = fail = 0
-    new_week = dt.datetime.now(KST).weekday() == 5  # 토요일(한국시간) = 금요일 미국장 마감 직후
+    new_week = dt.datetime.now(KST).weekday() == 1  # 화요일(한국시간) = 월요일 미국장 마감 직후
     for tk in [x for x in cta["tickers"] if not x.isdigit()]:
         try:
             spot = cta["tickers"][tk].get("close")
@@ -1305,7 +1305,7 @@ def update_options(cta):
             ed, et = nxt.get(tk, (None, None))
             r = _options_for(yf.Ticker(STOCKS.get(tk, tk)), float(spot), ed, et)
             if r:
-                # 5거래일 1σ 밴드는 주 1회(토요일 아침 = 금요일 미국장 마감 기준)만 새로 잡고, 평일에는 그대로 고정한다.
+                # 5거래일 1σ 밴드는 주 1회(화요일 아침 = 월요일 미국장 마감 기준)만 새로 잡고, 평일에는 그대로 고정한다.
                 wk = (old.get("t", {}).get(tk) or {}).get("wk")
                 if r.get("lo") and (new_week or not wk):
                     wk = {k: r[k] for k in ("px", "lo", "hi", "sg", "sgp", "iv5", "src") if k in r}
