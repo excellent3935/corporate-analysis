@@ -1085,7 +1085,7 @@ CALD_CSS = """
 .more{font:inherit;font-size:11.5px;color:var(--muted);background:none;border:0;text-align:left;padding:1px 4px;cursor:pointer}.mg .cn{display:none}
 .cdm{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}.cdm.open{display:flex}
 .cdb{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;width:min(560px,100%);max-height:86vh;overflow:auto;padding:16px 16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.cdb .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.cdb .hd b{font-size:17px}.cdb .x{font:inherit;font-size:20px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer}
-.wc{margin:0 0 8px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:6px;font-size:12.5px;background:var(--paper);line-height:1.45}.wc.i3{border-left-color:#dc2626}.wc.i2{border-left-color:#d97706}.wc.i1{border-left-color:#9ca3af}.wc.e{border-left-color:var(--blue)}.wc.past{opacity:.78}
+.wc{margin:0 0 8px;padding:8px 10px;border:1px solid var(--line);border-left:3px solid var(--navy);border-radius:6px;font-size:12.5px;background:var(--paper);line-height:1.45}.wc.f{border-left-color:#7c3aed}.cbar.f{border-left-color:#7c3aed}.wc .fk{color:#7c3aed;font-size:11px;letter-spacing:0;font-weight:700}.wc .fto{font-size:12.5px;margin-top:2px}.wc.i3{border-left-color:#dc2626}.wc.i2{border-left-color:#d97706}.wc.i1{border-left-color:#9ca3af}.wc.e{border-left-color:var(--blue)}.wc.past{opacity:.78}
 .wc .wt{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.wc .wt .tm{font-size:15px;font-weight:700;color:var(--ink)}.wc .wt b{font-size:13.5px}.wc .wt a{color:var(--ink);text-decoration:none}.wc .wt a:hover{text-decoration:underline}.wc .st{color:#d97706;font-size:11px;letter-spacing:-1px}
 .wc .en{font-size:11.5px;color:var(--muted)}.wc .vals{display:flex;gap:4px 10px;flex-wrap:wrap;margin-top:5px;font-size:12px;color:var(--ink2);align-items:center}.wc .vals b{color:var(--ink)}
 .bg{display:inline-block;font-size:11px;font-weight:700;border-radius:3px;padding:1px 6px;white-space:nowrap}.bg.up{background:rgba(34,197,94,.15);color:#15803d}.bg.dn{background:rgba(239,68,68,.15);color:#b91c1c}.bg.eq{background:var(--soft);color:var(--ink2)}
@@ -1110,6 +1110,7 @@ def gside(on, cur):
             f'<a class="si{c("track")}" href="track.html">🔎 거래 추적</a>'
             f'<details{" open data-keep=1" if on == "reports" else ""}><summary>📚 기업분석 <span class="n">{len(REPORTS)}</span></summary><div class="sl"><a class="all" data-k="r" href="index.html#reports">전체 보기</a>{it}</div></details>'
             f'<a class="si{c("calendar")}" href="calendar.html">📅 일정</a>'
+            f'<a class="si{c("fed")}" href="fed.html">🏛 연준 이사 발표 내용</a>'
             f'<a class="si{c("news")}" href="news.html">📰 뉴스</a>'
             f'<a class="si{c("briefing")}" href="briefing.html">🗞 브리핑</a></aside>')
 
@@ -1122,11 +1123,11 @@ def mpanels(on):
             f'<a class="mi{c("home")}" href="index.html">🏠 홈</a><a class="mi" href="index.html#market">📈 지수선물</a><a class="mi" href="index.html#heatmap">🔥 히트맵</a>'
             f'<a class="mi{c("options")}" href="options.html">🎯 옵션</a>'
             f'<a class="mi{c("track")}" href="track.html">🔎 거래 추적</a>'
-            f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
+            f'<a class="mi{c("reports")}" href="index.html#reports">📚 기업분석 전체 ({len(REPORTS)})</a><a class="mi{c("calendar")}" href="calendar.html">📅 일정</a><a class="mi{c("fed")}" href="fed.html">🏛 연준 이사 발표 내용</a><a class="mi{c("news")}" href="news.html">📰 뉴스</a><a class="mi{c("briefing")}" href="briefing.html">🗞 브리핑</a></div>')
 
 def shell(title, inner, on="home", cur=None):
     nav = "".join(f'<a class="nv {"on" if on == k else ""}" href="{h}">{t}</a>' for k, h, t in
-                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("track", "track.html", "거래 추적"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
+                  [("home", "index.html", "홈"), ("market", "index.html#market", "지수선물"), ("heatmap", "index.html#heatmap", "히트맵"), ("options", "options.html", "옵션"), ("track", "track.html", "거래 추적"), ("reports", "index.html#reports", "기업분석"), ("calendar", "calendar.html", "일정"), ("fed", "fed.html", "연준 발표"), ("news", "news.html", "뉴스"), ("briefing", "briefing.html", "브리핑")])
     return f"""<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{title}</title>{FONT}{THEME_INIT}<style>{CSS}</style></head><body>
 <div class="top"><div class="in"><a class="brand" href="index.html"><span class="mk">CA</span><span class="w">CORPORATE ANALYSIS</span></a>{nav}<button class="thm" type="button" aria-label="다크 모드 전환" title="다크 모드 전환"><span class="sun">☀</span><span class="moon">☾</span></button><button class="tbtn" id="tsb" type="button" aria-label="기업 검색">🔍</button><button class="tbtn" id="tmb" type="button" aria-label="메뉴">☰</button></div></div>
 {mpanels(on)}
@@ -1443,6 +1444,10 @@ open(f"{OUT}/briefing.html", "w", encoding="utf-8").write(shell("뉴스 브리�
 
 # --------------- calendar page ---------------
 try:
+    _FED = json.load(open(os.path.join(ROOT, "data", "fed.json"), encoding="utf-8"))
+except (OSError, ValueError):
+    _FED = {"asof": "", "sched": [], "items": []}
+try:
     _CAL = json.load(open(os.path.join(ROOT, "data", "calendar.json"), encoding="utf-8"))
 except (OSError, ValueError):
     _CAL = {"asof": "", "econ": [], "earn": []}
@@ -1456,17 +1461,19 @@ function etMs(day,h,m){var p=day.split('-'),g=Date.UTC(+p[0],+p[1]-1,+p[2],h+5,m
 function num(v){if(v==null)return NaN;var s=String(v).replace(/[,$%\\s()]/g,''),m=1,x=/([KMBT])$/i.exec(s);if(x){m={K:1e3,M:1e6,B:1e9,T:1e12}[x[1].toUpperCase()];s=s.slice(0,-1)}var n=parseFloat(s);return isNaN(n)?NaN:n*m}
 function cmp(a,c){var x=num(a),y=num(c);if(isNaN(x)||isNaN(y))return'';var d=x-y;return Math.abs(d)<1e-9?'<span class="bg eq">예상 부합</span>':d>0?'<span class="bg up">예상 상회</span>':'<span class="bg dn">예상 하회</span>'}
 var EV=[];D.econ.forEach(function(e){var ts=new Date(e.ts).getTime();EV.push({k:'econ',ts:ts,day:KD.format(ts),t:e.allday?'종일':KT.format(ts),et:e.allday?'':ET.format(ts),title:e.ko||e.name,en:e.name,imp:e.imp,a:e.a,c:e.c,p:e.p,done:e.a!==''})});
+var RK={'Chair':'의장','Chairman':'의장','Vice Chair':'부의장','Vice Chair for Supervision':'감독 담당 부의장','Governor':'이사'};
+(D.fed||[]).forEach(function(e){var ts=new Date(e.ts).getTime();EV.push({k:'fed',ts:ts,day:KD.format(ts),t:e.allday?'미정':KT.format(ts),et:e.allday?'':ET.format(ts),title:(RK[e.role]?RK[e.role]+' ':'')+e.sp,sp:e.sp,kind:e.kind,loc:e.loc,topic:e.topic,live:e.live})});
 D.earn.forEach(function(e){var ts=e.time==='post'?etMs(e.day,16,0):etMs(e.day,9,30);var neg=/^\\(/.test(e.est||'');EV.push({k:'earn',ts:ts,day:KD.format(ts),t:e.time==='na'?'미정':KT.format(ts),pp:e.time,tk:e.tk,title:D.nm[e.tk]||e.tk,when:e.time==='pre'?'미국 장 시작 전 발표 (개장 '+KT.format(etMs(e.day,9,30))+' KST 이전)':e.time==='post'?'미국 장 마감 후 발표 ('+KT.format(etMs(e.day,16,0))+' KST 이후)':'발표 시간 미정',us:e.day,fq:e.fq,est:e.est,ly:e.ly,n:e.n,eps:e.eps,sur:e.sur,done:e.eps!==''})});
 function cp(e){return e.tk?(D.cap[e.tk]||0):0}
 EV.sort(function(a,b){return a.ts-b.ts||(b.imp||0)-(a.imp||0)||cp(b)-cp(a)});
 var BYD={};EV.forEach(function(e){(BYD[e.day]=BYD[e.day]||[]).push(e)});
 var TODAY=KD.format(new Date()),MINK=EV.length?EV[0].day:TODAY,MAXK=EV.length?EV[EV.length-1].day:TODAY;
 function evs(day){return(BYD[day]||[]).filter(function(e){return e.k===S.tab&&(S.tab!=='econ'||e.imp>=S.I)})}
-function card(e){var past=e.ts<NOW?' past':'';if(e.k==='econ'){return'<div class="wc i'+e.imp+past+'"><div class="wt"><span class="tm">'+esc(e.t)+'</span><span class="st">'+'★'.repeat(e.imp)+'</span><b>'+esc(e.title)+'</b></div><div class="en">'+esc(e.en)+(e.et?' · 미국 '+e.et+' ET':'')+'</div><div class="vals"><span>예상 <b>'+esc(e.c||'-')+'</b></span><span>이전 <b>'+esc(e.p||'-')+'</b></span><span>실제 <b>'+(e.done?esc(e.a):(e.ts<NOW?'집계 대기':'-'))+'</b></span>'+(e.done?cmp(e.a,e.c):'')+'</div></div>'}
+function card(e){var past=e.ts<NOW?' past':'';if(e.k==='fed'){return'<div class="wc f'+past+'"><div class="wt"><span class="tm">'+esc(e.t)+'</span><b>'+esc(e.title)+'</b><span class="st fk">'+esc(e.kind)+'</span></div>'+(e.topic?'<div class="fto">'+esc(e.topic)+'</div>':'')+'<div class="en">'+esc(e.loc||'장소 미정')+(e.et?' · 미국 '+e.et+' ET':'')+'</div><div class="vals">'+(e.live?'<a href="'+esc(e.live)+'" target="_blank" rel="noopener noreferrer">생중계 ↗</a>':'')+'<a href="fed.html">발표 내용 요약 →</a></div></div>'}if(e.k==='econ'){return'<div class="wc i'+e.imp+past+'"><div class="wt"><span class="tm">'+esc(e.t)+'</span><span class="st">'+'★'.repeat(e.imp)+'</span><b>'+esc(e.title)+'</b></div><div class="en">'+esc(e.en)+(e.et?' · 미국 '+e.et+' ET':'')+'</div><div class="vals"><span>예상 <b>'+esc(e.c||'-')+'</b></span><span>이전 <b>'+esc(e.p||'-')+'</b></span><span>실제 <b>'+(e.done?esc(e.a):(e.ts<NOW?'집계 대기':'-'))+'</b></span>'+(e.done?cmp(e.a,e.c):'')+'</div></div>'}
 var sr=e.sur!==''&&!isNaN(parseFloat(e.sur))?parseFloat(e.sur):null,res=e.done?(sr==null?cmp(e.eps,e.est):(sr>0?'<span class="bg up">상회 +'+sr.toFixed(1)+'%</span>':sr<0?'<span class="bg dn">하회 '+sr.toFixed(1)+'%</span>':'<span class="bg eq">부합</span>')):'';
 return'<div class="wc e'+past+'"><div class="wt"><span class="tm '+(e.pp==='pre'?'pre':e.pp==='post'?'post':'na')+'">'+esc(e.t)+'</span><a href="'+esc(D.lk[e.tk]||'#')+'"><b>'+esc(e.title)+'</b></a><span class="en">'+esc(e.tk)+'</span></div><div class="en">'+esc(e.when)+' · 미국 현지 '+(+e.us.slice(5,7))+'/'+(+e.us.slice(8))+(e.fq?' · '+esc(e.fq)+' 분기':'')+'</div><div class="vals"><span>예상 EPS <b>'+esc(e.est||'-')+'</b></span><span>전년 <b>'+esc(e.ly||'-')+'</b></span><span>애널리스트 <b>'+esc(e.n||'-')+'</b></span>'+(e.done?'<span>실제 <b>'+esc(e.eps)+'</b></span>'+res:'')+'</div></div>'}
 function lab(k){var p=k.split('-'),w=new Date(k+'T12:00:00+09:00').getDay();return +p[1]+'월 '+ +p[2]+'일 ('+WD[w]+')'}
-function ctl(){return'<button class="'+(S.tab==='earn'?'on':'')+'" data-tab="earn">실적</button><button class="'+(S.tab==='econ'?'on':'')+'" data-tab="econ">경제지표</button>'}
+function ctl(){return'<button class="'+(S.tab==='earn'?'on':'')+'" data-tab="earn">실적</button><button class="'+(S.tab==='econ'?'on':'')+'" data-tab="econ">경제지표</button><button class="'+(S.tab==='fed'?'on':'')+'" data-tab="fed">연준 이사 발언</button>'}
 function ictl(){return S.tab==='econ'?'<span class="grp"><button class="'+(S.I===3?'on':'')+'" data-imp="3">핵심 ★★★</button><button class="'+(S.I===2?'on':'')+'" data-imp="2">주요 ★★+</button><button class="'+(S.I===1?'on':'')+'" data-imp="1">전체</button></span>':''}
 function wire(root,redraw){root.querySelectorAll('[data-tab]').forEach(function(b){b.onclick=function(){S.tab=b.dataset.tab;redraw()}});root.querySelectorAll('[data-imp]').forEach(function(b){b.onclick=function(){S.I=+b.dataset.imp;redraw()}})}
 function range(){return'수집 범위 '+lab(MINK)+' ~ '+lab(MAXK)+' · 시간은 모두 한국시간(KST)입니다'}
@@ -1480,19 +1487,66 @@ var first=new Date(Date.UTC(Y,Mo,1)),dim=new Date(Date.UTC(Y,Mo+1,0)).getUTCDate
 ['월','화','수','목','금','토','일'].forEach(function(w){h+='<div class="wh">'+w+'</div>'});
 for(var i=0;i<rows*7;i++){var d=i-off+1;if(d<1||d>dim){h+='<div class="dc out"></div>';continue}var k=Y+'-'+String(Mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),l=evs(k);
 h+='<div class="dc'+(i%7>4?' we':'')+(k===TODAY?' td':'')+'" data-k="'+k+'"><div class="dn">'+d+'</div>';
-l.slice(0,N).forEach(function(e){if(e.k==='econ')h+='<div class="cbar i'+e.imp+(e.ts<NOW?' past':'')+'"><span class="tm">'+esc(e.t)+'</span><b>'+esc(e.title)+'</b></div>';else h+='<div class="cbar e'+(e.ts<NOW?' past':'')+'"><span class="tm '+(e.pp==='pre'?'pre':e.pp==='post'?'post':'na')+'">'+esc(e.t)+'</span><b>'+esc(e.tk)+'</b></div>'});
+l.slice(0,N).forEach(function(e){if(e.k==='fed')h+='<div class="cbar f'+(e.ts<NOW?' past':'')+'"><span class="tm">'+esc(e.t)+'</span><b>'+esc(e.sp)+'</b></div>';else if(e.k==='econ')h+='<div class="cbar i'+e.imp+(e.ts<NOW?' past':'')+'"><span class="tm">'+esc(e.t)+'</span><b>'+esc(e.title)+'</b></div>';else h+='<div class="cbar e'+(e.ts<NOW?' past':'')+'"><span class="tm '+(e.pp==='pre'?'pre':e.pp==='post'?'post':'na')+'">'+esc(e.t)+'</span><b>'+esc(e.tk)+'</b></div>'});
 if(l.length>N)h+='<button class="more" type="button">+'+(l.length-N)+'개</button>';if(l.length)h+='<span class="cn">'+l.length+'</span>';h+='</div>'}
 B.innerHTML='<div class="cdh">'+range()+' · 날짜를 누르면 상세가 열립니다</div><div class="mg">'+h+'</div>';B.querySelectorAll('.dc[data-k]').forEach(function(c){c.onclick=function(){openDay(c.dataset.k)}})}
 draw();"""
 def cal_page():
     nm, js, ttl = "calendar.html", CALA_JS, "일정"
-    data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "nm": _nm, "lk": _lk, "cap": _CAP}, ensure_ascii=False).replace("</", "<\\/")
-    inner = (f'<div class="calw"><div class="cph"><span class="t">{ttl}</span><span class="a">미국 경제지표와 등록 기업 실적 · 시간은 한국시간(KST)</span></div><div class="chd" id="chd"></div><div id="cbody"></div>'
+    data = json.dumps({"econ": _CAL.get("econ", []), "earn": _CAL.get("earn", []), "fed": _FED.get("sched", []), "nm": _nm, "lk": _lk, "cap": _CAP}, ensure_ascii=False).replace("</", "<\\/")
+    inner = (f'<div class="calw"><div class="cph"><span class="t">{ttl}</span><span class="a">미국 경제지표 · 등록 기업 실적 · 연준 이사 발언 · 시간은 한국시간(KST)</span></div><div class="chd" id="chd"></div><div id="cbody"></div>'
              '<div class="nwnote">실적 시각 표기: 미국 장 시작 전 발표는 개장 시각(KST) 기준 "전", 장 마감 후 발표는 마감 시각(KST) 기준 "후"로 표시하며 실제 발표 시각과 다를 수 있습니다(시간 미정은 "미정"). 경제지표는 발표 시각을 한국시간으로 환산했습니다. 데이터 출처: Nasdaq. 실적은 이 사이트에 등록된 미국 상장 기업만 보여줍니다.</div></div>'
              '<div class="cdm" id="cdm"><div class="cdb" id="cdb"></div></div>'
              '<script>(function(){' + CALX_JS.replace("__DATA__", data) + js + '})();</script>')
     open(f"{OUT}/{nm}", "w", encoding="utf-8").write(shell("일정 — " + ttl, inner, "calendar"))
 cal_page()
+
+# --------------- 연준 이사 발표 내용 ---------------
+FED_CSS = """
+.fdw{max-width:900px;margin:0 auto;padding:22px 16px 80px}.fdh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.fdh .t{font-size:22px;font-weight:800}.fdh .a{font-size:12.5px;color:var(--muted)}
+.fdn{margin:10px 0 14px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:12.5px;color:var(--ink2);line-height:1.55}
+.fdup{margin:0 0 16px;padding:10px 12px;border:1px solid var(--line);border-left:3px solid #7c3aed;border-radius:8px;background:var(--paper)}.fdup h3{margin:0 0 6px;font-size:13.5px}
+.fdup .r{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:12.5px;padding:3px 0;border-top:1px dashed var(--line)}.fdup .r:first-of-type{border-top:0}.fdup .r b{font-size:13px}.fdup .r .w{color:#7c3aed;font-weight:700;min-width:96px}.fdup .r a{color:var(--blue)}
+.fdsp{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px}.fdsp .c{font-size:12px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--paper)}.fdsp .c small{color:var(--muted)}.tn{font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px}.tn.hawk{background:rgba(220,38,38,.14);color:#dc2626}.tn.dove{background:rgba(37,99,235,.14);color:#2563eb}.tn.neutral{background:rgba(128,128,128,.16);color:var(--ink2)}
+.fdf{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:0 0 12px}.fdf button{border:1px solid var(--line);background:transparent;color:var(--ink);padding:6px 11px;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit}.fdf button.on{background:var(--ink);color:var(--soft);border-color:var(--ink)}.fdf select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);font-size:12.5px;font-family:inherit}
+.fdc{padding:12px 14px;margin:0 0 10px;border:1px solid var(--line);border-left:3px solid #7c3aed;border-radius:8px;background:var(--paper)}.fdc.m{border-left-color:#dc2626}.fdc.t{border-left-color:#d97706}
+.fdc .m1{display:flex;gap:6px 10px;flex-wrap:wrap;align-items:baseline;font-size:12px;color:var(--muted)}.fdc .m1 b{color:var(--ink);font-size:13px}.fdc .k{font-size:11px;font-weight:700;color:#7c3aed}.fdc.m .k{color:#dc2626}.fdc.t .k{color:#d97706}
+.fdc h4{margin:5px 0 2px;font-size:15px;line-height:1.4}.fdc .en{font-size:11.5px;color:var(--muted)}.fdc .lc{font-size:11.5px;color:var(--muted);margin-top:2px}
+.fdc ul{margin:8px 0 6px;padding-left:18px;font-size:13px;line-height:1.6}.fdc li{margin:3px 0}.fdc .ft{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px}.fdc .tg{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink2)}.fdc .lk{margin-left:auto;font-size:12px;color:var(--blue);text-decoration:none}.fdc .lk:hover{text-decoration:underline}
+.fdc details{font-size:12px;color:var(--ink2);margin-top:4px}.fdc details summary{cursor:pointer;color:var(--muted)}.fdc details p{margin:4px 0;line-height:1.5}.fdc .pend{font-size:12.5px;color:var(--muted);margin:8px 0 2px}
+@media(max-width:700px){.fdw{padding:14px 12px 70px}.fdc .lk{margin-left:0}}
+"""
+FED_JS = """(function(){var D=__DATA__,K='all',SP='all',L=document.getElementById('fdl'),UP=document.getElementById('fdup'),FB=document.getElementById('fdf'),NOW=Date.now();
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var RK={'Chair':'의장','Chairman':'의장','Vice Chair':'부의장','Vice Chair for Supervision':'감독 담당 부의장','Governor':'이사'};
+function kst(iso){return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false})}
+var up=D.sched.filter(function(e){return new Date(e.ts).getTime()>=NOW-2*3600e3}).slice(0,6);
+UP.innerHTML='<h3>다가오는 발언 일정 (한국시간)</h3>'+(up.length?up.map(function(e){var live=new Date(e.ts).getTime()<=NOW;return'<div class="r"><span class="w">'+(e.allday?e.day.slice(5).replace('-','/')+' 시간 미정':kst(e.ts))+(live?' · 진행 중?':'')+'</span><b>'+esc((RK[e.role]||'')+' '+e.sp)+'</b><span>'+esc(e.kind)+(e.topic?' · '+esc(e.topic):'')+'</span>'+(e.live?'<a href="'+esc(e.live)+'" target="_blank" rel="noopener noreferrer">생중계 ↗</a>':'')+'</div>'}).join(''):'<div class="r">예정된 발언이 아직 공개되지 않았습니다.</div>');
+var TN={hawk:'🦅 매파 성향',dove:'🕊 비둘기파 성향',neutral:'⚖ 중립·혼재'};
+var bysp={};D.items.forEach(function(x){if(x.sp&&x.tone)(bysp[x.sp]=bysp[x.sp]||[]).push(x)});
+document.getElementById('fdsp').innerHTML=Object.keys(bysp).map(function(n){var a=bysp[n].slice(0,3),c={hawk:0,dove:0,neutral:0};a.forEach(function(x){c[x.tone]++});var t=c.hawk>c.dove&&c.hawk>=c.neutral?'hawk':c.dove>c.hawk&&c.dove>=c.neutral?'dove':'neutral';return'<span class="c">'+esc(n)+' <span class="tn '+t+'">'+TN[t]+'</span> <small>최근 '+a.length+'건 기준</small></span>'}).join('');
+var kinds=['all'].concat(Array.from(new Set(D.items.map(function(x){return x.kind}))));var sps=Array.from(new Set(D.items.map(function(x){return x.sp}).filter(Boolean))).sort();
+function bar(){FB.innerHTML=kinds.map(function(k){return'<button type="button" data-k="'+esc(k)+'" class="'+(k===K?'on':'')+'">'+(k==='all'?'전체':esc(k))+'</button>'}).join('')+'<select id="fsp" aria-label="발언자"><option value="all">발언자 전체</option>'+sps.map(function(n){return'<option'+(n===SP?' selected':'')+'>'+esc(n)+'</option>'}).join('')+'</select>';
+FB.querySelectorAll('button').forEach(function(b){b.onclick=function(){K=b.dataset.k;draw()}});document.getElementById('fsp').onchange=function(){SP=this.value;draw()}}
+function draw(){bar();var a=D.items.filter(function(x){return(K==='all'||x.kind===K)&&(SP==='all'||x.sp===SP)});
+L.innerHTML=a.length?a.map(function(x){var cl=x.kind.indexOf('FOMC')===0||x.kind==='성명'?' m':(x.kind==='증언'?' t':'');
+var who=x.sp?'<b>'+esc((RK[x.role]?RK[x.role]+' ':'')+x.sp)+'</b>':'<b>FOMC·연준 이사회</b>';
+return'<div class="fdc'+cl+'"><div class="m1"><span class="k">'+esc(x.kind)+'</span>'+who+'<span>'+kst(x.d)+' (KST)</span>'+(x.tone?'<span class="tn '+x.tone+'" title="본문의 매파·비둘기파 표현 개수로 자동 판정한 참고값">'+TN[x.tone]+'</span>':'')+'</div><h4>'+esc(x.tk||x.t)+'</h4>'+(x.tk?'<div class="en">'+esc(x.t)+'</div>':'')+(x.loc?'<div class="lc">'+esc(x.lk||x.loc)+'</div>':'')
++(x.sum&&x.sum.length?'<ul>'+x.sum.map(function(q){return'<li>'+esc(q)+'</li>'}).join('')+'</ul>':'<div class="pend">요약을 만드는 중입니다. 다음 갱신(약 20분 뒤)에 채워집니다. 원문은 아래 링크에서 볼 수 있습니다.</div>')
++(x.en&&x.en.length?'<details><summary>영어 원문 핵심 문장'+(x.tone?' · 성향 판정 근거(매파 표현 '+x.h+'개 / 비둘기파 표현 '+x.dv+'개)':'')+'</summary>'+x.en.map(function(q){return'<p>'+esc(q)+'</p>'}).join('')+'</details>':'')
++'<div class="ft">'+(x.tags||[]).map(function(t){return'<span class="tg">'+esc(t)+'</span>'}).join('')+'<a class="lk" href="'+esc(x.l)+'" target="_blank" rel="noopener noreferrer">연준 원문 ↗</a></div></div>'}).join(''):'<div class="fdn">조건에 맞는 발표가 없습니다.</div>'}
+draw()})();"""
+def fed_page():
+    items = _FED.get("items", [])
+    data = json.dumps({"sched": _FED.get("sched", []), "items": items}, ensure_ascii=False).replace("</", "<\\/")
+    asof = _FED.get("asof", "") or "수집 전"
+    inner = (f'<style>{FED_CSS}</style><div class="fdw"><div class="fdh"><span class="t">연준 이사 발표 내용</span><span class="a">연설·증언·FOMC 성명 핵심 요약 · 마지막 갱신 {asof} (KST)</span></div>'
+             '<div class="fdn">연준 공식 사이트(federalreserve.gov)의 일정과 새 발표를 약 20분 간격으로 자동 확인합니다. 새 연설·성명이 올라오면 핵심 문장을 규칙으로 뽑아 한국어로 기계 번역해 보여 줍니다. '
+             '<b>매파·비둘기파 표시는 본문에 나온 표현(예: 물가 상방 위험·긴축 vs 고용 하방 위험·금리 인하)의 개수로 자동 판정한 참고값이며, 발언자의 실제 정책 입장과 다를 수 있습니다.</b> <b>사람이 쓴 요약이 아니므로 뉘앙스가 빠지거나 번역이 어색할 수 있습니다. 중요한 발언은 원문 링크로 확인하세요.</b> 현재는 연준 이사회(의장·부의장·이사) 발언과 FOMC 성명·의사록만 포함하며 지역 연은 총재 발언은 포함하지 않습니다. 일정은 연준 캘린더의 미국 동부시간을 한국시간으로 환산했고, 일정은 사전 공지 없이 바뀔 수 있습니다.</div>'
+             '<div class="fdup" id="fdup"></div><div class="fdsp" id="fdsp"></div><div class="fdf" id="fdf"></div><div id="fdl"></div></div>'
+             '<script>' + FED_JS.replace("__DATA__", data) + '</script>')
+    open(f"{OUT}/fed.html", "w", encoding="utf-8").write(shell("연준 이사 발표 내용 — Corporate Analysis", inner, "fed"))
+fed_page()
 
 # --------------- 옵션 탭 ---------------
 OPT_CSS = """

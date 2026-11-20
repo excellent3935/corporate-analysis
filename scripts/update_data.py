@@ -1315,10 +1315,205 @@ def update_options(cta):
     print("옵션 지표", ok, "개 / 실패", fail, "개 / 저장", len(res), "개")
 
 
+# ---------------- 연준 이사 발언: 일정(Fed 캘린더) + 연설·증언·FOMC 성명 요약 ----------------
+FED = "https://www.federalreserve.gov"
+FED_TAGS = [  # (정규식, 태그) — 본문 등장 횟수로 상위 3개를 붙인다
+    (r"inflation|prices?\b", "물가"), (r"labor market|unemployment|employment|payrolls|jobs\b", "고용"), (r"policy rate|federal funds|rate cuts?|interest rates?|monetary policy", "금리·통화정책"),
+    (r"balance sheet|asset purchases|reserves", "대차대조표"), (r"tariff", "관세"), (r"supervis|regulat|capital (rule|requirement)|stress test", "금융규제·감독"),
+    (r"stablecoin|payment|tokeniz|crypto|digital", "결제·디지털자산"), (r"financial stability|vulnerabilit", "금융안정"), (r"outlook|forecast|projection", "경제전망"),
+]
+FED_KEYS = [(r"inflation|prices?\b", 2.0), (r"labor market|unemployment|employment", 2.0), (r"policy rate|federal funds|rate cuts?|interest rates?", 2.0), (r"monetary policy", 2.0), (r"balance sheet", 1.5),
+            (r"outlook|forecast|project|expect", 1.5), (r"risks?\b", 1.2), (r"tariff", 1.5), (r"stablecoin|payment|tokeniz|supervis|regulat|financial stability", 1.2),
+            (r"\bI (believe|expect|support|see|view|favor|would|am concerned|think)\b", 1.5), (r"\bthe Committee\b", 1.0), (r"2 percent", 1.5)]
+FED_HAWK = [r"inflation (remains|is|has remained|stays|continues to be) (\w+ )?(elevated|above|too high|persistent|sticky)", r"upside risks? to inflation", r"restrictive", r"tighten", r"rate hikes?", r"higher for longer",
+            r"(hold|keep|maintain)\w* (the )?(policy |interest )?rates? (steady|unchanged|where it is|at current)", r"persistent inflation", r"inflation pressures?", r"not (yet )?(appropriate|in a hurry) to (cut|lower|ease)", r"patien(t|ce)", r"cautio(n|us)\w* (about|on|with) (further )?(cuts|easing|lowering)"]
+FED_DOVE = [r"downside risks? to (the )?(labor market|employment|growth|economy)", r"(labor|job) market (has |is )?(cooled|softened|weaken\w*|slow\w*|deteriorat\w*|loosen\w*)", r"rate cuts?", r"(further |additional )?easing", r"(lower|reduce|cut)\w* (the )?(policy |interest )?rates?",
+            r"unemployment (rate )?(has )?(ris\w+|increas\w+|climb\w+)", r"inflation (has )?(eased|moderat\w+|cool\w+|declin\w+|came down)", r"one-time (increase|adjustment|price level)", r"less restrictive", r"recession", r"weak(er|ening) (hiring|job growth|demand)"]
+FED_ROLE = {"Chair": "의장", "Vice Chair": "부의장", "Vice Chair for Supervision": "감독 담당 부의장", "Governor": "이사", "Chairman": "의장"}
+
+
+def _fed_get(url):
+    r = requests.get(url, headers=dict(UA, **{"Accept": "*/*"}), timeout=30)
+    r.raise_for_status()
+    return r
+
+
+def _strip(h):
+    import html as _h
+    import re
+    return re.sub(r"\s+", " ", _h.unescape(re.sub(r"<[^>]+>", " ", h or ""))).strip()
+
+
+def _fed_schedule():
+    """Fed 캘린더(json)에서 연설·증언 일정만 추출. 시각은 미국 동부시간 → UTC ISO."""
+    import re
+    from zoneinfo import ZoneInfo
+    ET = ZoneInfo("America/New_York")
+    j = json.loads(_fed_get(FED + "/json/calendar.json").content.decode("utf-8-sig"))
+    today = dt.datetime.now(ET).date()
+    out = []
+    for e in j.get("events", []):
+        if e.get("type") not in ("Speeches", "Testimony"):
+            continue
+        m = re.match(r"(Speech|Testimony)\s*[-–]\s*(.+)", (e.get("title") or "").strip())
+        if not m:
+            continue
+        rest = m.group(2).strip()
+        r2 = re.match(r"(Vice Chair for Supervision|Vice Chair|Chair|Chairman|Governor)\s+(.+)", rest)
+        role, name = (r2.group(1), r2.group(2)) if r2 else ("", rest)
+        tm = re.match(r"(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m", (e.get("time") or "").lower())
+        yy, mm = (e.get("month") or "0-0").split("-")[:2]
+        for d in re.findall(r"\d+", e.get("days") or ""):
+            try:
+                day = dt.date(int(yy), int(mm), int(d))
+            except ValueError:
+                continue
+            if not (-45 <= (day - today).days <= 120):
+                continue
+            hh, mi = (int(tm.group(1)) % 12 + (12 if tm.group(3) == "p" else 0), int(tm.group(2) or 0)) if tm else (0, 0)
+            ts = dt.datetime(day.year, day.month, day.day, hh, mi, tzinfo=ET).astimezone(dt.timezone.utc).isoformat(timespec="minutes")
+            out.append({"day": day.isoformat(), "ts": ts, "allday": not tm, "kind": "증언" if m.group(1) == "Testimony" else "연설", "sp": name, "role": role, "loc": _strip(e.get("location")),
+                        "topic": _strip(e.get("description")), "live": e.get("live") or ""})
+    out.sort(key=lambda x: x["ts"])
+    return out
+
+
+def _fed_text(html):
+    """연설·보도자료 본문 문단 추출(각주 제외). 실패하면 빈 리스트."""
+    import re
+    i = html.find('id="article"')
+    seg = html[i:] if i >= 0 else html
+    for stop in ('class="footnotes"', 'id="lastUpdate"', 'class="lastUpdate"', "Return to text"):
+        k = seg.find(stop)
+        if k > 2000:
+            seg = seg[:k]
+    paras = [_strip(p) for p in re.findall(r"<p[^>]*>(.*?)</p>", seg, re.S)]
+    return [p for p in paras if len(p) > 50 and not p.startswith("Return to text")]
+
+
+def _fed_summ(paras, k=4):
+    import re
+    text = " ".join(paras)
+    sents = re.split(r"(?<=[.!?])\s+(?=[A-Z“\"'])", text)
+    n = len(sents)
+    cand = []
+    for i, st in enumerate(sents):
+        if not 60 <= len(st) <= 330 or re.match(r"(Thank|Good (morning|afternoon|evening)|It is a pleasure|I am (pleased|delighted|honored|grateful)|Let me (begin|start)|I would like to thank|Before I begin)", st):
+            continue
+        sc = sum(w for pat, w in FED_KEYS if re.search(pat, st, re.I)) + (0.5 if re.search(r"\d", st) else 0) + (0.5 if i < n * 0.2 else 0) + (1.0 if i > n * 0.88 else 0)
+        cand.append((sc, i, st))
+    top = sorted(cand, key=lambda z: -z[0])[:k]
+    return [st for _, i, st in sorted(top, key=lambda z: z[1])], text
+
+
+def _fed_tone(full):
+    """매파/비둘기파 표현 개수로 발언 성향을 자동 판정(참고용). 어느 쪽이 1.5배 이상·차이 2 이상일 때만 기울었다고 본다."""
+    import re
+    h = sum(len(re.findall(p, full, re.I)) for p in FED_HAWK)
+    d = sum(len(re.findall(p, full, re.I)) for p in FED_DOVE)
+    tone = "hawk" if h >= d * 1.5 and h - d >= 2 else "dove" if d >= h * 1.5 and d - h >= 2 else "neutral"
+    return {"tone": tone, "h": h, "dv": d}
+
+
+def update_fed():
+    """data/fed.json: sched(발언 일정) + items(연설·증언·FOMC 성명 + 핵심 문장 한국어 요약). 새 항목만 처리하고 실패해도 이전 값 유지."""
+    import re
+    import time
+    import email.utils
+    import xml.etree.ElementTree as XET
+    old = load("fed.json", {"sched": [], "items": []})
+    try:
+        sched = _fed_schedule()
+    except Exception:
+        traceback.print_exc()
+        sched = old.get("sched", [])
+        print("연준 일정 수집 실패 — 이전 값 유지")
+    have = {x["l"]: x for x in old.get("items", [])}
+    feeds = [("/feeds/speeches_and_testimony.xml", None), ("/feeds/press_monetary.xml", "FOMC"), ("/feeds/press_all.xml", "성명")]
+    cands = []
+    for path, tag in feeds:
+        try:
+            for it in XET.fromstring(_fed_get(FED + path).content).iter("item"):
+                t = (it.findtext("title") or "").strip()
+                l = (it.findtext("link") or "").strip()
+                if not t or not l:
+                    continue
+                if tag == "성명" and not re.match(r"(statement|remarks|testimony|chair|governor|vice chair)", t, re.I):
+                    continue
+                try:
+                    d = email.utils.parsedate_to_datetime(it.findtext("pubDate")).astimezone(dt.timezone.utc).isoformat(timespec="minutes")
+                except Exception:
+                    continue
+                cands.append((l, t, d, _strip(it.findtext("description")), tag))
+        except Exception:
+            traceback.print_exc()
+            print("연준 피드 실패:", path)
+    seen, items, new, t0 = set(), [], 0, time.time()
+    for l, t, d, desc, tag in sorted(cands, key=lambda z: z[2], reverse=True):
+        if l in seen:
+            continue
+        seen.add(l)
+        x = have.get(l)
+        if x and x.get("sum") and "tone" in x:
+            items.append(x)
+            continue
+        if x and x.get("sum") and time.time() - t0 < 420:  # 요약은 있으나 성향 판정 전인 기존 항목: 본문을 다시 읽어 판정만 추가
+            try:
+                _, full0 = _fed_summ(_fed_text(_fed_get(l).text))
+                x.update(_fed_tone(full0))
+            except Exception:
+                traceback.print_exc()
+            items.append(x)
+            continue
+        kind = "증언" if "/testimony/" in l else "연설" if "/speech/" in l else ("FOMC 성명·의사록" if tag == "FOMC" or "fomc" in t.lower() or "minutes" in t.lower() else "성명")
+        sp, title = (t.split(", ", 1) + [""])[:2] if kind in ("연설", "증언") else ("", t)
+        x = {"l": l, "d": d, "kind": kind, "sp": sp.strip(), "role": "", "t": title.strip() if kind in ("연설", "증언") else t, "loc": desc[:200], "sum": [], "en": [], "tags": []}
+        if time.time() - t0 < 420:
+            try:
+                html = _fed_get(l).text
+                m = re.search(r'class="speaker"[^>]*>(.*?)</', html, re.S)
+                if m:
+                    sp_full = _strip(m.group(1))
+                    r2 = re.match(r"(Vice Chair for Supervision|Vice Chair|Chair|Chairman|Governor)\s+(.+)", sp_full)
+                    if r2:
+                        x["role"], x["sp"] = r2.group(1), r2.group(2)
+                paras = _fed_text(html)
+                sents, full = _fed_summ(paras)
+                if sents:
+                    x["en"] = sents
+                    ko = translate_ko("\n".join(sents)) or ""
+                    parts = [q.strip() for q in ko.split("\n") if q.strip()]
+                    x["sum"] = parts if len(parts) == len(sents) else ([ko] if ko else [])
+                    x.update(_fed_tone(full))
+                    cnt = sorted(((len(re.findall(pat, full, re.I)), tg) for pat, tg in FED_TAGS), reverse=True)
+                    x["tags"] = [tg for c, tg in cnt[:3] if c >= 3]
+                x["tk"] = translate_ko(x["t"]) or ""
+                x["lk"] = translate_ko(x["loc"]) or "" if x["loc"] else ""
+                new += 1
+            except Exception:
+                traceback.print_exc()
+        items.append(x)
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=150)).isoformat(timespec="minutes")
+    items = [x for x in items if x["d"] >= cutoff][:80]
+    if not items and not sched:
+        print("연준 수집 실패 — 이전 데이터 유지")
+        return
+    if not items:
+        items = old.get("items", [])
+    if old.get("sched") == sched and old.get("items") == items:
+        print("연준: 변경 없음")
+        return
+    save("fed.json", {"asof": dt.datetime.now(KST).isoformat(timespec="minutes"), "sched": sched, "items": items})
+    print("연준 일정", len(sched), "건 / 발표", len(items), "건 (신규 요약", new, ")")
+
+
 if __name__ == "__main__":
     now = dt.datetime.now(KST)
     if len(sys.argv) > 1 and sys.argv[1] == "news":  # 뉴스만 빠르게 갱신 (몇 시간마다)
         update_news(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "fed":  # 연준 이사 발언 일정·발표 내용만 갱신 (20분마다)
+        update_fed()
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "calendar":  # 일정(경제지표 결과·실적 일정)만 갱신
         update_calendar(load("cta.json", {"tickers": {}}))
@@ -1358,6 +1553,10 @@ if __name__ == "__main__":
     update_news(cta)
     update_briefing("auto")
     update_calendar(cta)
+    try:
+        update_fed()
+    except Exception:
+        traceback.print_exc()
     last = m["series"].get("ES", {}).get("dates", ["----"])[-1]
     m["asof"] = cta["asof"] = now.isoformat(timespec="minutes")
     m["label"] = f"미국장 {int(last[:2])}/{int(last[2:])} 종가"

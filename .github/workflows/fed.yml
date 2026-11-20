@@ -1,0 +1,46 @@
+name: 연준 이사 발언 확인 (20분마다)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: fed-check
+  cancel-in-progress: false
+
+jobs:
+  fed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 연준 일정·발표 확인
+        run: python scripts/update_data.py fed
+
+      - name: 변경이 있으면 저장하고 사이트 다시 배포
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- data; then
+            echo "변경 없음 — 배포하지 않음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          git commit -m "data: 연준 발언 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+          for i in 1 2 3; do git pull --rebase origin main && git push && break || sleep 5; done
+          gh workflow run "update.yml" --ref main -f briefing=none -f only=fed
