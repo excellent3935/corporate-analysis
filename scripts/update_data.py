@@ -1410,14 +1410,6 @@ def _fed_summ(paras, k=4):
     return [st for _, i, st in sorted(top, key=lambda z: z[1])], text
 
 
-def _fed_marks(sent):
-    """문장 안의 매파/비둘기파 표현을 찾아 [(표현,'h'|'d')]와 문장 성향(hawk/dove/'')을 돌려준다."""
-    import re
-    out = [[m.group(0), "h"] for p in FED_HAWK for m in re.finditer(p, sent, re.I)] + [[m.group(0), "d"] for p in FED_DOVE for m in re.finditer(p, sent, re.I)]
-    h, d = sum(1 for _, t in out if t == "h"), sum(1 for _, t in out if t == "d")
-    return out, ("hawk" if h > d else "dove" if d > h else "")
-
-
 def _fed_tone(full):
     """매파/비둘기파 표현 개수로 발언 성향을 자동 판정(참고용). 어느 쪽이 1.5배 이상·차이 2 이상일 때만 기울었다고 본다."""
     import re
@@ -1469,12 +1461,12 @@ def update_fed():
         seen.add(l)
         x = have.get(l)
         mins = "minutes" in t.lower()
-        if x and x.get("sum") and x.get("v") == 3 and (not mins or x.get("src")):
+        if x and x.get("sum") and x.get("v") == 2 and (not mins or x.get("src")):
             items.append(x)
             continue
         kind = "증언" if "/testimony/" in l else "연설" if "/speech/" in l else ("FOMC 성명·의사록" if tag == "FOMC" or "fomc" in t.lower() or "minutes" in t.lower() else "성명")
         sp, title = (t.split(", ", 1) + [""])[:2] if kind in ("연설", "증언") else ("", t)
-        x = {"l": l, "d": d, "kind": kind, "sp": sp.strip(), "role": "", "t": title.strip() if kind in ("연설", "증언") else t, "loc": desc[:200], "sum": [], "en": [], "tags": [], "v": 3}
+        x = {"l": l, "d": d, "kind": kind, "sp": sp.strip(), "role": "", "t": title.strip() if kind in ("연설", "증언") else t, "loc": desc[:200], "sum": [], "en": [], "tags": [], "v": 2}
         if time.time() - t0 < 420:
             try:
                 html = _fed_html(l)
@@ -1493,9 +1485,6 @@ def update_fed():
                 sents, full = _fed_summ(paras, 6 if mins else 4)
                 if sents:
                     x["en"] = sents
-                    mk = [_fed_marks(q) for q in sents]
-                    x["mk"] = [m[0] for m in mk]
-                    x["st"] = [m[1] for m in mk]
                     ko = translate_ko("\n".join(sents)) or ""
                     parts = [q.strip() for q in ko.split("\n") if q.strip()]
                     x["sum"] = parts if len(parts) == len(sents) else ([ko] if ko else [])
