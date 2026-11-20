@@ -1557,7 +1557,7 @@ OPT_CSS = """
 .opt td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--line)}.opt td a{color:inherit;font-weight:700;text-decoration:none}.opt .s{display:block;font-size:11px;color:var(--muted);font-weight:500}
 .opt a.bn{display:flex;align-items:center;gap:10px;text-align:left}.opt .bl0{width:28px;height:28px;border-radius:50%;overflow:hidden;flex:none;background:var(--soft);display:flex;align-items:center;justify-content:center}.opt .bl0 .mono{font-size:9px}.opt .bl0 img{width:100%;height:100%;object-fit:cover}.opq{width:100%;max-width:320px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,transparent);color:inherit;font-size:14px;margin:0 0 10px}.opx{display:none;color:var(--muted);font-size:13px;padding:10px 2px}
 .opt .up{color:var(--up);font-weight:700}.opt .down{color:var(--down);font-weight:700}.opt .mu{color:var(--muted)}
-.rb{position:relative;display:inline-block;width:120px;height:8px;border-radius:4px;background:var(--line);vertical-align:middle}.rb i{position:absolute;top:0;bottom:0;background:#93c5fd;border-radius:4px}.rb u{position:absolute;top:-3px;width:2px;height:14px;background:var(--text,#111);text-decoration:none}
+.rb{position:relative;display:inline-block;width:120px;height:8px;border-radius:4px;background:var(--line);vertical-align:middle}.rb i{position:absolute;top:0;bottom:0;background:#93c5fd;border-radius:4px}.rb u{position:absolute;top:-4px;width:4px;height:16px;margin-left:-2px;border-radius:2px;background:var(--text,#111);text-decoration:none}.rb u.out{background:#dc2626}.rbw{display:flex;align-items:center;gap:6px;white-space:nowrap}.rbw .rp{font-size:11px;color:var(--muted)}.rbw .rb{flex:none;width:110px}.zc{display:inline-block;margin-top:3px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;background:rgba(128,128,128,.16);color:var(--ink2)}.zc.lo{background:rgba(37,99,235,.14);color:#2563eb}.zc.hi{background:rgba(220,38,38,.14);color:#dc2626}.zc.out{outline:1px solid currentColor}
 .tg{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:700}.tg.p{background:rgba(22,163,74,.14);color:#16a34a}.tg.n{background:rgba(220,38,38,.14);color:#dc2626}
 .opn{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:10px}
 """
@@ -1576,12 +1576,21 @@ def options_page():
         tk = r[4]; o = T.get(tk)
         if not o: continue
         px = o["px"]
-        if "lo" in o:
-            span = (o["hi"] - o["lo"]) * 2 or 1; l0 = o["lo"] - (o["hi"] - o["lo"]) / 2
-            bar = f'<span class="rb"><i style="left:25%;width:50%"></i><u style="left:50%"></u></span>'
-            src = "옵션 IV" if o.get("src") == "iv" else "과거 변동성"
-            r1.append(f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">${o["lo"]:,.2f}</td><td class="up">${o["hi"]:,.2f}</td><td><b>±{o["sgp"]:.2f}%</b><span class="s">±${o["sg"]:,.2f}</span></td><td>{bar}</td><td>{o["iv5"] * 100:.1f}%<span class="s">{src}</span></td><td>{(o.get("hv20") or 0) * 100:.1f}%</td></tr>' if o.get("hv20") else
-                      f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">${o["lo"]:,.2f}</td><td class="up">${o["hi"]:,.2f}</td><td><b>±{o["sgp"]:.2f}%</b><span class="s">±${o["sg"]:,.2f}</span></td><td>{bar}</td><td>{o["iv5"] * 100:.1f}%<span class="s">{src}</span></td><td class="mu">-</td></tr>')
+        w = o.get("wk") or ({k: o[k] for k in ("px", "lo", "hi", "sg", "sgp", "iv5", "src") if k in o} if "lo" in o else None)
+        if w:
+            lo, hi, c0 = w["lo"], w["hi"], w["px"]; z = (px - c0) / w["sg"] if w.get("sg") else 0
+            pos = min(max((px - lo) / ((hi - lo) or 1), 0), 1)
+            if z <= -1: zt, zc = "하단 이탈", "lo"
+            elif z < -0.33: zt, zc = "하단 쪽", "lo"
+            elif z <= 0.33: zt, zc = "중앙", "mid"
+            elif z < 1: zt, zc = "상단 쪽", "hi"
+            else: zt, zc = "상단 이탈", "hi"
+            out = " out" if abs(z) >= 1 else ""
+            bar = (f'<div class="rbw"><span class="rp l">${lo:,.2f}</span><span class="rb"><i style="left:0;width:100%"></i><u class="{zc}{out}" style="left:{pos * 100:.1f}%"></u></span><span class="rp r">${hi:,.2f}</span></div>'
+                   f'<span class="zc {zc}{out}">{zt} {z:+.1f}σ</span><span class="s">기준 {w.get("d", "")[5:].replace("-", "/")} ${c0:,.2f}</span>')
+            src = "옵션 IV" if w.get("src") == "iv" else "과거 변동성"
+            hv = f'{(o.get("hv20") or 0) * 100:.1f}%' if o.get("hv20") else '<span class="mu">-</span>'
+            r1.append(f'<tr><td>{nm(r)}</td><td>${px:,.2f}</td><td class="down">${lo:,.2f}</td><td class="up">${hi:,.2f}</td><td><b>±{w["sgp"]:.2f}%</b><span class="s">±${w["sg"]:,.2f}</span></td><td>{bar}</td><td>{w["iv5"] * 100:.1f}%<span class="s">{src}</span></td><td>{hv}</td></tr>')
         e = o.get("er")
         if e and e.get("mvp") is not None:
             prem = f'{e["iv"] / e["ivb"]:.2f}배' if e.get("iv") and e.get("ivb") else "-"
@@ -1596,11 +1605,11 @@ def options_page():
     r2.sort(key=lambda x: x[0]); r2 = [x[1] for x in r2]
     def tbl(h, rows, empty):
         return (f'<div class="optw"><table class="opt"><tr>{h}</tr>' + "".join(rows) + '</table></div>') if rows else f'<div class="opleg">{empty}</div>'
-    v1 = tbl("<th>기업</th><th>현재가</th><th>하단(-1σ)</th><th>상단(+1σ)</th><th>변동폭</th><th>범위</th><th>사용 변동성(연)</th><th>HV20</th>", r1, "옵션 데이터가 아직 수집되지 않았습니다. 다음 아침 갱신 후 표시됩니다.")
+    v1 = tbl("<th>기업</th><th>현재가</th><th>하단(-1σ)</th><th>상단(+1σ)</th><th>변동폭</th><th>범위</th><th>사용 변동성(연)</th><th>HV20</th>", r1, "옵션 데이터가 아직 수집되지 않았습니다. 다음 갱신 후 표시됩니다.")
     v2 = tbl("<th>기업</th><th>실적일</th><th>옵션 기대 변동폭</th><th>기대 가격대</th><th>실적 만기 IV</th><th>평상시 IV</th><th>IV 배율</th>", r2, "발표 예정일이 잡힌 종목의 옵션 데이터가 아직 없습니다.")
     v3 = tbl("<th>기업</th><th>현재가</th><th>풋월(지지)</th><th>콜월(저항)</th><th>감마 플립</th><th>현재 감마 구간</th><th>풋/콜 비율</th>", r3, "미결제약정 데이터가 아직 수집되지 않았습니다.")
     legs = [
-        "<b>5거래일 1σ</b> — 앞으로 5거래일 뒤 주가가 이 범위 안에 있을 확률이 약 68%라는 뜻입니다. 현재가 × 옵션 IV(만기가 5일 이상 남은 첫 만기의 ATM 내재변동성) × √(5/252)로 계산하고, 옵션이 없으면 과거 20일 변동성(HV20)을 씁니다.",
+        "<b>5거래일 1σ</b> — 앞으로 5거래일 뒤 주가가 이 범위 안에 있을 확률이 약 68%라는 뜻입니다. <b>이 범위는 매주 토요일 아침(금요일 미국장 마감 기준)에 한 번 새로 잡고 한 주 동안 고정</b>됩니다. 범위 칸의 막대는 하단~상단 가격이고, 검은 막대가 현재가 위치입니다. 현재가가 기준가에서 −1σ 아래면 '하단 이탈', +1σ 위면 '상단 이탈'(빨간 막대)로 표시하며, 그 사이는 하단 쪽·중앙·상단 쪽으로 나눕니다. 현재가 × 옵션 IV(만기가 5일 이상 남은 첫 만기의 ATM 내재변동성) × √(5/252)로 계산하고, 옵션이 없으면 과거 20일 변동성(HV20)을 씁니다.",
         "<b>실적발표 내재변동성</b> — 다음 실적 발표를 지나는 첫 만기의 ATM 스트래들(콜+풋) 가격 ÷ 현재가가 시장이 예상하는 발표 후 변동폭입니다. IV 배율은 그 만기 IV ÷ 실적 이후 평상시 IV로, 클수록 발표 이벤트 프리미엄이 큽니다.",
         "<b>풋월·콜월·감마 플립</b> — 45일 이내 만기의 미결제약정(OI)이 가장 많이 쌓인 행사가입니다. 풋월은 현재가 아래(지지로 작용하기 쉬움), 콜월은 위(저항)에서 찾고, 감마 플립은 딜러 순감마가 0이 되는 가격입니다. 현재가가 플립 위면 양 감마(헤지가 변동성을 눌러 줌), 아래면 음 감마(변동성 확대)로 봅니다.",
     ]
