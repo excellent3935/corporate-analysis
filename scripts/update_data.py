@@ -1338,6 +1338,10 @@ def _fed_get(url):
     return r
 
 
+def _fed_html(url):
+    return _fed_get(url).content.decode("utf-8", errors="replace")  # 연준 페이지는 charset 표기가 없어 requests가 잘못 추정함
+
+
 def _strip(h):
     import html as _h
     import re
@@ -1438,6 +1442,8 @@ def update_fed():
                 l = (it.findtext("link") or "").strip()
                 if not t or not l:
                     continue
+                if "discount rate" in t.lower():
+                    continue
                 if tag == "성명" and not re.match(r"(statement|remarks|testimony|chair|governor|vice chair)", t, re.I):
                     continue
                 try:
@@ -1455,28 +1461,20 @@ def update_fed():
         seen.add(l)
         x = have.get(l)
         mins = "minutes" in t.lower()
-        if x and x.get("sum") and "tone" in x and (not mins or x.get("src")):
-            items.append(x)
-            continue
-        if x and x.get("sum") and not mins and time.time() - t0 < 420:  # 요약은 있으나 성향 판정 전인 기존 항목: 본문을 다시 읽어 판정만 추가
-            try:
-                _, full0 = _fed_summ(_fed_text(_fed_get(l).text))
-                x.update(_fed_tone(full0))
-            except Exception:
-                traceback.print_exc()
+        if x and x.get("sum") and x.get("v") == 2 and (not mins or x.get("src")):
             items.append(x)
             continue
         kind = "증언" if "/testimony/" in l else "연설" if "/speech/" in l else ("FOMC 성명·의사록" if tag == "FOMC" or "fomc" in t.lower() or "minutes" in t.lower() else "성명")
         sp, title = (t.split(", ", 1) + [""])[:2] if kind in ("연설", "증언") else ("", t)
-        x = {"l": l, "d": d, "kind": kind, "sp": sp.strip(), "role": "", "t": title.strip() if kind in ("연설", "증언") else t, "loc": desc[:200], "sum": [], "en": [], "tags": []}
+        x = {"l": l, "d": d, "kind": kind, "sp": sp.strip(), "role": "", "t": title.strip() if kind in ("연설", "증언") else t, "loc": desc[:200], "sum": [], "en": [], "tags": [], "v": 2}
         if time.time() - t0 < 420:
             try:
-                html = _fed_get(l).text
+                html = _fed_html(l)
                 if mins:  # 의사록 보도자료는 안내문뿐이라, 'HTML' 링크의 의사록 본문 페이지를 읽는다
                     mm = re.search(r'href="([^"]*fomcminutes\d+\.htm)"', html)
                     if mm:
                         x["src"] = mm.group(1) if mm.group(1).startswith("http") else FED + mm.group(1)
-                        html = _fed_get(x["src"]).text
+                        html = _fed_html(x["src"])
                 m = re.search(r'class="speaker"[^>]*>(.*?)</', html, re.S)
                 if m:
                     sp_full = _strip(m.group(1))
