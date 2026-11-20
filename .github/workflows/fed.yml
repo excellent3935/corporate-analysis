@@ -34,13 +34,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if git diff --quiet -- data; then
+          git add data
+          if git diff --cached --quiet; then
             echo "변경 없음 — 배포하지 않음"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
           git commit -m "data: 연준 발언 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
           for i in 1 2 3; do git pull --rebase origin main && git push && break || sleep 5; done
           gh workflow run "update.yml" --ref main -f briefing=none -f only=fed
