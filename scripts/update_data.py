@@ -1454,10 +1454,11 @@ def update_fed():
             continue
         seen.add(l)
         x = have.get(l)
-        if x and x.get("sum") and "tone" in x:
+        mins = "minutes" in t.lower()
+        if x and x.get("sum") and "tone" in x and (not mins or x.get("src")):
             items.append(x)
             continue
-        if x and x.get("sum") and time.time() - t0 < 420:  # 요약은 있으나 성향 판정 전인 기존 항목: 본문을 다시 읽어 판정만 추가
+        if x and x.get("sum") and not mins and time.time() - t0 < 420:  # 요약은 있으나 성향 판정 전인 기존 항목: 본문을 다시 읽어 판정만 추가
             try:
                 _, full0 = _fed_summ(_fed_text(_fed_get(l).text))
                 x.update(_fed_tone(full0))
@@ -1471,6 +1472,11 @@ def update_fed():
         if time.time() - t0 < 420:
             try:
                 html = _fed_get(l).text
+                if mins:  # 의사록 보도자료는 안내문뿐이라, 'HTML' 링크의 의사록 본문 페이지를 읽는다
+                    mm = re.search(r'href="([^"]*fomcminutes\d+\.htm)"', html)
+                    if mm:
+                        x["src"] = mm.group(1) if mm.group(1).startswith("http") else FED + mm.group(1)
+                        html = _fed_get(x["src"]).text
                 m = re.search(r'class="speaker"[^>]*>(.*?)</', html, re.S)
                 if m:
                     sp_full = _strip(m.group(1))
@@ -1478,7 +1484,7 @@ def update_fed():
                     if r2:
                         x["role"], x["sp"] = r2.group(1), r2.group(2)
                 paras = _fed_text(html)
-                sents, full = _fed_summ(paras)
+                sents, full = _fed_summ(paras, 6 if mins else 4)
                 if sents:
                     x["en"] = sents
                     ko = translate_ko("\n".join(sents)) or ""

@@ -1534,7 +1534,7 @@ var who=x.sp?'<b>'+esc((RK[x.role]?RK[x.role]+' ':'')+x.sp)+'</b>':'<b>FOMC·연
 return'<div class="fdc'+cl+'"><div class="m1"><span class="k">'+esc(x.kind)+'</span>'+who+'<span>'+kst(x.d)+' (KST)</span>'+(x.tone?'<span class="tn '+x.tone+'" title="본문의 매파·비둘기파 표현 개수로 자동 판정한 참고값">'+TN[x.tone]+'</span>':'')+'</div><h4>'+esc(x.tk||x.t)+'</h4>'+(x.tk?'<div class="en">'+esc(x.t)+'</div>':'')+(x.loc?'<div class="lc">'+esc(x.lk||x.loc)+'</div>':'')
 +(x.sum&&x.sum.length?'<ul>'+x.sum.map(function(q){return'<li>'+esc(q)+'</li>'}).join('')+'</ul>':'<div class="pend">요약을 만드는 중입니다. 다음 갱신(약 20분 뒤)에 채워집니다. 원문은 아래 링크에서 볼 수 있습니다.</div>')
 +(x.en&&x.en.length?'<details><summary>영어 원문 핵심 문장'+(x.tone?' · 성향 판정 근거(매파 표현 '+x.h+'개 / 비둘기파 표현 '+x.dv+'개)':'')+'</summary>'+x.en.map(function(q){return'<p>'+esc(q)+'</p>'}).join('')+'</details>':'')
-+'<div class="ft">'+(x.tags||[]).map(function(t){return'<span class="tg">'+esc(t)+'</span>'}).join('')+'<a class="lk" href="'+esc(x.l)+'" target="_blank" rel="noopener noreferrer">연준 원문 ↗</a></div></div>'}).join(''):'<div class="fdn">조건에 맞는 발표가 없습니다.</div>'}
++'<div class="ft">'+(x.tags||[]).map(function(t){return'<span class="tg">'+esc(t)+'</span>'}).join('')+'<a class="lk" href="'+esc(x.src||x.l)+'" target="_blank" rel="noopener noreferrer">'+(x.src?'의사록 원문 ↗':'연준 원문 ↗')+'</a></div></div>'}).join(''):'<div class="fdn">조건에 맞는 발표가 없습니다.</div>'}
 draw()})();"""
 def fed_page():
     items = _FED.get("items", [])
