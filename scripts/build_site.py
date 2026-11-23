@@ -741,7 +741,7 @@ function P(v){return(v>=0?'+':'')+v.toFixed(1)+'%'}
 function draw(t){var up=(t.mean/c-1)*100,cs=[['평균 목표가',F(t.mean),'<span class="'+(up>0?'up':'down')+'">현재가 대비 '+P(up)+'</span>']];
 [['high','최고'],['median','중앙값'],['low','최저']].forEach(function(z){if(t[z[0]])cs.push([z[1],F(t[z[0]]),P((t[z[0]]/c-1)*100)])});
 var tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
-var meta=[t.n?'애널리스트 '+t.n+'명':'',t.rec?'컨센서스 '+(REC[t.rec]||t.rec):'',(t.d||'')+' 변경 반영','방금 확인 '+tm].filter(Boolean).join(' · ');
+var meta=[t.n?'애널리스트 '+t.n+'명':'',t.rec?'컨센서스 '+(REC[t.rec]||t.rec):'',t.recent&&t.recent.length?'최근 기관 변경 '+t.recent[0].d+(function(){var n=Math.floor((Date.now()-new Date(t.recent[0].d+'T00:00:00Z').getTime())/864e5);return n>=3?' ('+n+'일 전)':''})():'',(t.d||'')+' 변경 반영','방금 확인 '+tm].filter(Boolean).join(' · ');
 var det='';if(t.recent&&t.recent.length){var rows='';t.recent.forEach(function(x){var a=AC[(x.ac||'').toLowerCase()]||['',''],lb=a[0],cl=a[1];if(!lb&&x.pp){lb=x.pt>x.pp?'상향':x.pt<x.pp?'하향':'유지';cl=x.pt>x.pp?'up':x.pt<x.pp?'down':''}
 var pr=x.pp&&x.pp!==x.pt?F(x.pp)+' → <b>'+F(x.pt)+'</b>':'<b>'+F(x.pt)+'</b>',rt=x.fr&&x.to&&x.fr!==x.to?esc(x.fr)+' → '+esc(x.to):(esc(x.to)||'-');
 rows+='<tr><td>'+esc(x.d)+'</td><td>'+esc(x.f)+'</td><td>'+rt+'</td><td>'+pr+'</td><td><span class="'+cl+'">'+(lb||'-')+'</span></td><td>'+P((x.pt/c-1)*100)+'</td></tr>'});
@@ -759,7 +759,7 @@ def target_box(tk):
     cells = [("평균 목표가", F(t["mean"]), f'<span class="{"up" if up > 0 else "down"}">현재가 대비 {up:+.1f}%</span>')]
     for k, lb in (("high", "최고"), ("median", "중앙값"), ("low", "최저")):
         if t.get(k): cells.append((lb, F(t[k]), f'{(t[k] / e["close"] - 1) * 100:+.1f}%'))
-    meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), f'{t.get("d", "")} 변경 반영') if x)
+    meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), (f'최근 기관 변경 {t["recent"][0]["d"]}' if t.get("recent") else ""), f'{t.get("d", "")} 변경 반영') if x)
     det = ""
     if t.get("recent"):
         _AC = {"raises": ("상향", "up"), "lowers": ("하향", "down"), "maintains": ("유지", ""), "announces": ("신규", ""), "initiates": ("신규", ""), "reiterates": ("유지", ""), "unchanged": ("유지", "")}
@@ -773,7 +773,7 @@ def target_box(tk):
         det = ('<details class="tgd"><summary>세부정보 보기 · 최근 기관별 목표가</summary><div class="tw"><table><tr><th>날짜</th><th>기관</th><th>투자의견</th><th>목표가</th><th>변경</th><th>현재가 대비</th></tr>' + rows + '</table></div></details>')
     return (f'<div class="tgbox" data-tk="{tk}" data-close="{e["close"]}" data-cur="{cur}"><div class="hd"><b>애널리스트 목표가</b><span>' + meta + '</span></div><div class="cs">'
             + "".join(f'<div><small>{a}</small><b>{b}</b><em>{c}</em></div>' for a, b, c in cells)
-            + '</div>' + det + '<div class="nt">출처: Yahoo Finance 컨센서스 · 약 30분마다 확인해 바뀐 항목만 반영하며, 이 페이지를 열어 두면 5분마다 새로 불러옵니다. 상승여력은 직전 종가 기준입니다.</div></div><script>' + TG_JS + '</script>')
+            + '</div>' + det + '<div class="nt">출처: Yahoo Finance 컨센서스 · 약 30분마다 확인해 바뀐 항목만 반영하며, 이 페이지를 열어 두면 5분마다 새로 불러옵니다. 야후 데이터는 실제 발표보다 며칠 늦게 올라오는 경우가 있어 TipRanks 등 다른 곳과 숫자가 다를 수 있습니다. 상승여력은 직전 종가 기준입니다.</div></div><script>' + TG_JS + '</script>')
 TG_CSS = """
 .tgbox{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;margin:0 0 16px}
 .tgbox .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}.tgbox .hd b{font-size:14px}.tgbox .hd span{font-size:12px;color:var(--muted)}
