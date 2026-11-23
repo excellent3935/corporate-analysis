@@ -733,6 +733,24 @@ try:
 except (OSError, ValueError):
     _TG = {}
 _REC = {"strong_buy": "강력 매수", "buy": "매수", "hold": "중립", "underperform": "비중 축소", "sell": "매도"}
+TG_JS = """(function(){var b=document.currentScript.previousElementSibling,tk=b.dataset.tk,c=+b.dataset.close,cur=b.dataset.cur;
+var REC={strong_buy:'강력 매수',buy:'매수',hold:'중립',underperform:'비중 축소',sell:'매도'},AC={raises:['상향','up'],lowers:['하향','down'],maintains:['유지',''],announces:['신규',''],initiates:['신규',''],reiterates:['유지',''],unchanged:['유지','']};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]})}
+function F(v){return cur==='원'?Math.round(v).toLocaleString('en-US')+'원':'$'+(v<1000?v.toFixed(2):Math.round(v).toLocaleString('en-US'))}
+function P(v){return(v>=0?'+':'')+v.toFixed(1)+'%'}
+function draw(t){var up=(t.mean/c-1)*100,cs=[['평균 목표가',F(t.mean),'<span class="'+(up>0?'up':'down')+'">현재가 대비 '+P(up)+'</span>']];
+[['high','최고'],['median','중앙값'],['low','최저']].forEach(function(z){if(t[z[0]])cs.push([z[1],F(t[z[0]]),P((t[z[0]]/c-1)*100)])});
+var tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
+var meta=[t.n?'애널리스트 '+t.n+'명':'',t.rec?'컨센서스 '+(REC[t.rec]||t.rec):'',(t.d||'')+' 변경 반영','방금 확인 '+tm].filter(Boolean).join(' · ');
+var det='';if(t.recent&&t.recent.length){var rows='';t.recent.forEach(function(x){var a=AC[(x.ac||'').toLowerCase()]||['',''],lb=a[0],cl=a[1];if(!lb&&x.pp){lb=x.pt>x.pp?'상향':x.pt<x.pp?'하향':'유지';cl=x.pt>x.pp?'up':x.pt<x.pp?'down':''}
+var pr=x.pp&&x.pp!==x.pt?F(x.pp)+' → <b>'+F(x.pt)+'</b>':'<b>'+F(x.pt)+'</b>',rt=x.fr&&x.to&&x.fr!==x.to?esc(x.fr)+' → '+esc(x.to):(esc(x.to)||'-');
+rows+='<tr><td>'+esc(x.d)+'</td><td>'+esc(x.f)+'</td><td>'+rt+'</td><td>'+pr+'</td><td><span class="'+cl+'">'+(lb||'-')+'</span></td><td>'+P((x.pt/c-1)*100)+'</td></tr>'});
+var open=b.querySelector('.tgd')&&b.querySelector('.tgd').open;
+det='<details class="tgd"'+(open?' open':'')+'><summary>세부정보 보기 · 최근 기관별 목표가</summary><div class="tw"><table><tr><th>날짜</th><th>기관</th><th>투자의견</th><th>목표가</th><th>변경</th><th>현재가 대비</th></tr>'+rows+'</table></div></details>'}
+var nt=b.querySelector('.nt').outerHTML;
+b.innerHTML='<div class="hd"><b>애널리스트 목표가</b><span>'+meta+'</span></div><div class="cs">'+cs.map(function(z){return'<div><small>'+z[0]+'</small><b>'+z[1]+'</b><em>'+z[2]+'</em></div>'}).join('')+'</div>'+det+nt}
+function load(){fetch('https://raw.githubusercontent.com/excellent3935/corporate-analysis/main/data/targets.json?b='+Math.floor(Date.now()/60000)).then(function(r){return r.json()}).then(function(d){var t=d.t&&d.t[tk];if(t&&t.mean)draw(t)}).catch(function(){})}
+load();setInterval(load,300000)})();"""
 def target_box(tk):
     t = _TG.get(tk); e = CTA.get(tk, {})
     if not t or not e.get("close"): return ""
@@ -741,7 +759,7 @@ def target_box(tk):
     cells = [("평균 목표가", F(t["mean"]), f'<span class="{"up" if up > 0 else "down"}">현재가 대비 {up:+.1f}%</span>')]
     for k, lb in (("high", "최고"), ("median", "중앙값"), ("low", "최저")):
         if t.get(k): cells.append((lb, F(t[k]), f'{(t[k] / e["close"] - 1) * 100:+.1f}%'))
-    meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), f'{t.get("d", "")} 기준') if x)
+    meta = " · ".join(x for x in ((f'애널리스트 {t["n"]}명' if t.get("n") else ""), (f'컨센서스 {_REC.get(t["rec"], t["rec"])}' if t.get("rec") else ""), f'{t.get("d", "")} 변경 반영') if x)
     det = ""
     if t.get("recent"):
         _AC = {"raises": ("상향", "up"), "lowers": ("하향", "down"), "maintains": ("유지", ""), "announces": ("신규", ""), "initiates": ("신규", ""), "reiterates": ("유지", ""), "unchanged": ("유지", "")}
@@ -753,9 +771,9 @@ def target_box(tk):
             rt = f'{x["fr"]} → {x["to"]}' if x.get("fr") and x.get("to") and x["fr"] != x["to"] else (x.get("to") or "-")
             rows += f'<tr><td>{x["d"]}</td><td>{x["f"]}</td><td>{rt}</td><td>{pr}</td><td><span class="{cl}">{lb or "-"}</span></td><td>{(x["pt"] / e["close"] - 1) * 100:+.1f}%</td></tr>'
         det = ('<details class="tgd"><summary>세부정보 보기 · 최근 기관별 목표가</summary><div class="tw"><table><tr><th>날짜</th><th>기관</th><th>투자의견</th><th>목표가</th><th>변경</th><th>현재가 대비</th></tr>' + rows + '</table></div></details>')
-    return ('<div class="tgbox"><div class="hd"><b>애널리스트 목표가</b><span>' + meta + '</span></div><div class="cs">'
+    return (f'<div class="tgbox" data-tk="{tk}" data-close="{e["close"]}" data-cur="{cur}"><div class="hd"><b>애널리스트 목표가</b><span>' + meta + '</span></div><div class="cs">'
             + "".join(f'<div><small>{a}</small><b>{b}</b><em>{c}</em></div>' for a, b, c in cells)
-            + '</div>' + det + '<div class="nt">출처: Yahoo Finance 컨센서스 · 상승여력은 최근 종가 기준이며 매일 자동 갱신됩니다.</div></div>')
+            + '</div>' + det + '<div class="nt">출처: Yahoo Finance 컨센서스 · 약 30분마다 확인해 바뀐 항목만 반영하며, 이 페이지를 열어 두면 5분마다 새로 불러옵니다. 상승여력은 직전 종가 기준입니다.</div></div><script>' + TG_JS + '</script>')
 TG_CSS = """
 .tgbox{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:12px 16px;margin:0 0 16px}
 .tgbox .hd{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;margin-bottom:8px}.tgbox .hd b{font-size:14px}.tgbox .hd span{font-size:12px;color:var(--muted)}

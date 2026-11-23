@@ -1,0 +1,44 @@
+name: 기관 목표가 확인 (30분마다)
+
+on:
+  schedule:
+    - cron: "7,37 * * * 1-5"
+    - cron: "37 0,6 * * 6"   # 토요일 아침·오후(금요일 미국장 마감 후 목표가 변경 반영)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: targets-check
+  cancel-in-progress: false
+
+jobs:
+  targets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 목표가 확인
+        run: python scripts/update_data.py targets
+
+      - name: 바뀐 것이 있으면 저장 (사이트는 열려 있는 페이지가 직접 불러오고, 정적 본문은 다음 배포 때 반영)
+        run: |
+          git add data/targets.json
+          if git diff --cached --quiet; then
+            echo "변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: 목표가 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+          for i in 1 2 3 4; do git pull --rebase origin main && git push && break || sleep 5; done

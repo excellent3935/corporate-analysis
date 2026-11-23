@@ -241,57 +241,86 @@ def update_mcap(cta):
     print("시가총액", len(usd), "개")
 
 
-def update_targets(cta):
-    """애널리스트 목표가(평균·중앙값·최고·최저, 의견 수)를 야후에서 받아 data/targets.json에 저장. 실패하거나 값이 없는 종목은 이전 값을 유지한다."""
+def _tg_one(tk, sym, prev, quick):
+    """한 종목의 목표가 컨센서스와 기관별 변경 내역을 야후에서 받는다. quick이면 느린 t.info(의견 수·컨센서스)는 이전 값을 재사용."""
+    t = yf.Ticker(sym)
+    pt = t.analyst_price_targets or {}
+    mean = pt.get("mean")
+    if not mean:
+        return None
+    e = {"mean": round(float(mean), 2)}
+    for k in ("median", "high", "low"):
+        if pt.get(k):
+            e[k] = round(float(pt[k]), 2)
+    if quick and prev.get("n") and prev.get("rec"):
+        e["n"], e["rec"] = prev["n"], prev["rec"]
+    else:
+        try:
+            inf = t.info or {}
+            if inf.get("numberOfAnalystOpinions"):
+                e["n"] = int(inf["numberOfAnalystOpinions"])
+            if inf.get("recommendationKey") and inf["recommendationKey"] != "none":
+                e["rec"] = inf["recommendationKey"]
+        except Exception:
+            for k in ("n", "rec"):
+                if prev.get(k):
+                    e[k] = prev[k]
+    try:  # 최근 기관별 목표가 변경 내역 (목표가가 있는 건만, 최신 12건)
+        ud = t.upgrades_downgrades
+        rec = []
+        for idx, r in ud.sort_index(ascending=False).iterrows():
+            pt_now = r.get("currentPriceTarget")
+            if pt_now is None or pt_now != pt_now or not float(pt_now):
+                continue
+            pp = r.get("priorPriceTarget")
+            rec.append({"d": str(idx)[:10], "f": str(r.get("Firm", "")), "to": str(r.get("ToGrade", "") or ""), "fr": str(r.get("FromGrade", "") or ""),
+                        "ac": str(r.get("priceTargetAction", "") or ""), "pt": round(float(pt_now), 2),
+                        "pp": round(float(pp), 2) if pp is not None and pp == pp and float(pp) else None})
+            if len(rec) >= 12:
+                break
+        if rec:
+            e["recent"] = rec
+        elif prev.get("recent"):
+            e["recent"] = prev["recent"]
+    except Exception:
+        if prev.get("recent"):
+            e["recent"] = prev["recent"]
+    return e
+
+
+def update_targets(cta, quick=False):
+    """애널리스트 목표가(평균·중앙값·최고·최저, 의견 수)와 기관별 변경 내역을 야후에서 받아 data/targets.json에 저장. 실패하거나 값이 없는 종목은 이전 값을 유지한다.
+    quick=True(30분 주기 워크플로): 병렬 수집하고 느린 info 호출을 생략하며, 내용이 하나도 바뀌지 않았으면 파일을 쓰지 않는다. d는 마지막으로 내용이 바뀐 날짜."""
+    from concurrent.futures import ThreadPoolExecutor
     old = load("targets.json", {"t": {}})
     out = dict(old.get("t", {}))
-    today = dt.datetime.now(KST).strftime("%Y-%m-%d")
-    got = 0
-    for tk, sym in STOCKS.items():
+    now_k = dt.datetime.now(KST)
+    today = now_k.strftime("%Y-%m-%d")
+
+    def work(item):
+        tk, sym = item
         try:
-            t = yf.Ticker(sym)
-            pt = t.analyst_price_targets or {}
-            mean = pt.get("mean")
-            if not mean:
-                continue
-            e = {"mean": round(float(mean), 2), "d": today}
-            for k in ("median", "high", "low"):
-                if pt.get(k):
-                    e[k] = round(float(pt[k]), 2)
-            try:
-                inf = t.info or {}
-                if inf.get("numberOfAnalystOpinions"):
-                    e["n"] = int(inf["numberOfAnalystOpinions"])
-                if inf.get("recommendationKey") and inf["recommendationKey"] != "none":
-                    e["rec"] = inf["recommendationKey"]
-            except Exception:
-                pass
-            try:  # 최근 기관별 목표가 변경 내역 (목표가가 있는 건만, 최신 12건)
-                ud = t.upgrades_downgrades
-                rec = []
-                for idx, r in ud.sort_index(ascending=False).iterrows():
-                    pt_now = r.get("currentPriceTarget")
-                    if pt_now is None or pt_now != pt_now or not float(pt_now):
-                        continue
-                    pp = r.get("priorPriceTarget")
-                    rec.append({"d": str(idx)[:10], "f": str(r.get("Firm", "")), "to": str(r.get("ToGrade", "") or ""), "fr": str(r.get("FromGrade", "") or ""),
-                                "ac": str(r.get("priceTargetAction", "") or ""), "pt": round(float(pt_now), 2),
-                                "pp": round(float(pp), 2) if pp is not None and pp == pp and float(pp) else None})
-                    if len(rec) >= 12:
-                        break
-                if rec:
-                    e["recent"] = rec
-                elif out.get(tk, {}).get("recent"):
-                    e["recent"] = out[tk]["recent"]
-            except Exception:
-                if out.get(tk, {}).get("recent"):
-                    e["recent"] = out[tk]["recent"]
-            out[tk] = e
-            got += 1
+            return tk, _tg_one(tk, sym, out.get(tk, {}), quick)
         except Exception:
             traceback.print_exc()
-    save("targets.json", {"asof": today, "t": out})
-    print("목표가", got, "개 갱신 /", len(out), "개 보유 / 기관별 내역", sum(1 for v in out.values() if v.get("recent")), "개")
+            return tk, None
+
+    got = changed = 0
+    with ThreadPoolExecutor(max_workers=6) as ex:
+        for tk, e in ex.map(work, list(STOCKS.items())):
+            if not e:
+                continue
+            prev = out.get(tk, {})
+            same = {k: v for k, v in prev.items() if k != "d"} == e
+            e["d"] = prev.get("d", today) if same else today
+            changed += 0 if same else 1
+            out[tk] = e
+            got += 1
+    if quick and not changed:
+        print("목표가: 변경 없음 (확인", got, "개)")
+        return
+    save("targets.json", {"asof": today, "ts": now_k.isoformat(timespec="minutes"), "t": out})
+    print("목표가", got, "개 확인 /", changed, "개 변경 /", len(out), "개 보유 / 기관별 내역", sum(1 for v in out.values() if v.get("recent")), "개")
 
 
 # ---------------- 내부자 거래 (Form 4) · 네임드 펀드 13F ----------------
@@ -1543,8 +1572,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "options":  # 옵션 지표만 갱신 (매일 아침)
         update_options(load("cta.json", {"tickers": {}}))
         sys.exit(0)
-    if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신
-        update_targets(load("cta.json", {"tickers": {}}))
+    if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신 (30분마다 워크플로에서 호출 — 바뀐 것만 저장)
+        update_targets(load("cta.json", {"tickers": {}}), quick=True)
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "briefing":  # 최신 뉴스 수집 후 브리핑 생성: briefing [auto|pre|post]
         mode = sys.argv[2] if len(sys.argv) > 2 else "auto"
