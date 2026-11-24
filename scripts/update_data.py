@@ -839,7 +839,8 @@ def update_calendar(cta):
         if d.weekday() > 4:
             continue
         ds = d.isoformat()
-        data = nq("economicevents", ds)
+        # 나스닥 경제지표 API는 date=D 로 부르면 실제 D-1일 지표를 준다(예: 목요일 실업수당이 금요일로 옴). 실제 D일 지표는 D+1로 요청한다.
+        data = nq("economicevents", (d + dt.timedelta(days=1)).isoformat())
         if data is None or "rows" not in data:
             econ += old_e.get(ds, [])
             continue
