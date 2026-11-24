@@ -191,7 +191,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("strategy.html", "mstr", [CONTENT + "/mstr/body.html"], "Strategy 기업분석", "MSTR", "Strategy Inc.", "코인", "BTC 848,517개 · mNAV 0.77", "#f5f3ff", "비트코인 보유", "https://www.strategy.com"),
  ("unitedhealth.html", "unh", [CONTENT + "/unh/body.html"], "UnitedHealth 기업분석", "UNH", "UnitedHealth Group Incorporated", "헬스케어", "이익 V자 회복 · MCR 88.4%", "#f0f9ff", "건강보험·의료", "https://www.unitedhealthgroup.com"),
  ("cocacola.html", "ko", [CONTENT + "/ko/body.html"], "Coca-Cola 기업분석", "KO", "The Coca-Cola Company", "소비재", "3Q 판매량 +5% · PEG 2.34(조정 약 2.5) · CTA +1.00", "#fef2f2", "음료", "https://www.coca-colacompany.com"),
- ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "이커머스 +23% · PER 45배", "#eff6ff", "유통", "https://corporate.walmart.com"),
+ ("walmart.html", "wmt", [CONTENT + "/wmt/body.html"], "Walmart 기업분석", "WMT", "Walmart Inc.", "소비재", "FY27 3분기 매출 +5.2%, 가이던스 상향 · PER 49.6배", "#eff6ff", "유통", "https://corporate.walmart.com"),
  ("costco.html", "cost", [CONTENT + "/cost/body.html"], "Costco 기업분석", "COST", "Costco Wholesale Corporation", "소비재", "회원비 = 영업이익 51% · PER 51배", "#fef2f2", "회원제 유통", "https://www.costco.com"),
  ("ionq.html", "ionq", [CONTENT + "/ionq/body.html"], "IonQ 기업분석", "IONQ", "IonQ, Inc.", "양자", "양자 · 매출 +336% · 런웨이 약 3년", "#f5f3ff", "양자컴퓨팅", "https://ionq.com"),
  ("ibm.html", "ibm", [CONTENT + "/ibm/body.html"], "IBM 기업분석", "IBM", "International Business Machines Corporation", "소프트웨어", "현금 창출 · 조정 PEG 1.65 · CTA +0.50", "#eef2ff", "IT 서비스·소프트웨어", "https://www.ibm.com"),
@@ -251,7 +251,7 @@ REPORTS = [  # file, folder, srcs, title, ticker, company, tag, sub, cover bg, s
  ("target.html", "tgt", [CONTENT + "/tgt/body.html"], "Target 기업분석", "TGT", "Target Corporation", "소비재", "3Q 비교매출 +5.6% · PEG 0.50(환급 제외 1.17) · CTA +1.00", "#fef2f2", "대형 할인점", "https://corporate.target.com"),
  ("humana.html", "hum", [CONTENT + "/hum/body.html"], "Humana 기업분석", "HUM", "Humana Inc.", "헬스케어", "3Q 매출 +26% · PEG 산출 불가 · CTA +1.00", "#f0fdfa", "메디케어 보험", "https://www.humana.com"),
  ("uber.html", "uber", [CONTENT + "/uber/body.html"], "Uber 기업분석", "UBER", "Uber Technologies, Inc.", "소비재", "3Q 예약액 +20% · GAAP PEG 산출 불가(비GAAP 추정 약 0.64) · CTA -1.00", "#f3f4f6", "승차·배달 플랫폼", "https://www.uber.com"),
- ("intuit.html", "intu", [CONTENT + "/intu/body.html"], "Intuit 기업분석", "INTU", "Intuit Inc.", "소프트웨어", "FY26 매출 +14% · PEG 1.01(비GAAP 약 0.70) · CTA 0.00", "#eff6ff", "세금·회계 소프트웨어", "https://www.intuit.com"),
+ ("intuit.html", "intu", [CONTENT + "/intu/body.html"], "Intuit 기업분석", "INTU", "Intuit Inc.", "소프트웨어", "FQ1'27 매출 +12%, FY27 가이던스 하향 · PEG 0.78 · CTA -0.75", "#eff6ff", "세금·회계 소프트웨어", "https://www.intuit.com"),
 ]
 def _price(tk):
     e = CTA.get(tk, {})
@@ -924,7 +924,8 @@ ADJ_PEG = {
     "KO": {"mode": "side", "note": "조정 EPS 기준 PEG 약 2.5(GAAP 기준 2.34)"},
     "HUM": {"mode": "none", "note": "GAAP·조정 EPS 모두 감소해 산출 불가"},
     "UBER": {"mode": "side", "note": "GAAP EPS 성장 -78%(2025년 세금 혜택 기저)로 산출 불가. 비GAAP EPS 기준 PEG 약 0.64(성장률 +35% 가정, 추정)"},
-    "INTU": {"mode": "side", "note": "트레이딩뷰 PEG 1.01은 GAAP 기준. FY26 비GAAP EPS 기준 PEG 약 0.70"},
+    "WMT": {"mode": "main", "peg": 4.0, "per": "약 45배", "gr": "+11.3%", "note": "GAAP TTM EPS가 투자 평가손실로 -8%라 트레이딩뷰 PEG 산출 불가. 조정 EPS TTM 기준 PEG(내 계산)"},
+    "INTU": {"mode": "side", "note": "트레이딩뷰 PEG 0.78은 GAAP TTM 기준. FY27 GAAP EPS 가이던스 중간값 기준 PEG 약 0.59(내 계산)"},
     "LITE": {"mode": "main", "peg": 0.17, "per": "50.4배", "gr": "+299%", "note": "조정 EPS 기준(내 계산, 직전 4분기 저기저로 기저효과 큼). GAAP은 FQ4'26 일회성 비현금 비용으로 산출 불가"},
     "PANW": {"mode": "main", "peg": 5.7, "per": "84.1배", "gr": "+14.7%", "note": "조정 EPS 기준 PEG(내 계산). GAAP은 인수 비용으로 EPS가 감소해 산출 불가"},
     "NFLX": {"mode": "gain", "peg": 0.96, "per": "21.1배", "gr": "+22%", "why": "WBD 위약금 $28억 세후 약 $0.53 제외, 세율·주식수는 내 가정"},
