@@ -1,0 +1,35 @@
+name: insiders
+on:
+  schedule:
+    - cron: "23 * * * 1-5"   # 평일 매시간 내부자 거래(Form 4) 새 신고 확인
+  workflow_dispatch:
+concurrency:
+  group: insiders
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+      - name: 내부자 거래 확인
+        run: python scripts/update_data.py insiders
+      - name: 바뀐 것이 있으면 저장 (열려 있는 페이지가 직접 불러오고, 정적 본문은 다음 배포 때 반영)
+        run: |
+          git add data/insiders.json
+          if git diff --cached --quiet; then
+            echo "변경 없음"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: 내부자 거래 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+          for i in 1 2 3 4; do git pull --rebase origin main && git push && break || sleep 5; done

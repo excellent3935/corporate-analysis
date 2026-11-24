@@ -804,6 +804,22 @@ def _usd(v):
     if v is None: return "-"
     a = abs(v); return ("$%.2fB" % (v / 1e9)) if a >= 1e9 else ("$%.1fM" % (v / 1e6)) if a >= 1e6 else ("$%.0fK" % (v / 1e3)) if a >= 1e3 else "$%.0f" % v
 def _sh(n): return f"{n:,.0f}"
+
+INS_JS = """(function(){var b=document.currentScript.previousElementSibling,tk=b.dataset.tk;
+var K={buy:['매수','up'],sell:['매도','down'],grant:['주식 보상','mu'],exercise:['옵션 행사/전환','mu'],gift:['증여','mu'],other:['기타','mu']};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]})}
+function U(v){if(v==null)return'-';var a=Math.abs(v);return a>=1e9?'$'+(v/1e9).toFixed(2)+'B':a>=1e6?'$'+(v/1e6).toFixed(1)+'M':a>=1e3?'$'+(v/1e3).toFixed(0)+'K':'$'+v.toFixed(0)}
+function draw(rows,asof){var cut=new Date(Date.now()-183*864e5).toISOString().slice(0,10),rec=rows.filter(function(x){return x.d>=cut}),nb=rec.filter(function(x){return x.k==='buy'}),ns=rec.filter(function(x){return x.k==='sell'});
+var sum=function(a){return a.reduce(function(t,x){return t+(x.v||0)},0)};
+var tm=new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',hour12:false});
+var summ=(rec.length?'최근 6개월 공개 시장 매수 '+nb.length+'건 '+U(sum(nb))+' · 매도 '+ns.length+'건 '+U(sum(ns)):'최근 6개월 신고 내역 없음')+' · 방금 확인 '+tm;
+var tr='';rows.slice(0,15).forEach(function(x){var k=K[x.k]||K.other,who=esc(x.n)+(x.p?' <small>'+esc(x.p)+'</small>':''),ln=(x.u||'').indexOf('http')===0?'<a href="'+esc(x.u)+'" target="_blank" rel="noopener">원문</a>':'';
+tr+='<tr><td>'+esc(x.d)+'</td><td>'+who+'</td><td><span class="'+k[1]+'">'+k[0]+'</span></td><td class="r">'+(x.sh?Math.round(x.sh).toLocaleString('en-US'):'-')+'</td><td class="r">'+(x.px?'$'+x.px.toFixed(2):'-')+'</td><td class="r">'+(x.v?U(x.v):'-')+'</td><td>'+ln+'</td></tr>'});
+var old=b.querySelector('.smd'),open=old&&old.tagName==='DETAILS'&&old.open;
+var h='<details class="smd"'+(open?' open':'')+'><summary>🧑‍💼 내부자 거래 (Form 4) <span>'+summ+'</span></summary><div class="tw"><table><tr><th>거래일</th><th>내부자</th><th>구분</th><th class="r">수량</th><th class="r">가격</th><th class="r">금액</th><th></th></tr>'+tr+'</table></div><div class="nt">출처: Yahoo Finance(SEC Form 4) · 이 페이지를 열어 두면 5분마다 새로 불러옵니다. 신고는 거래 후 최대 2영업일 뒤 공시되고 야후 반영이 더 늦을 수 있습니다. 주식 보상·옵션 행사는 시장 매매가 아니므로 구분해 표시합니다. 가격은 신고 문구에서 추출해 일부는 비어 있을 수 있습니다.</div></details>';
+if(old)old.outerHTML=h;else b.insertAdjacentHTML('beforeend',h)}
+function load(){fetch('https://raw.githubusercontent.com/excellent3935/corporate-analysis/main/data/insiders.json?b='+Math.floor(Date.now()/60000)).then(function(r){return r.json()}).then(function(d){var r=d.t&&d.t[tk];if(r&&r.length)draw(r,d.asof)}).catch(function(){})}
+load();setInterval(load,300000)})();"""
 def smart_box(tk):
     import datetime as _d
     out = ""
@@ -827,7 +843,7 @@ def smart_box(tk):
                 '<div class="nt">출처: Yahoo Finance(SEC Form 4). 주식 보상·옵션 행사는 시장 매매가 아니므로 매수/매도와 구분해 표시합니다. 가격은 신고 문구에서 추출해 일부는 비어 있을 수 있습니다.</div></details>')
     elif True:
         out += none("🧑‍💼", "내부자 거래 (Form 4)", "수집 대상 아님 (한국 상장 종목)" if kr else "거래 없음")
-    return '<div class="tgbox"><div class="hd"><b>스마트 머니 동향</b><span>내부자 매수·매도 기록 · 펀드·의원은 <a href="track.html">거래 추적</a> 탭</span></div>' + out + '</div>'
+    return f'<div class="tgbox" data-tk="{tk}"><div class="hd"><b>스마트 머니 동향</b><span>내부자 매수·매도 기록 · 펀드·의원은 <a href="track.html">거래 추적</a> 탭</span></div>' + out + '</div>' + ('' if kr else '<script>' + INS_JS + '</script>')
 SM_CSS = """
 .smd{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.smd summary{cursor:pointer;font-size:13.5px;font-weight:700}.smd summary span{font-weight:500;font-size:12px;color:var(--muted);margin-left:8px}
 .smd .tw{overflow-x:auto;margin-top:8px}.smd table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap}.smd th{text-align:left;color:var(--muted);font-weight:600;padding:4px 8px;border-bottom:1px solid var(--line)}.smd td{padding:5px 8px;border-bottom:1px solid var(--line)}
