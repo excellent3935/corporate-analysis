@@ -288,6 +288,30 @@ def _tg_one(tk, sym, prev, quick):
     return e
 
 
+def update_prices(cta):
+    """옵션 페이지용 실시간(지연 최소) 현재가. 프리·애프터 포함 최근 1분봉 종가를 받아 live/px.json에 쓴다 (게시용 별도 브랜치에 올림)."""
+    tks = [x for x in cta["tickers"] if not x.isdigit()]
+    out = {}
+    for i in range(0, len(tks), 60):
+        part = tks[i:i + 60]
+        try:
+            df = yf.download(part, period="1d", interval="1m", prepost=True, group_by="ticker", progress=False, threads=True, auto_adjust=False)
+        except Exception:
+            continue
+        for tk in part:
+            try:
+                c = (df[tk]["Close"] if len(part) > 1 else df["Close"]).dropna()
+                if len(c):
+                    out[tk] = [round(float(c.iloc[-1]), 4), c.index[-1].tz_convert("UTC").strftime("%H:%M") if c.index.tz is not None else ""]
+            except Exception:
+                pass
+    if len(out) < 20:
+        print("가격 수집 실패:", len(out)); sys.exit(1)
+    os.makedirs("live", exist_ok=True)
+    json.dump({"ts": dt.datetime.now(KST).isoformat(timespec="seconds"), "t": out}, open("live/px.json", "w"), ensure_ascii=False, separators=(",", ":"))
+    print("가격", len(out), "종목")
+
+
 def update_targets(cta, quick=False):
     """애널리스트 목표가(평균·중앙값·최고·최저, 의견 수)와 기관별 변경 내역을 야후에서 받아 data/targets.json에 저장. 실패하거나 값이 없는 종목은 이전 값을 유지한다.
     quick=True(30분 주기 워크플로): 병렬 수집하고 느린 info 호출을 생략하며, 내용이 하나도 바뀌지 않았으면 파일을 쓰지 않는다. d는 마지막으로 내용이 바뀐 날짜."""
@@ -1572,6 +1596,9 @@ if __name__ == "__main__":
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "options":  # 옵션 지표만 갱신 (매일 아침)
         update_options(load("cta.json", {"tickers": {}}))
+        sys.exit(0)
+    if len(sys.argv) > 1 and sys.argv[1] == "prices":  # 옵션 페이지용 현재가만 (5분마다)
+        update_prices(load("cta.json", {"tickers": {}}))
         sys.exit(0)
     if len(sys.argv) > 1 and sys.argv[1] == "targets":  # 목표가만 갱신 (30분마다 워크플로에서 호출 — 바뀐 것만 저장)
         update_targets(load("cta.json", {"tickers": {}}), quick=True)

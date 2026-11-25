@@ -1,0 +1,36 @@
+name: 옵션 페이지 현재가 (5분마다)
+
+on:
+  schedule:
+    - cron: "*/5 * * * 1-6"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prices-live
+  cancel-in-progress: true
+
+jobs:
+  prices:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 현재가 수집
+        run: python scripts/update_data.py prices
+      - name: live-data 브랜치에 한 커밋으로 덮어쓰기 (main 기록을 더럽히지 않음)
+        run: |
+          cd live
+          git init -q -b live-data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add px.json
+          git commit -qm "px $(date -u +%H:%M)"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" live-data
